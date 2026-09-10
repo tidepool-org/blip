@@ -90,13 +90,13 @@ describe('MobileAppLink', () => {
         .toHaveAttribute('href', PLAY_STORE_URL);
     });
 
-    // The visible target is a Button nested inside the anchor, so a real tap lands on the button
-    // and relies on the click bubbling up to trigger the link.
-    it('should trigger the app link when the button itself is tapped', async () => {
+    // The visible button must be the anchor itself: nesting a real <button> inside the link is
+    // invalid HTML and broke iOS Safari's long-press menu on the link.
+    it('should render the app link as a single control, with no button nested inside', () => {
       render(<MobileAppLink trackMetric={trackMetric} />);
-      await userEvent.click(screen.getByRole('button', { name: OPEN_APP_LABEL }));
 
-      expect(trackMetric).toHaveBeenCalledWith('Clicked Open Tidepool Mobile App', { platform: 'android' });
+      expect(screen.getByRole('link', { name: OPEN_APP_LABEL })).toBeInTheDocument();
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
     });
 
     it('should track a metric when the app link is clicked', async () => {

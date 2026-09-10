@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { Box, Flex, Image, Link } from 'theme-ui';
 
-import Button from '../elements/Button';
 import { Paragraph1 } from '../elements/FontStyles';
 import utils from '../../core/utils';
 
@@ -66,15 +65,23 @@ export const MobileAppLink = (props) => {
       mb={4}
       sx={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
     >
+      {/* A single anchor styled as a primary button — a real <Button> nested inside the Link is
+          invalid HTML (interactive inside interactive), and it broke iOS Safari's long-press
+          menu on the link. The variant assumes flex centering for its lineHeight: 0, hence the
+          overrides. */}
       <Link
         id="mobile-app-link-open"
         href={appUrl}
         onClick={() => trackMetric('Clicked Open Tidepool Mobile App', { platform })}
-        sx={{ textDecoration: 'none' }}
+        sx={{
+          variant: 'buttons.primary',
+          display: 'inline-block',
+          lineHeight: 'normal',
+          fontSize: 2,
+          textDecoration: 'none',
+        }}
       >
-        <Button variant="primary" sx={{ fontSize: 2 }}>
-          {t('Open the Tidepool Mobile app')}
-        </Button>
+        {t('Open the Tidepool Mobile app')}
       </Link>
 
       <Paragraph1 mt={3} mb={2} sx={{ fontWeight: 'medium' }}>
@@ -101,6 +108,7 @@ export const MobileAppLink = (props) => {
 };
 
 MobileAppLink.propTypes = {
+  t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
 
