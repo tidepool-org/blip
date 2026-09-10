@@ -59,6 +59,7 @@ import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
 import Card from '../../components/elements/Card';
+import MobileAppLink from '../../components/mobileapplink';
 import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
@@ -337,6 +338,8 @@ export const PatientDataClass = createReactClass({
                 />
               </MobileOnly>
             </Grid>
+
+            {isUserPatient && <MobileAppLink trackMetric={this.props.trackMetric} />}
 
             <Flex
               sx={{

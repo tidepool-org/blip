@@ -172,6 +172,44 @@ describe('utils', () => {
     });
   });
 
+  describe('getMobilePlatform', () => {
+    it('returns the platform for mobile devices, and null otherwise', () => {
+      _.each(Object.values(USER_AGENTS), userAgent => {
+        Object.defineProperty(window.navigator, 'userAgent', { value: userAgent, configurable: true });
+
+        switch(userAgent) {
+          case USER_AGENTS.chromeIPad:
+          case USER_AGENTS.chromeIPhone:
+          case USER_AGENTS.edgeIPhone:
+          case USER_AGENTS.safariIPhone:
+          case USER_AGENTS.safariIPad:
+          case USER_AGENTS.firefoxIPhone:
+            expect(utils.getMobilePlatform()).to.equal('ios');
+            break;
+
+          case USER_AGENTS.chromeAndroid:
+          case USER_AGENTS.edgeAndroid:
+          case USER_AGENTS.firefoxAndroid:
+            expect(utils.getMobilePlatform()).to.equal('android');
+            break;
+
+          case USER_AGENTS.chromeWin:
+          case USER_AGENTS.chromeMac:
+          case USER_AGENTS.edgeWin:
+          case USER_AGENTS.edgeMac:
+          case USER_AGENTS.firefoxWin:
+          case USER_AGENTS.firefoxMac:
+          case USER_AGENTS.safariMac:
+            expect(utils.getMobilePlatform()).to.be.null;
+            break;
+
+          default:
+            throw new Error('Each string in USER_AGENTS should have an expected result in the test');
+        }
+      });
+    });
+  });
+
   describe('validateEmail', () => {
     it('should validate jane@tidepool.org as email', () => {
       expect(utils.validateEmail('jane@tidepool.org')).to.be.true;
