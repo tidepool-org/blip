@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
-import { withTranslation } from 'react-i18next';
+import { useParams, useLocation, useHistory } from 'react-router-dom';
+import { useTranslation, withTranslation } from 'react-i18next';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import values from 'lodash/values'
@@ -14,57 +13,106 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import TabGroup from '../../components/elements/TabGroup';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import ClinicPatients from './ClinicPatients';
+import TideDashboardV2 from './TideDashboardV2';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
 import * as actions from '../../redux/actions';
-import config from '../../config';
+import { resetTideDashboardState } from './TideDashboardV2/tideDashboardSlice';
+
+const TAB = {
+  PATIENTS: 'patients',
+  TIDE_DASHBOARD: 'tide-dashboard',
+  INVITES: 'invites',
+  PRESCRIPTIONS: 'prescriptions',
+};
+
+const useTabOptions = (tabParam) => {
+  const { t } = useTranslation();
+  const { showPrescriptions, showTideDashboard } = useFlags();
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const patientInvites = values(clinic?.patientInvites);
+
+  // If the LD flag is false but the tabParam is set, the user is probably
+  // authorized but LD is still fetching. So we show the tab anyway
+
+  const showPrescriptionsTab = (
+    showPrescriptions ||
+    tabParam === TAB.PRESCRIPTIONS
+  );
+
+  const showTideDashboardTab = (
+    showTideDashboard ||
+    clinic?.entitlements?.tideDashboard ||
+    tabParam === TAB.TIDE_DASHBOARD
+  );
+
+  const tabOptions = useMemo(() => (
+    [
+      {
+        slug: TAB.PATIENTS,
+        label: t('Patient List'),
+        metric: 'Clinic - View patient list',
+      },
+      showTideDashboardTab && {
+        slug: TAB.TIDE_DASHBOARD,
+        label: t('TIDE Dashboard'),
+        metric: 'Clinic - View TIDE Dashboard',
+      },
+      {
+        slug: TAB.INVITES,
+        label: t('Invites ({{count}})', { count: patientInvites.length }),
+        metric: 'Clinic - View patient invites',
+      },
+      showPrescriptionsTab && {
+        slug: TAB.PRESCRIPTIONS,
+        label: t('Tidepool Loop Start Orders'),
+        metric: 'Clinic - View prescriptions',
+      },
+    ].filter(Boolean)
+  ), [showPrescriptionsTab, showTideDashboardTab, patientInvites.length, t]);
+
+  return tabOptions;
+};
+
+const tabThemeProps = { panel: { p: 4, pb: 0, sx: { minHeight: '10em' } } };
+
+const Content = (props) => {
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
+  switch (props.selectedTab) {
+    case TAB.PATIENTS:
+      return <ClinicPatients key={clinic?.id} {...props} />;
+    case TAB.TIDE_DASHBOARD:
+      return <TideDashboardV2 key={clinic?.id} {...props} />;
+    case TAB.INVITES:
+      return <PatientInvites {...props} />;
+    case TAB.PRESCRIPTIONS:
+      return <Prescriptions {...props} />;
+    default:
+      return null;
+  }
+};
 
 export const ClinicWorkspace = (props) => {
-  const { t, api, trackMetric } = props;
+  const { api, trackMetric } = props;
   const dispatch = useDispatch();
-  const { tab } = useParams();
+  const { tab: tabParam } = useParams();
+  const location = useLocation();
+  const history = useHistory();
+  const tabOptions = useTabOptions(tabParam);
+
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const { fetchingPatientInvites } = useSelector((state) => state.blip.working);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const patientInvites = values(clinic?.patientInvites);
-  const { showPrescriptions } = useFlags();
 
-  const tabIndices = {
-    patients: 0,
-    invites: 1,
-    prescriptions: 2,
-  }
+  const tabIndices = useMemo(() => Object.fromEntries(tabOptions.map(({ slug }, i) => [slug, i])), [tabOptions]);
 
-  const tabs = [
-    {
-      name: 'patients',
-      label: t('Patient List'),
-      metric: 'Clinic - View patient list',
-    },
-    {
-      name: 'invites',
-      label: t('Invites ({{count}})', { count: patientInvites.length }),
-      metric: 'Clinic - View patient invites',
-    },
-  ];
-
-  if (showPrescriptions) {
-    tabs.push({
-      name: 'prescriptions',
-      label: t('Tidepool Loop Start Orders'),
-      metric: 'Clinic - View prescriptions',
-    });
-  }
-
-  const [selectedTab, setSelectedTab] = useState(get(tabIndices, tab, 0));
-
-  useEffect(() => {
-    if (tab && tab in tabIndices && tabIndices[tab] !== selectedTab) {
-      setSelectedTab(tabIndices[tab]);
-    }
-  }, [tab]);
+  const selectedTabIndex = get(tabIndices, tabParam, 0);
+  const selectedTab = tabOptions[selectedTabIndex]?.slug;
 
   // Fetchers
   useEffect(() => {
@@ -96,9 +144,14 @@ export const ClinicWorkspace = (props) => {
   }, [props.location?.state?.selectedClinicId]);
 
   function handleSelectTab(event, newValue) {
-    trackMetric(tabs[newValue]?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });
-    setSelectedTab(newValue);
-    dispatch(push(`/clinic-workspace/${tabs[newValue].name}`));
+    const newTab = tabOptions[newValue];
+
+    if (newTab?.slug === TAB.TIDE_DASHBOARD) {
+      dispatch(resetTideDashboardState());
+    }
+
+    trackMetric(newTab?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });
+    history.push({ pathname: `/clinic-workspace/${newTab.slug}`, search: location.search });
   }
 
   return (
@@ -111,30 +164,16 @@ export const ClinicWorkspace = (props) => {
           aria-label="Clinic workspace tabs"
           id="clinic-workspace-tabs"
           variant="horizontal"
-          tabs={tabs}
-          value={selectedTab}
+          tabs={tabOptions}
+          value={selectedTabIndex}
           onChange={handleSelectTab}
-          themeProps={{
-            panel: {
-              p: 4,
-              pb: 0,
-              sx: {
-                minHeight: '10em',
-              },
-            },
-          }}
+          themeProps={tabThemeProps}
         >
-          <Box id="patientsTab">
-            {selectedTab === 0 && <ClinicPatients key={clinic?.id} {...props} />}
-          </Box>
-
-          <Box id="invitesTab">
-            {selectedTab === 1 && <PatientInvites {...props} />}
-          </Box>
-
-          <Box id="prescriptionsTab">
-            {selectedTab === 2 && <Prescriptions {...props} />}
-          </Box>
+          {tabOptions.map(({ slug }) => (
+            <Box key={slug} id={`${slug}-tab-panel-content`}>
+              {selectedTab === slug && <Content selectedTab={slug} {...props} />}
+            </Box>
+          ))}
         </TabGroup>
       </Box>
     </>

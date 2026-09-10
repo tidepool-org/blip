@@ -218,6 +218,10 @@ describe('WorkspaceSwitcher', () => {
             method: 'push',
           },
         },
+        {
+          type: 'tideDashboard/resetTideDashboardState',
+          payload: undefined,
+        },
       ]);
 
       // Click clinic workspace option
