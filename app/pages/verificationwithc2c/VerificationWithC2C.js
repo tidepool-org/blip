@@ -106,7 +106,7 @@ const VerificationWithC2C = () => {
     dispatch(actions.sync.connectDataSourceSuccess(providerId, popupUrl));
   };
 
-  const renderedProviders = pick(providers, ['twiist', 'dexcom', 'abbott']);
+  const renderedProviders = pick(providers, ['twiist', 'dexcom', 'abbott', 'tandem']);
 
   return (
     <Box sx={{ paddingTop: ['72px', '72px', '86px', '86px'] }}>

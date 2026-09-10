@@ -1466,9 +1466,10 @@ describe('Settings', () => {
           expect(dataConnectionsWrapper().length).to.equal(1);
 
           // Data connections shown for each provider (oura excluded for clinicians - requiresLoggedInUser)
-          expect(dataConnections().length).to.equal(3);
+          expect(dataConnections().length).to.equal(4);
           expect(dataConnections().find('#data-connection-abbott').hostNodes().length).to.equal(1);
           expect(dataConnections().find('#data-connection-dexcom').hostNodes().length).to.equal(1);
+          expect(dataConnections().find('#data-connection-tandem').hostNodes().length).to.equal(1);
           expect(dataConnections().find('#data-connection-twiist').hostNodes().length).to.equal(1);
         });
       });
