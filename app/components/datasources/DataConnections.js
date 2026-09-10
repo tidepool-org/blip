@@ -33,6 +33,7 @@ import { Box, BoxProps } from 'theme-ui';
 import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
 import ouraLogo from '../../core/icons/oura_logo.png';
+import tandemLogo from '../../core/icons/tandem_logo.svg';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
 
@@ -74,10 +75,25 @@ export const providers = {
       message: t('Disconnecting here has stopped new data collection from your FreeStyle Libre device. To fully revoke consent for sharing data with Tidepool, log into your FreeStyle Libre or LibreView app, access the "Connected Apps" page, and click "Manage" and then "Disconnect" next to Tidepool.'),
     },
   },
+  tandem: {
+    id: 'oauth/tandem',
+    displayName: 'Tandem',
+    displayOrderIndex: 3,
+    restrictedTokenCreate: {
+        paths: [
+          '/v1/oauth/tandem',
+        ],
+    },
+    dataSourceFilter: {
+      providerType: 'oauth',
+      providerName: 'tandem',
+    },
+    logoImage: tandemLogo,
+  },
   oura: {
     id: 'oauth/oura',
     displayName: 'Oura',
-    displayOrderIndex: 3,
+    displayOrderIndex: 4,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/oura',
@@ -117,6 +133,7 @@ export const getActiveProviders = (overrides = {}) => {
     abbott: true,
     dexcom: true,
     oura: true,
+    tandem: true,
     twiist: true,
   });
 
