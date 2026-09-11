@@ -19,6 +19,7 @@ import DatePicker from '../../components/elements/DatePicker';
 import Container from '../../components/elements/Container';
 import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
+import { useUpdateUserProfileMutation } from '../../redux/features/userProfile/userProfileApi';
 import i18next from '../../core/language';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
@@ -97,6 +98,7 @@ export const PatientNew = (props) => {
   const user = get(allUsersMap, loggedInUserId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
+  const [updateUserProfile] = useUpdateUserProfileMutation();
   const [submitting, setSubmitting] = useState(false);
   const [currentForm, setCurrentForm] = useState(formSteps.accountDetails);
 
@@ -136,38 +138,6 @@ export const PatientNew = (props) => {
     }
   }, [working.settingUpDataStorage]);
 
-  useEffect(() => {
-    const {
-      inProgress,
-      completed,
-      notification,
-    } = working.updatingUser;
-
-    const prevInProgress = get(
-      previousWorking,
-      'updatingUser.inProgress'
-    );
-
-    if (!inProgress && completed !== null && prevInProgress) {
-      setSubmitting(false);
-
-      if (notification) {
-        setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Profile updated'),
-          variant: 'success',
-        });
-
-        // Redirect to patients page
-        dispatch(push('/patients?justLoggedIn=true'));
-      }
-    }
-  }, [working.updatingUser]);
-
   const { firstName, lastName } = personUtils.splitNamesFromFullname(user?.profile?.fullName);
 
   const formikContext = useFormik({
@@ -182,7 +152,7 @@ export const PatientNew = (props) => {
       diagnosisType: '',
     },
     validationSchema: schemas[currentForm],
-    onSubmit: values => {
+    onSubmit: async values => {
       if (includes(['personal', 'caregiver'], values.accountType)) {
         if (currentForm === formSteps.accountDetails) {
           setCurrentForm(formSteps.patientDetails);
@@ -197,7 +167,14 @@ export const PatientNew = (props) => {
         // We skip the welcome message on the patients home page, which just prompts them to set up
         // data storage, which they've just indicated they don't want to do at this time.
         dispatch(actions.sync.hideWelcomeMessage());
-        dispatch(actions.async.updateUser(api, profile));
+        try {
+          await updateUserProfile(profile).unwrap();
+          setToast({ message: t('Profile updated'), variant: 'success' });
+          dispatch(push('/patients?justLoggedIn=true'));
+        } catch (err) {
+          setSubmitting(false);
+          setToast({ message: err?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
+        }
       }
     },
   });

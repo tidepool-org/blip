@@ -188,6 +188,8 @@ const StyledDialog = styled(MuiDialog)`
       margin: 0;
       height: 100%;
       max-height: 100%;
+      width: 100%;
+      max-width: 100%;
     }
   }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { render, fireEvent, waitFor, cleanup, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
@@ -7,6 +7,9 @@ import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import ClinicDetails from '../../../app/pages/clinicdetails';
+import { useUpdateUserProfileMutation } from '../../../app/redux/features/userProfile/userProfileApi';
+
+jest.mock('../../../app/redux/features/userProfile/userProfileApi');
 
 jest.mock('../../../app/core/validation/postalCodes', () => ({}));
 
@@ -36,6 +39,8 @@ const mockStore = configureStore([thunk]);
 describe('ClinicDetails', () => {
   let wrapper;
   let store;
+  let mockMutate;
+  let history;
 
   const defaultProps = {
     trackMetric: sinon.stub(),
@@ -50,9 +55,6 @@ describe('ClinicDetails', () => {
         triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { triggerMigrationReturn: 'success' }),
         getEHRSettings: sinon.stub().callsArgWith(1, null, { enabled: true }),
         getMRNSettings: sinon.stub().callsArgWith(1, null, { required: true }),
-      },
-      user: {
-        put: sinon.stub().callsArgWith(1, null, { updateUserReturn: 'success' }),
       },
     },
   };
@@ -70,7 +72,6 @@ describe('ClinicDetails', () => {
         fetchingClinicsForClinician: defaultWorkingState,
         updatingClinic: defaultWorkingState,
         creatingClinic: defaultWorkingState,
-        updatingUser: defaultWorkingState,
         triggeringInitialClinicMigration: defaultWorkingState,
         dismissingClinicianInvite: defaultWorkingState,
       },
@@ -185,7 +186,10 @@ describe('ClinicDetails', () => {
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={[`/clinic-details/${route}`]}>
-            <Route path='/clinic-details/:action' children={() => <ClinicDetails {...defaultProps} />} />
+            <Route path='/clinic-details/:action' children={(routeProps) => {
+              history = routeProps.history;
+              return <ClinicDetails {...defaultProps} />;
+            }} />
           </MemoryRouter>
         </ToastProvider>
       </Provider>
@@ -194,11 +198,14 @@ describe('ClinicDetails', () => {
   };
 
   beforeEach(() => {
+    mockMutate = jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
+    useUpdateUserProfileMutation.mockReturnValue([mockMutate, { isLoading: false }]);
     defaultProps.trackMetric.resetHistory();
   });
 
   afterEach(() => {
     cleanup();
+    jest.clearAllMocks();
     defaultProps.api.clinics.getClinicianInvites.resetHistory();
     defaultProps.api.clinics.getClinicsForClinician.resetHistory();
     defaultProps.api.clinics.dismissClinicianInvite.resetHistory();
@@ -207,7 +214,6 @@ describe('ClinicDetails', () => {
     defaultProps.api.clinics.triggerInitialClinicMigration.resetHistory();
     defaultProps.api.clinics.getEHRSettings.resetHistory();
     defaultProps.api.clinics.getMRNSettings.resetHistory();
-    defaultProps.api.user.put.resetHistory();
   });
 
   context('initial fetching', () => {
@@ -292,52 +298,46 @@ describe('ClinicDetails', () => {
         fireEvent.click(container.querySelector('button#submit'));
 
         await waitFor(() => {
-          expect(defaultProps.api.user.put.callCount).to.equal(1);
+          expect(mockMutate.mock.calls).to.have.lengthOf(1);
         });
 
-        sinon.assert.calledWith(
-          defaultProps.api.user.put,
-          {
-            preferences: {},
-            profile: {
-              clinic: { role: 'endocrinologist' },
-              fullName: 'Bill Bryerson',
-            },
-            roles: ['clinician'],
-            userid: 'clinicianUserId123',
-          }
-        );
+        expect(mockMutate.mock.calls[0][0]).to.deep.equal({
+          roles: ['clinician'],
+          profile: {
+            fullName: 'Bill Bryerson',
+            clinic: { role: 'endocrinologist' },
+          },
+        });
+      });
+    });
 
-        expect(store.getActions()).to.eql([
-          {
-            type: 'UPDATE_USER_REQUEST',
-            payload: {
-              userId: 'clinicianUserId123',
-              updatingUser: {
-                emails: ['clinic@example.com'],
-                roles: ['clinician'],
-                userid: 'clinicianUserId123',
-                username: 'clinic@example.com',
-                profile: {
-                  fullName: 'Bill Bryerson',
-                  clinic: { role: 'endocrinologist' },
-                },
-                preferences: {},
-              },
-            },
-          },
-          {
-            type: 'UPDATE_USER_SUCCESS',
-            payload: {
-              userId: 'clinicianUserId123',
-              updatedUser: { updateUserReturn: 'success' },
-            },
-          },
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: { method: 'push', args: ['/workspaces', { selectedClinicId: null }] },
-          },
-        ]);
+    context('profile form followed by the clinic creation step', () => {
+      beforeEach(() => {
+        createWrapper('profile', defaultState);
+      });
+
+      it('should not leave the submit button in a processing state after the action changes', async () => {
+        const { container } = wrapper;
+
+        fireEvent.change(container.querySelector('input[name="firstName"]'), { target: { name: 'firstName', value: 'Bill' } });
+        fireEvent.change(container.querySelector('input[name="lastName"]'), { target: { name: 'lastName', value: 'Bryerson' } });
+        fireEvent.change(container.querySelector('select[name="role"]'), { target: { name: 'role', value: 'endocrinologist' } });
+
+        await waitFor(() => {
+          expect(container.querySelector('button#submit').disabled).to.be.false;
+        });
+
+        fireEvent.click(container.querySelector('button#submit'));
+
+        await waitFor(() => {
+          expect(container.querySelector('button#submit').classList.contains('processing')).to.be.true;
+        });
+
+        await act(async () => {
+          history.push('/clinic-details/new');
+        });
+
+        expect(container.querySelector('button#submit').classList.contains('processing')).to.be.false;
       });
     });
 
@@ -398,21 +398,16 @@ describe('ClinicDetails', () => {
         fireEvent.click(container.querySelector('button#submit'));
 
         await waitFor(() => {
-          expect(defaultProps.api.user.put.callCount).to.equal(1);
+          expect(mockMutate.mock.calls).to.have.lengthOf(1);
         });
 
-        sinon.assert.calledWith(
-          defaultProps.api.user.put,
-          {
-            preferences: {},
-            profile: {
-              clinic: { role: 'endocrinologist' },
-              fullName: 'Bill Bryerson',
-            },
-            roles: ['clinician'],
-            userid: 'clinicianUserId123',
-          }
-        );
+        expect(mockMutate.mock.calls[0][0]).to.deep.equal({
+          roles: ['clinician'],
+          profile: {
+            fullName: 'Bill Bryerson',
+            clinic: { role: 'endocrinologist' },
+          },
+        });
 
         expect(defaultProps.api.clinics.update.callCount).to.equal(1);
 
@@ -433,30 +428,6 @@ describe('ClinicDetails', () => {
         );
 
         expect(store.getActions()).to.eql([
-          {
-            type: 'UPDATE_USER_REQUEST',
-            payload: {
-              userId: 'clinicianUserId123',
-              updatingUser: {
-                emails: ['clinic@example.com'],
-                roles: ['clinician'],
-                userid: 'clinicianUserId123',
-                username: 'clinic@example.com',
-                profile: {
-                  fullName: 'Bill Bryerson',
-                  clinic: { role: 'endocrinologist' },
-                },
-                preferences: {},
-              },
-            },
-          },
-          {
-            type: 'UPDATE_USER_SUCCESS',
-            payload: {
-              userId: 'clinicianUserId123',
-              updatedUser: { updateUserReturn: 'success' },
-            },
-          },
           { type: 'UPDATE_CLINIC_REQUEST' },
           {
             type: 'UPDATE_CLINIC_SUCCESS',
@@ -517,7 +488,7 @@ describe('ClinicDetails', () => {
           expect(defaultProps.api.clinics.create.callCount).to.equal(1);
         });
 
-        sinon.assert.notCalled(defaultProps.api.user.put);
+        expect(mockMutate.mock.calls).to.have.lengthOf(0);
 
         sinon.assert.calledWith(
           defaultProps.api.clinics.create,
