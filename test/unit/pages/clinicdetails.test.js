@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { render, fireEvent, waitFor, cleanup, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
@@ -40,6 +40,7 @@ describe('ClinicDetails', () => {
   let wrapper;
   let store;
   let mockMutate;
+  let history;
 
   const defaultProps = {
     trackMetric: sinon.stub(),
@@ -185,7 +186,10 @@ describe('ClinicDetails', () => {
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={[`/clinic-details/${route}`]}>
-            <Route path='/clinic-details/:action' children={() => <ClinicDetails {...defaultProps} />} />
+            <Route path='/clinic-details/:action' children={(routeProps) => {
+              history = routeProps.history;
+              return <ClinicDetails {...defaultProps} />;
+            }} />
           </MemoryRouter>
         </ToastProvider>
       </Provider>
@@ -304,6 +308,36 @@ describe('ClinicDetails', () => {
             clinic: { role: 'endocrinologist' },
           },
         });
+      });
+    });
+
+    context('profile form followed by the clinic creation step', () => {
+      beforeEach(() => {
+        createWrapper('profile', defaultState);
+      });
+
+      it('should not leave the submit button in a processing state after the action changes', async () => {
+        const { container } = wrapper;
+
+        fireEvent.change(container.querySelector('input[name="firstName"]'), { target: { name: 'firstName', value: 'Bill' } });
+        fireEvent.change(container.querySelector('input[name="lastName"]'), { target: { name: 'lastName', value: 'Bryerson' } });
+        fireEvent.change(container.querySelector('select[name="role"]'), { target: { name: 'role', value: 'endocrinologist' } });
+
+        await waitFor(() => {
+          expect(container.querySelector('button#submit').disabled).to.be.false;
+        });
+
+        fireEvent.click(container.querySelector('button#submit'));
+
+        await waitFor(() => {
+          expect(container.querySelector('button#submit').classList.contains('processing')).to.be.true;
+        });
+
+        await act(async () => {
+          history.push('/clinic-details/new');
+        });
+
+        expect(container.querySelector('button#submit').classList.contains('processing')).to.be.false;
       });
     });
 
