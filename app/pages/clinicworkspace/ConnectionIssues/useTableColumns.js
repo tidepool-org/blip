@@ -7,6 +7,7 @@ import {
   ConnectionStatusCell,
   DeviceNameCell,
   StatusDescriptionCell,
+  LastContactCell,
   MoreMenuCell,
 } from './Cells';
 
@@ -53,6 +54,7 @@ const useTableColumns = () => {
         title: t('Last Contact'),
         field: 'lastContact',
         align: 'left',
+        render: patient => <LastContactCell patient={patient} />,
       },
       {
         title: t(''),
