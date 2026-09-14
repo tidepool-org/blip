@@ -152,11 +152,12 @@ describe('DataConnectionsModal', () => {
 
   it('should render a patients data connection statuses', () => {
     const connections = document.querySelectorAll('.data-connection');
-    expect(connections.length).to.equal(3);
+    expect(connections.length).to.equal(4);
 
     expect(connections[0].id).to.equal('data-connection-dexcom');
     expect(connections[1].id).to.equal('data-connection-twiist');
     expect(connections[2].id).to.equal('data-connection-abbott');
+    expect(connections[3].id).to.equal('data-connection-tandem');
   });
 
   it('should allow opening a dialog for updating an existing email address for a custodial patient', async () => {

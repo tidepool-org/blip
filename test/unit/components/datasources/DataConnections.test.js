@@ -57,7 +57,7 @@ const mockStore = configureStore([thunk]);
 
 describe('providers', () => {
   it('should define the provider details', () => {
-    const { dexcom, abbott, twiist, oura } = providers;
+    const { dexcom, abbott, twiist, tandem, oura } = providers;
 
     expect(dexcom.id).to.equal('oauth/dexcom');
     expect(dexcom.displayName).to.equal('Dexcom');
@@ -85,6 +85,14 @@ describe('providers', () => {
     expect(twiist.disconnectInstructions).to.be.undefined;
     expect(twiist.indeterminateDataImportTime).to.be.true;
 
+    expect(tandem.id).to.equal('oauth/tandem');
+    expect(tandem.displayName).to.equal('Tandem');
+    expect(tandem.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/tandem'] });
+    expect(tandem.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'tandem' });
+    expect(tandem.logoImage).to.be.a('string');
+    expect(tandem.disconnectInstructions).to.be.undefined;
+    expect(tandem.indeterminateDataImportTime).to.be.undefined;
+
     expect(oura.id).to.equal('oauth/oura');
     expect(oura.displayName).to.equal('Oura');
     expect(oura.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/oura'] });
@@ -98,17 +106,17 @@ describe('providers', () => {
 
 describe('availableProviders', () => {
   it('should define a list of all available providers', () => {
-    expect(availableProviders).to.eql(['dexcom', 'twiist', 'abbott', 'oura']);
+    expect(availableProviders).to.eql(['dexcom', 'twiist', 'abbott', 'tandem', 'oura']);
   });
 });
 
 describe('getActiveProviders', () => {
   it('should define a default list of all available providers when called without overrides', () => {
-    expect(getActiveProviders()).to.eql(['dexcom', 'twiist', 'abbott', 'oura']);
+    expect(getActiveProviders()).to.eql(['dexcom', 'twiist', 'abbott', 'tandem', 'oura']);
   });
 
   it('should define an overridden list of all available providers when called with overrides', () => {
-    expect(getActiveProviders({ dexcom: false, abbott: true })).to.eql(['twiist', 'abbott', 'oura']);
+    expect(getActiveProviders({ dexcom: false, abbott: true })).to.eql(['twiist', 'abbott', 'tandem', 'oura']);
   });
 });
 
@@ -742,7 +750,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionUnset);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -760,7 +768,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionUnset);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -844,7 +852,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionInviteJustSent);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -862,7 +870,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionInviteJustSent);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -886,7 +894,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPending);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -904,7 +912,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPending);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -948,7 +956,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPendingReconnect);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -966,7 +974,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPendingReconnect);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1010,7 +1018,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPendingExpired);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1028,7 +1036,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPendingExpired);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1072,7 +1080,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionConnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1090,7 +1098,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionConnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1108,7 +1116,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionDisconnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1126,7 +1134,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionDisconnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1170,7 +1178,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionError);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1188,7 +1196,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionError);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1234,7 +1242,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionUnset);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1252,7 +1260,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionUnset);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1286,7 +1294,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1304,7 +1312,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1335,7 +1343,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1353,7 +1361,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1384,7 +1392,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1402,7 +1410,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1433,7 +1441,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1451,7 +1459,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1485,7 +1493,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1503,7 +1511,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(4);
+        expect(connections.length).to.equal(5);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;

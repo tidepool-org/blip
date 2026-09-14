@@ -65,7 +65,7 @@ describe('VerificationWithC2C', () => {
     expect(screen.getByText('Choose how you manage your diabetes')).toBeInTheDocument();
 
     // One Connect button per allowed provider
-    expect(screen.getAllByRole('button', { name: /Connect/ })).toHaveLength(3);
+    expect(screen.getAllByRole('button', { name: /Connect/ })).toHaveLength(4);
     expect(screen.getByRole('button', { name: /I have a different device/ })).toBeInTheDocument();
 
     // On the C2C page to start
@@ -80,10 +80,10 @@ describe('VerificationWithC2C', () => {
     expect(history.location.search).toBe('?restrictedTokenId=abc123');
   });
 
-  it('only renders the abbott, dexcom, and twiist providers', async () => {
+  it('only renders the abbott, dexcom, tandem, and twiist providers', async () => {
     renderComponent();
 
-    const allowedProviders = ['abbott', 'dexcom', 'twiist'];
+    const allowedProviders = ['abbott', 'dexcom', 'tandem', 'twiist'];
 
     allowedProviders.forEach(providerName => {
       expect(screen.getByAltText(providerName)).toBeInTheDocument();
