@@ -14,4 +14,4 @@ export const ShareApi = RTKQueryApi.injectEndpoints({
   }),
 });
 
-export const { useGetClinicByShareCodeQuery } = ShareApi;
+export const { useLazyGetClinicByShareCodeQuery } = ShareApi;

@@ -32,7 +32,7 @@ import personUtils from '../../core/personutils';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useIsFirstRender } from '../../core/hooks';
 import utils from '../../core/utils';
-import { useGetClinicByShareCodeQuery } from './ShareApi';
+import { useLazyGetClinicByShareCodeQuery } from './ShareApi';
 
 const StyledRadio = styled(Radio)`
   color: ${baseTheme.colors.border.default};
@@ -154,13 +154,11 @@ const ShareInvite = (props) => {
     loggedInUserId
   ]);
 
-  const [submittedShareCode, setSubmittedShareCode] = useState(null);
-
-  const {
+  const [fetchClinic, {
     currentData: clinic,
     isFetching: fetchingClinic,
-    isError: clinicFetchError,
-  } = useGetClinicByShareCodeQuery(submittedShareCode, { skip: !submittedShareCode });
+    reset: resetClinicLookup,
+  }] = useLazyGetClinicByShareCodeQuery();
 
   const alreadySharedWithClinicMessage = t('You are already sharing with this clinic. Please enter a new share code.');
   const alreadySharedWithMemberMessage = t('You are already sharing with this care team member. Please enter a new email.');
@@ -198,7 +196,7 @@ const ShareInvite = (props) => {
       shareCode: '',
       uploadPermission: true,
     },
-    onSubmit: (values, { setSubmitting }) => {
+    onSubmit: (values) => {
       if (values.type === 'clinic') {
         if (clinic) {
           const permissions = {
@@ -226,8 +224,15 @@ const ShareInvite = (props) => {
         } else {
           trackMetric('fetched clinic details with share code');
 
-          setSubmittedShareCode(values.shareCode);
-          setSubmitting(false);
+          // Returned so Formik holds isSubmitting until the lookup settles.
+          return fetchClinic(values.shareCode)
+            .unwrap()
+            .catch(() => {
+              setToast({
+                message: t('We were unable to find a clinic with that share code.'),
+                variant: 'danger',
+              });
+            });
         }
       }
       if (values.type === 'member') {
@@ -252,17 +257,6 @@ const ShareInvite = (props) => {
   });
 
   const { handleSubmit, isSubmitting, setSubmitting, values } = formikContext;
-
-  useEffect(() => {
-    if (clinicFetchError) {
-      setToast({
-        message: t('We were unable to find a clinic with that share code.'),
-        variant: 'danger',
-      });
-
-      setSubmittedShareCode(null);
-    }
-  }, [clinicFetchError]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = sendingClinicInvite;
@@ -318,7 +312,7 @@ const ShareInvite = (props) => {
 
   const handleBack = () => {
     if (clinic) {
-      setSubmittedShareCode(null);
+      resetClinicLookup();
     } else {
       dispatch(push(`/patients/${loggedInUserId}/share`));
     }

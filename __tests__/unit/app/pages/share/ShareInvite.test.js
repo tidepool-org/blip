@@ -258,9 +258,8 @@ describe('ShareInvite', () => {
       expect(requestedCodes).toEqual([mergedShareCode]);
     });
 
-    // Edge case. Guards the setSubmittedShareCode(null) reset in the fetch-error effect:
-    // without it the resubmit sets identical state, so no arg change reaches
-    // the query and the second attempt gives the patient no feedback.
+    // Edge case. The lazy trigger defaults to forceRefetch, so a repeated code
+    // re-issues the request rather than resolving from the cached error.
     it('re-fetches when the same failing code is resubmitted, rather than silently no-oping', async () => {
       server.use(http.get(shareCodeUrl, ({ params }) => {
         requestedCodes.push(params.shareCode);
