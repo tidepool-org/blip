@@ -166,6 +166,25 @@ describe('AppBanner handleClickAction', () => {
     expect(handleBannerInteractionStub.mock.calls.length).to.equal(0);
   });
 
+  it('should NOT record an interaction if action.trackInteraction is false', () => {
+    const handlerStub = sinon.stub();
+    createWrapper({
+      action: {
+        text: 'Take Action',
+        metric: 'testMetric',
+        handler: handlerStub,
+        trackInteraction: false,
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Take Action' }));
+
+    // The handler and metric still run, but the click is not recorded as an interaction
+    expect(handlerStub.called).to.be.true;
+    expect(trackMetricStub.calledWith('testMetric')).to.be.true;
+    expect(handleBannerInteractionStub.mock.calls.length).to.equal(0);
+    expect(setBannerInteractedForPatientStub.called).to.be.false;
+  });
+
   it('should call handleBannerInteraction with SEEN_BANNER_ACTION when banner is shown', () => {
     createWrapper({
       show: {
