@@ -12,13 +12,16 @@ import FilterBySites from './filters/FilterBySites';
 import PaginationController from './PaginationController';
 import EmptyContentNode from './EmptyNodeContent';
 
+import EditPatientDialogController from './modals/EditPatientDialogController';
+import DataConnectionsModalController from './modals/DataConnectionsModalController';
+
 import { resetConnectionIssuesState } from './connectionIssuesSlice';
 import useTableColumns from './useTableColumns';
 import useConnectionIssuesPatients from './useConnectionIssuesPatients';
 
 const tableContainerProps = { sx: { containerType: 'inline-size' } };
 
-const ConnectionIssues = () => {
+const ConnectionIssues = ({ api }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -71,6 +74,9 @@ const ConnectionIssues = () => {
       />
 
       <PaginationController total={total} />
+
+      <EditPatientDialogController api={api} patients={patients} />
+      <DataConnectionsModalController patients={patients}/>
     </>
   );
 };
