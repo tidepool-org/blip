@@ -123,6 +123,14 @@ export const getActiveProviders = (overrides = {}) => {
   return filter(availableProviders, provider => activeProviders[provider]);
 };
 
+export const getPrimaryDeviceProvider = (clinicPatient) => {
+  const providerName = clinicPatient?.primaryDeviceProviderName;
+
+  if (!providerName || !providers[providerName]) return null;
+
+  return providers[providerName];
+};
+
 export function getProviderHandlers(patient, selectedClinicId, provider) {
   const { id, restrictedTokenCreate, dataSourceFilter } = provider;
   const providerName = dataSourceFilter?.providerName;
@@ -157,12 +165,12 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       args: [api, dataSourceFilter],
     },
     inviteSent: {
-      buttonDisabled: true,
-      buttonIcon: CheckRoundedIcon,
-      buttonText: t('Invite Sent'),
-      buttonStyle: 'staticText',
-      action: actions.async.connectDataSource,
-      args: [api, id, restrictedTokenCreate, dataSourceFilter],
+      buttonText: t('Resend Invite'),
+      buttonStyle: 'solid',
+      action: actions.async.sendPatientDataProviderConnectRequest,
+      args: [api, selectedClinicId, patient?.id, providerName],
+      emailRequired,
+      patientUpdates,
     },
     reconnect: {
       buttonText: t('Reconnect'),

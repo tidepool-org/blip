@@ -2,7 +2,13 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { PatientCell } from './Cells';
+import {
+  PatientCell,
+  ConnectionStatusCell,
+  DeviceNameCell,
+  StatusDescriptionCell,
+} from './Cells';
+
 import TagListCell from '../components/TagListCell';
 
 const useTableColumns = () => {
@@ -20,21 +26,6 @@ const useTableColumns = () => {
         align: 'left',
         render: patient => <PatientCell patient={patient} />,
       },
-      {
-        title: t('Device'),
-        field: 'device',
-        align: 'left',
-      },
-      {
-        title: t('Connection Status'),
-        field: 'connectionStatus',
-        align: 'left',
-      },
-      {
-        title: t('Last Update'),
-        field: 'lastUpdate',
-        align: 'left',
-      },
       (showTags && {
         title: t('Tags'),
         field: 'tags',
@@ -42,8 +33,24 @@ const useTableColumns = () => {
         render: patient => <TagListCell patient={patient} /> }
       ),
       {
-        title: t('Last Outreach'),
-        field: 'lastOutreach',
+        title: t('Device'),
+        field: 'device',
+        render: patient => <DeviceNameCell patient={patient} />,
+      },
+      {
+        title: t('Connection Status'),
+        field: 'connectionStatus',
+        render: patient => <ConnectionStatusCell patient={patient} />,
+      },
+      {
+        title: t('Status Description'),
+        field: 'statusDescription',
+        align: 'left',
+        render: patient => <StatusDescriptionCell patient={patient} />,
+      },
+      {
+        title: t('Last Contact'),
+        field: 'lastContact',
         align: 'left',
       },
       {
