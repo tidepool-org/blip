@@ -17,7 +17,9 @@ import {
   setEditPatientDialogIsOpen,
   setEditPatientDialogPatientId,
 } from './connectionIssuesSlice';
+
 import PopoverMenu from '../../../components/elements/PopoverMenu';
+import LastContact from './LastContact';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -93,6 +95,13 @@ export const StatusDescriptionCell = ({ patient }) => {
 
   return <Box>
     <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{label}</Text>
+  </Box>;
+};
+
+export const LastContactCell = ({ patient }) => {
+
+  return <Box>
+    <LastContact patient={patient} />
   </Box>;
 };
 
