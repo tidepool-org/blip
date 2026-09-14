@@ -7,14 +7,12 @@ import { useTranslation } from 'react-i18next';
 
 const LastContact = ({ patient }) => {
   const { t } = useTranslation();
-  const { set: setToast } = useToasts;
+  const { set: setToast } = useToasts();
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
   const [resendInvite, { isLoading: isResendingInvite }] = useResendInviteMutation();
 
   const providerName = 'dexcom'; // TODO: set to primaryProviderName
-
-  console.log(patient)
 
   const handleClick = () => {
     resendInvite({ clinicId: selectedClinicId, patientId: patient.id, providerName })
