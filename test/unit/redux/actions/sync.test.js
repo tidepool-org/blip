@@ -1271,19 +1271,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('updateUserRequest', () => {
-      it('should be a TSA', () => {
-        let action = sync.updateUserRequest();
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal UPDATE_USER_REQUEST', () => {
-        let action = sync.updateUserRequest();
-        expect(action.type).to.equal('UPDATE_USER_REQUEST');
-      });
-    });
-
     describe('updateUserSuccess', () => {
       it('should be a TSA', () => {
         let userId = 500;
@@ -1305,23 +1292,6 @@ describe('Actions', () => {
         expect(action.type).to.equal('UPDATE_USER_SUCCESS');
         expect(action.payload.userId).to.equal(userId);
         expect(action.payload.updatedUser).to.equal(user);
-      });
-    });
-
-    describe('updateUserFailure', () => {
-      it('should be a TSA', () => {
-        let error = new Error(':(');
-        let action = sync.updateUserFailure(error);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal UPDATE_USER_FAILURE and error should equal passed error', () => {
-        let error = new Error(':(');
-        let action = sync.updateUserFailure(error);
-
-        expect(action.type).to.equal('UPDATE_USER_FAILURE');
-        expect(action.error).to.equal(error);
       });
     });
 
