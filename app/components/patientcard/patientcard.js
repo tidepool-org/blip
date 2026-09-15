@@ -24,8 +24,15 @@ import launchCustomProtocol from 'custom-protocol-detection';
 import utils from '../../core/utils';
 
 var personUtils = require('../../core/personutils');
-var ModalOverlay = require('../modaloverlay');
-var UploadLaunchOverlay = require('../uploadlaunchoverlay');
+import UploadLaunchDialog from '../UploadLaunchDialog';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '../elements/Dialog';
+import { Body1 } from '../elements/FontStyles';
+import Button from '../elements/Button';
 
 var PatientCard = withTranslation()(class extends React.Component {
   static propTypes = {
@@ -42,9 +49,8 @@ var PatientCard = withTranslation()(class extends React.Component {
   };
 
   state = {
-    showModalOverlay: false,
-    dialog: '',
-    showUploadOverlay: false,
+    showRemoveDialog: false,
+    showUploadDialog: false,
   };
 
   render() {
@@ -61,7 +67,7 @@ var PatientCard = withTranslation()(class extends React.Component {
     var upload = this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
-    var uploadLaunchOverlay = this.state.showUploadOverlay && !this.props.isSmartOnFhirMode ? this.renderUploadOverlay() : null;
+    var uploadLaunchDialog = this.state.showUploadDialog && !this.props.isSmartOnFhirMode ? this.renderUploadDialog() : null;
 
     return (
       <div>
@@ -84,8 +90,8 @@ var PatientCard = withTranslation()(class extends React.Component {
           </div>
           <div className="clear"></div>
         </div>
-        {this.renderModalOverlay()}
-        {uploadLaunchOverlay}
+        {this.state.showRemoveDialog && this.renderRemoveDialog(this.props.patient)}
+        {uploadLaunchDialog}
       </div>
     );
 
@@ -141,7 +147,7 @@ var PatientCard = withTranslation()(class extends React.Component {
 
     if (_.isEmpty(patient.permissions) === false && !patient.permissions.root) {
       var title = 'Remove yourself from ' + this.getFullName() + '\'s care team.';
-      var getHighlight = () => this.state.showModalOverlay ? 'view' : '';
+      var getHighlight = () => this.state.showRemoveDialog ? 'view' : '';
 
       return (
         <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight(getHighlight())} onClick={this.handleRemove(patient)} title={title}>
@@ -164,7 +170,7 @@ var PatientCard = withTranslation()(class extends React.Component {
         e.preventDefault();
         e.stopPropagation();
       }
-      self.setState({showUploadOverlay: true});
+      self.setState({showUploadDialog: true});
       launchCustomProtocol('tidepoolupload://open');
       self.props.trackMetric('Clicked VDF Upload Data');
     };
@@ -209,27 +215,30 @@ var PatientCard = withTranslation()(class extends React.Component {
   renderRemoveDialog = (patient) => {
     const { t } = this.props;
     return (
-      <div>
-        <div className="ModalOverlay-content">{t('Are you sure you want to leave this person\'s Care Team? You will no longer be able to view their data.')}</div>
-        <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.modalDismissHandler}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{t('I\'m sure, remove me.')}</button>
-        </div>
-      </div>
+      <Dialog
+        id="removePatient"
+        aria-labelledby="dialog-title"
+        open={this.state.showRemoveDialog}
+        onClose={this.modalDismissHandler}
+      >
+        <DialogTitle onClose={this.modalDismissHandler} />
+        <DialogContent>
+          <Body1 id="dialog-title">{t('Are you sure you want to leave this person\'s Care Team? You will no longer be able to view their data.')}</Body1>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="secondary" onClick={this.modalDismissHandler}>
+            {t('Cancel')}
+          </Button>
+          <Button variant="danger" onClick={this.handleRemovePatient(patient)}>
+            {t('I\'m sure, remove me.')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     );
   };
 
-  renderModalOverlay = () => {
-    return (
-      <ModalOverlay
-        show={this.state.showModalOverlay}
-        dialog={this.state.dialog}
-        overlayClickHandler={this.modalDismissHandler}/>
-    );
-  };
-
-  renderUploadOverlay = () => {
-    return <UploadLaunchOverlay modalDismissHandler={this.modalDismissHandler}/>
+  renderUploadDialog = () => {
+    return <UploadLaunchDialog open onClose={this.modalDismissHandler}/>
   };
 
   handleRemovePatient = (patient) => {
@@ -238,7 +247,7 @@ var PatientCard = withTranslation()(class extends React.Component {
     return function() {
       self.props.onRemovePatient(patient.userid, function(err) {
           self.setState({
-            showModalOverlay: false,
+            showRemoveDialog: false,
           });
         }
       );
@@ -254,8 +263,7 @@ var PatientCard = withTranslation()(class extends React.Component {
         e.stopPropagation();
       }
       self.setState({
-        showModalOverlay: true,
-        dialog: self.renderRemoveDialog(patient),
+        showRemoveDialog: true,
       });
 
       return false;
@@ -264,8 +272,8 @@ var PatientCard = withTranslation()(class extends React.Component {
 
   modalDismissHandler = () => {
     this.setState({
-      showModalOverlay: false,
-      showUploadOverlay: false,
+      showRemoveDialog: false,
+      showUploadDialog: false,
       highlight: '',
     });
   };

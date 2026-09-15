@@ -4,7 +4,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 
-import PatientDataPrintModal from '@app/pages/patientdata/PatientDataPrintModal';
+import PatientDataPrintDialog from '@app/pages/patientdata/PatientDataPrintDialog';
 import usePrintPDF, { STATUS } from '@app/core/usePrintPDF';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '@app/core/constants';
 
@@ -12,7 +12,7 @@ jest.mock('@app/core/usePrintPDF');
 
 const mockStore = configureStore([thunk]);
 
-describe('PatientDataPrintModal', () => {
+describe('PatientDataPrintDialog', () => {
   const api = {};
   const patientId = 'patient123';
 
@@ -36,7 +36,7 @@ describe('PatientDataPrintModal', () => {
   const renderComponent = (props = {}) => {
     return render(
       <Provider store={store}>
-        <PatientDataPrintModal {...defaultProps} {...props} />
+        <PatientDataPrintDialog {...defaultProps} {...props} />
       </Provider>
     );
   };
@@ -52,7 +52,7 @@ describe('PatientDataPrintModal', () => {
   });
 
   describe('when initial data is available', () => {
-    it('renders the PrintDateRangeModal with options', () => {
+    it('renders the PrintDateRangeDialog with options', () => {
       usePrintPDF.mockReturnValue({
         status: STATUS.AWAITING_INPUT,
         canPrint: true,

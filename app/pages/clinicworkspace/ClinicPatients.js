@@ -114,12 +114,12 @@ import {
 import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
 import baseTheme, { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
-import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../components/datasources/DataConnectionsDialog';
 import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
-import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
+import ClinicPatientsPrintDialog from './ClinicPatientsPrintDialog';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -195,16 +195,16 @@ const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric,
   setShowEditPatientDialog(true);
 };
 
-const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, source) => {
+const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog, source) => {
   trackMetric('Clinic - Edit patient data connections', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
-  setShowDataConnectionsModal(true);
+  setShowDataConnectionsDialog(true);
 };
 
-const printPatientData = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataModal, source) => {
+const printPatientData = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataDialog, source) => {
   trackMetric('Clinic - open print patient data modal', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
-  setShowPrintDataModal(true);
+  setShowPrintDataDialog(true);
 };
 
 const ClearButton = styled.button`
@@ -364,8 +364,8 @@ const MoreMenu = ({
   t,
   trackMetric,
   setSelectedPatient,
-  setShowDataConnectionsModal,
-  setShowPrintDataModal,
+  setShowDataConnectionsDialog,
+  setShowPrintDataDialog,
   setShowEditPatientDialog,
   prefixPopHealthMetric,
   setShowSendUploadReminderDialog,
@@ -376,12 +376,12 @@ const MoreMenu = ({
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
 
   const handleEditPatientDataConnections = useCallback(() => {
-    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'action menu');
-  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
+    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog, 'action menu');
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog]);
 
   const handlePrintPatientData = useCallback(() => {
-    printPatientData(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataModal, 'action menu');
-  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataModal]);
+    printPatientData(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataDialog, 'action menu');
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataDialog]);
 
   const handleSendUploadReminder = useCallback(
     (patient) => {
@@ -595,7 +595,7 @@ const PatientTags = ({
         anchorOrigin={anchorOrigin}
         transformOrigin={transformOrigin}
       >
-        <DialogContent px={2} py={3} dividers>
+        <DialogContent px={2} py={3}>
           <Box variant="containers.extraSmall">
             <Box sx={{ alignItems: 'center' }} mb={3} fontSize={1} fontWeight="medium">
               <Text color="text.primary" sx={{ whiteSpace: 'nowrap' }}>
@@ -726,8 +726,8 @@ export const ClinicPatients = (props) => {
   const [showRpmReportConfigDialog, setShowRpmReportConfigDialog] = useState(false);
   const [showRpmReportLimitDialog, setShowRpmReportLimitDialog] = useState(false);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
-  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
-  const [showPrintDataModal, setShowPrintDataModal] = useState(false);
+  const [showDataConnectionsDialog, setShowDataConnectionsDialog] = useState(false);
+  const [showPrintDataDialog, setShowPrintDataDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicSitesDialog, setShowClinicSitesDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
@@ -937,8 +937,8 @@ export const ClinicPatients = (props) => {
     const resetList = showAddPatientDialog || showEditPatientDialog;
     setShowAddPatientDialog(false);
     setShowDeleteDialog(false);
-    setShowDataConnectionsModal(false);
-    setShowPrintDataModal(false);
+    setShowDataConnectionsDialog(false);
+    setShowPrintDataDialog(false);
     setShowEditPatientDialog(false);
     setShowClinicPatientTagsDialog(false);
     setShowClinicSitesDialog(false);
@@ -1042,7 +1042,7 @@ export const ClinicPatients = (props) => {
 
   useEffect(() => {
     // Only process detected updates if patient edit form is showing. Other child components, such as
-    // the PatientEmailModal, may also update the patient, and handle the results
+    // the PatientEmailDialog, may also update the patient, and handle the results
     if (showEditPatientDialog) {
       handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientCreatedOrEdited);
     }
@@ -1852,7 +1852,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} py={3} dividers>
+                    <DialogContent px={2} py={3}>
                       <Box sx={{ alignItems: 'center' }} mb={2}>
                         <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
                           {t('Device Type')}
@@ -1989,7 +1989,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
+                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }}>
                       <Box variant="containers.small">
                         <Box mb={2}>
                           <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
@@ -2178,7 +2178,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
+                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }}>
                       <Box variant="containers.small">
                         <Box mb={2}>
                           <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
@@ -2519,7 +2519,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} py={3} dividers>
+                    <DialogContent px={2} py={3}>
                       <Box sx={{ alignItems: 'center' }} mb={2}>
                         <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
                           {t('% CGM Use')}
@@ -2636,7 +2636,7 @@ export const ClinicPatients = (props) => {
                     setPendingSummaryPeriod(activeSummaryPeriod);
                   }}
                 >
-                  <DialogContent px={2} py={3} dividers>
+                  <DialogContent px={2} py={3}>
                     <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will generate health summaries for the selected number of days.')}</Body0>
 
                     <RadioGroup
@@ -2785,7 +2785,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
+          <Trans i18nKey="html.peopletable-remove-patient-confirm">
             <Body1>
               Are you sure you want to remove patient: {{fullName}} from your list?
             </Body1>
@@ -2838,7 +2838,7 @@ export const ClinicPatients = (props) => {
         >
           {clinicSiteFormikContext => (
             <Form id="clinic-site-update">
-              <DialogContent sx={{ minWidth: '512px' }}>
+              <DialogContent minWidth={512}>
                 <Flex mb={3} sx={{ gap: 2 }}>
                   <TextInput
                     themeProps={{
@@ -2905,7 +2905,7 @@ export const ClinicPatients = (props) => {
         >
           {patientTagFormikContext => (
             <Form id="patient-tag-update">
-              <DialogContent sx={{ minWidth: '512px' }}>
+              <DialogContent minWidth={512}>
                 <Flex mb={3} sx={{ gap: 2 }}>
                   <TextInput
                     themeProps={{
@@ -3167,10 +3167,8 @@ export const ClinicPatients = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
-          <Box mr={2}>
-            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
-          </Box>
+        <DialogTitle onClose={handleCloseOverlays}>
+          <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
         </DialogTitle>
 
         <DialogContent>
@@ -3214,16 +3212,15 @@ export const ClinicPatients = (props) => {
       >
         <Box variant="containers.small" mb={0} sx={{ width: ['100%', '100%'] }}>
           <DialogTitle
-            divider
             onClose={() => {
               trackMetric(prefixPopHealthMetric('Edit clinic sites dialog close'), { clinicId: selectedClinicId });
               handleCloseOverlays();
             }}
           >
-            <Body1 sx={{ fontWeight: 'medium', fontSize: 3 }}>{t('Edit Sites')}</Body1>
+            <MediumTitle id="dialog-title">{t('Edit Sites')}</MediumTitle>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} sx={{ minWidth: '512px', maxHeight: '70vh' }}>
+          <DialogContent pt={0} divider={false} minWidth={512} sx={{ maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(clinicSite, context) => {
@@ -3354,7 +3351,7 @@ export const ClinicPatients = (props) => {
             </Box>
           </DialogContent>
 
-          <DialogActions sx={{ borderTop: borders.divider, display: 'flex', justifyContent: 'flex-end' }}>
+          <DialogActions>
             <Button
               id="edit-sites-dialog-done"
               variant="secondary"
@@ -3394,16 +3391,15 @@ export const ClinicPatients = (props) => {
       >
         <Box variant="containers.small" mb={0} sx={{ width: ['100%', '100%'] }}>
           <DialogTitle
-            divider
             onClose={() => {
               trackMetric(prefixPopHealthMetric('Edit clinic tags close'), { clinicId: selectedClinicId });
               handleCloseOverlays();
             }}
           >
-            <Body1 sx={{ fontWeight: 'medium', fontSize: 3 }}>{t('Edit Tags')}</Body1>
+            <MediumTitle id="dialog-title">{t('Edit Tags')}</MediumTitle>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} sx={{ minWidth: '512px', maxHeight: '70vh' }}>
+          <DialogContent pt={0} divider={false} minWidth={512} sx={{ maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(tag, context) => {
@@ -3524,7 +3520,7 @@ export const ClinicPatients = (props) => {
             </Box>
           </DialogContent>
 
-          <DialogActions sx={{ borderTop: borders.divider, display: 'flex', justifyContent: 'flex-end' }}>
+          <DialogActions>
             <Button
               id="edit-patient-tags-dialog-done"
               variant="secondary"
@@ -3634,12 +3630,10 @@ export const ClinicPatients = (props) => {
         PaperProps={{ id: 'rpmReportConfigInner'}}
       >
         <DialogTitle onClose={handleCloseOverlays}>
-          <Box sx={{ flexGrow: 1 }} mr={2}>
-            <MediumTitle sx={{ fontSize: 4, textAlign: 'center' }} id="dialog-title">{t('RPM Report')}</MediumTitle>
-          </Box>
+          <MediumTitle id="dialog-title">{t('RPM Report')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent sx={{ width: '609px' }} divider>
+        <DialogContent minWidth={609}>
           <RpmReportConfigForm
             api={api}
             patientFetchOptions={patientFetchOptions}
@@ -3687,12 +3681,10 @@ export const ClinicPatients = (props) => {
         PaperProps={{ id: 'rpmReportLimitInner'}}
       >
         <DialogTitle onClose={handleCloseOverlays}>
-          <Box sx={{ flexGrow: 1 }} mr={2}>
-            <MediumTitle sx={{ fontSize: 4, textAlign: 'center' }} id="dialog-title">{t('RPM Report')}</MediumTitle>
-          </Box>
+          <MediumTitle id="dialog-title">{t('RPM Report')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent sx={{ width: '609px' }} divider>
+        <DialogContent minWidth={609}>
           <Flex
             px={3}
             py={4}
@@ -3734,9 +3726,9 @@ export const ClinicPatients = (props) => {
     t,
   ]);
 
-  const renderDataConnectionsModal = useCallback(() => {
+  const renderDataConnectionsDialog = useCallback(() => {
     return (
-      <DataConnectionsModal
+      <DataConnectionsDialog
         open
         patient={selectedPatient}
         onClose={handleCloseOverlays}
@@ -3747,7 +3739,7 @@ export const ClinicPatients = (props) => {
     selectedPatient,
   ]);
 
-  const renderPrintDataModal = useCallback(() => {
+  const renderPrintDataDialog = useCallback(() => {
     const handleClose = () => {
       handleCloseOverlays();
       dispatch(actions.sync.clearPatientInView());
@@ -3756,7 +3748,7 @@ export const ClinicPatients = (props) => {
     };
 
     return (
-      <ClinicPatientsPrintModal
+      <ClinicPatientsPrintDialog
         api={api}
         patientId={selectedPatient?.id}
         onClose={handleClose}
@@ -3765,7 +3757,7 @@ export const ClinicPatients = (props) => {
   }, [
     api,
     handleCloseOverlays,
-    setShowPrintDataModal,
+    setShowPrintDataDialog,
     setSelectedPatient,
     selectedPatient?.id,
   ]);
@@ -4027,8 +4019,8 @@ export const ClinicPatients = (props) => {
       t={t}
       trackMetric={trackMetric}
       setSelectedPatient={setSelectedPatient}
-      setShowDataConnectionsModal={setShowDataConnectionsModal}
-      setShowPrintDataModal={setShowPrintDataModal}
+      setShowDataConnectionsDialog={setShowDataConnectionsDialog}
+      setShowPrintDataDialog={setShowPrintDataDialog}
       setShowEditPatientDialog={setShowEditPatientDialog}
       prefixPopHealthMetric={prefixPopHealthMetric}
       setShowSendUploadReminderDialog={setShowSendUploadReminderDialog}
@@ -4042,7 +4034,7 @@ export const ClinicPatients = (props) => {
     trackMetric,
     setSelectedPatient,
     setShowEditPatientDialog,
-    setShowPrintDataModal,
+    setShowPrintDataDialog,
     prefixPopHealthMetric,
     setShowSendUploadReminderDialog,
     setShowDeleteDialog,
@@ -4356,8 +4348,8 @@ export const ClinicPatients = (props) => {
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {isClinicSitesDialogVisible && renderClinicSitesDialog()}
       {isClinicPatientTagsDialogVisible && renderClinicPatientTagsDialog()}
-      {showDataConnectionsModal && renderDataConnectionsModal()}
-      {showPrintDataModal && renderPrintDataModal()}
+      {showDataConnectionsDialog && renderDataConnectionsDialog()}
+      {showPrintDataDialog && renderPrintDataDialog()}
 
       <StyledScrollToTop
         smooth

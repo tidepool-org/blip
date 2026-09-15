@@ -32,7 +32,7 @@ import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
 
-export const PatientEmailModal = (props) => {
+export const PatientEmailDialog = (props) => {
   const {
     open,
     onClose,
@@ -147,7 +147,7 @@ export const PatientEmailModal = (props) => {
   );
 };
 
-PatientEmailModal.propTypes = {
+PatientEmailDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onFormChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
@@ -157,11 +157,11 @@ PatientEmailModal.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-PatientEmailModal.defaultProps = {
+PatientEmailDialog.defaultProps = {
   onClose: noop,
   onComplete: noop,
   trackMetric: noop,
 };
 
 
-export default PatientEmailModal;
+export default PatientEmailDialog;

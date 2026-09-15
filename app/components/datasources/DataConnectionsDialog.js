@@ -26,12 +26,12 @@ import api from '../../core/api';
 import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import { URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS, URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
-import PatientEmailModal from './PatientEmailModal';
+import PatientEmailDialog from './PatientEmailDialog';
 import { DesktopOnly } from '../mediaqueries';
 
 const t = i18next.t.bind(i18next);
 
-export const DataConnectionsModal = (props) => {
+export const DataConnectionsDialog = (props) => {
   const {
     open,
     onClose,
@@ -54,7 +54,7 @@ export const DataConnectionsModal = (props) => {
     dataSources,
    } : patient;
 
-   const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
+   const [showPatientEmailDialog, setShowPatientEmailDialog] = useState(false);
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const dispatch = useDispatch();
@@ -70,11 +70,11 @@ export const DataConnectionsModal = (props) => {
 
   const handleEditPatientEmailOpen = () => {
     trackMetric('Data Connections - edit patient email', { selectedClinicId });
-    setShowPatientEmailModal(true);
+    setShowPatientEmailDialog(true);
   };
 
   const handleEditPatientEmailClose = () => {
-    setShowPatientEmailModal(false);
+    setShowPatientEmailDialog(false);
   };
 
   function handleEditPatientEmailFormChange(formikContext) {
@@ -89,8 +89,8 @@ export const DataConnectionsModal = (props) => {
 
   const handleEditPatientEmailComplete = useCallback(() => {
     fetchPatientDetails();
-    setShowPatientEmailModal(false);
-  }, [fetchPatientDetails, setShowPatientEmailModal]);
+    setShowPatientEmailDialog(false);
+  }, [fetchPatientDetails, setShowPatientEmailDialog]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = updatingClinicPatient;
@@ -230,7 +230,7 @@ export const DataConnectionsModal = (props) => {
             </Body1>
           )}
 
-          {showPatientEmailModal && <PatientEmailModal
+          {showPatientEmailDialog && <PatientEmailDialog
             open
             onClose={handleEditPatientEmailClose}
             onFormChange={handleEditPatientEmailFormChange}
@@ -255,7 +255,7 @@ export const DataConnectionsModal = (props) => {
   );
 };
 
-DataConnectionsModal.propTypes = {
+DataConnectionsDialog.propTypes = {
   onBack: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool,
@@ -264,10 +264,10 @@ DataConnectionsModal.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-DataConnectionsModal.defaultProps = {
+DataConnectionsDialog.defaultProps = {
   onClose: noop,
   trackMetric: noop,
 };
 
 
-export default DataConnectionsModal;
+export default DataConnectionsDialog;

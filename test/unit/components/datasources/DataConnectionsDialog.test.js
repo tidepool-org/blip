@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
-import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../../../app/components/datasources/DataConnectionsDialog';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import coreApi from '../../../../app/core/api';
 
@@ -28,7 +28,7 @@ jest.mock('react-router-dom', () => {
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('DataConnectionsModal', () => {
+describe('DataConnectionsDialog', () => {
   const originalCoreApiMethods = {
     clinics: {
       getPatientFromClinic: coreApi.clinics.getPatientFromClinic,
@@ -122,7 +122,7 @@ describe('DataConnectionsModal', () => {
     wrapper = render(
       <Provider store={store}>
         <ToastProvider>
-          <DataConnectionsModal {...defaultProps} />
+          <DataConnectionsDialog {...defaultProps} />
         </ToastProvider>
       </Provider>
     );
@@ -179,7 +179,7 @@ describe('DataConnectionsModal', () => {
     wrapper = render(
       <Provider store={store}>
         <ToastProvider>
-          <DataConnectionsModal {...{ ...defaultProps, patient: patientWithoutEmail }} />
+          <DataConnectionsDialog {...{ ...defaultProps, patient: patientWithoutEmail }} />
         </ToastProvider>
       </Provider>
     );
@@ -193,12 +193,20 @@ describe('DataConnectionsModal', () => {
     wrapper = render(
       <Provider store={store}>
         <ToastProvider>
-          <DataConnectionsModal {...{ ...defaultProps, patient: patientWithoutCustodialPermission }} />
+          <DataConnectionsDialog {...{ ...defaultProps, patient: patientWithoutCustodialPermission }} />
         </ToastProvider>
       </Provider>
     );
 
     expect(document.getElementById('patient-email-modal')).to.be.null;
     expect(document.getElementById('data-connections-open-email-modal')).to.be.null;
+  });
+
+  it('should call onBack when the dialog back button is clicked', () => {
+    const backButton = document.querySelector('[aria-label="dialog back button"]');
+    expect(backButton).to.not.be.null;
+
+    fireEvent.click(backButton);
+    sinon.assert.calledOnce(defaultProps.onBack);
   });
 });
