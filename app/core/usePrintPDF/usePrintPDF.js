@@ -133,7 +133,7 @@ const usePrintPDF = (
 
       case STATUS.GENERATING_PDF:
         const queries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const pdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
+        const pdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient, clinic);
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         trackMetric('Generated PDF', { patientID: patientId });
         break;
@@ -149,7 +149,7 @@ const usePrintPDF = (
         printOptsRef.current = pdf.opts;
         // Call generatePDFRequest a second time with SVGs in args to attach them to the PDF
         const agpQueries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const agpPdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
+        const agpPdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient, clinic);
         dispatch(actions.worker.generatePDFRequest('combined', agpQueries, agpPdfOpts, patientId));
         break;
 

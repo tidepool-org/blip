@@ -1,5 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
+import filter from 'lodash/filter';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import keys from 'lodash/keys';
@@ -10,6 +11,7 @@ import countries from 'i18n-iso-countries';
 import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
+import utils from './utils';
 import { timezoneNames } from './validation/timezoneNames';
 
 import { glycemicRangesSchema } from './glycemicRangesUtils';
@@ -94,6 +96,16 @@ export const timezoneOptions = map(
 
 export const maxClinicPatientTags = 50;
 export const maxWorkspaceClinicSites = 50;
+
+const byName = (a, b) => utils.compareLabels(a.name, b.name);
+
+// The clinic patient's tags and sites resolved against the clinic catalogue, sorted alphabetically by name.
+// Ids no longer in the catalogue are dropped.
+export const getPatientTags = (clinic, clinicPatient) =>
+  filter(clinic?.patientTags, ({ id }) => includes(clinicPatient?.tags, id)).toSorted(byName);
+
+export const getPatientSites = (clinic, clinicPatient) =>
+  filter(clinic?.sites, ({ id }) => includes(map(clinicPatient?.sites, 'id'), id)).toSorted(byName);
 
 export const clinicPlansNames = {
   base: t('Base'),

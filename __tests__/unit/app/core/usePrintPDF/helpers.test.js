@@ -5,7 +5,7 @@
 /* global beforeEach */
 /* global context */
 
-import { getQueries } from '@app/core/usePrintPDF/helpers';
+import { getQueries, getPdfOpts } from '@app/core/usePrintPDF/helpers';
 import utils from '@app/core/utils';
 import { getStatsByChartType } from '@app/core/dataViewUtils';
 import { DEFAULT_GLYCEMIC_RANGES } from '@app/core/glycemicRangesUtils';
@@ -15,6 +15,7 @@ jest.mock('@app/core/utils', () => ({
   __esModule: true,
   default: {
     getBGPrefsForDataProcessing: jest.fn().mockReturnValue({ units: 'mg/dL' }),
+    compareLabels: jest.requireActual('@app/core/utils').default.compareLabels,
   },
 }));
 
@@ -335,5 +336,65 @@ describe('getQueries', () => {
       expect(queries.settings.metaData).toEqual(commonQueries.metaData);
       expect(queries.settings.timePrefs).toEqual(commonQueries.timePrefs);
     });
+  });
+});
+
+describe('getPdfOpts', () => {
+  const clinicianUser = { userid: 'clinician-1', roles: ['clinic'] };
+  const printOpts = { basics: { disabled: false }, requestId: 'request-1' };
+
+  const patient = {
+    userid: 'patient-1',
+    id: 'patient-1',
+    profile: { fullName: 'Account Name', patient: { birthday: '1990-01-01' } },
+    settings: { siteChangeSource: 'cannulaPrime', units: { bg: 'mg/dL' } },
+  };
+
+  const clinic = {
+    patientTags: [{ id: 'tag-b', name: 'B tag', color: '#000' }, { id: 'tag-a', name: 'A tag', color: '#fff' }],
+    sites: [{ id: 'site-b', name: 'B site', address: '2 Main St' }, { id: 'site-a', name: 'A site', address: '1 Main St' }],
+  };
+
+  const clinicPatient = {
+    id: 'clinic-patient-1',
+    fullName: 'Clinic Name',
+    tags: ['tag-b', 'tag-a'],
+    sites: [{ id: 'site-b' }, { id: 'site-a' }],
+  };
+
+  it('should spread the print options and include `patientTags` and `sites` as sorted `{ id, name }` items', () => {
+    const result = getPdfOpts(printOpts, clinicianUser, patient, clinicPatient, clinic);
+
+    expect(result.basics).toEqual(printOpts.basics);
+    expect(result.requestId).toEqual('request-1');
+    expect(result.patientTags).toEqual([{ id: 'tag-a', name: 'A tag' }, { id: 'tag-b', name: 'B tag' }]);
+    expect(result.sites).toEqual([{ id: 'site-a', name: 'A site' }, { id: 'site-b', name: 'B site' }]);
+  });
+
+  it('should keep the existing `patient` shape for a clinician printing a clinic patient', () => {
+    const result = getPdfOpts(printOpts, clinicianUser, patient, clinicPatient, clinic);
+
+    expect(result.patient.id).toEqual('clinic-patient-1');
+    expect(result.patient.profile.fullName).toEqual('Clinic Name');
+    expect(result.patient.settings).toEqual({ siteChangeSource: 'cannulaPrime', units: { bg: 'mg/dL' } });
+    expect(result.patient.patientTags).toBeUndefined();
+    expect(result.patient.sites).toBeUndefined();
+  });
+
+  it('should keep the existing `patient` shape and send empty arrays when there is no clinic patient', () => {
+    const result = getPdfOpts(printOpts, clinicianUser, patient, undefined, clinic);
+
+    expect(result.patient.id).toEqual('patient-1');
+    expect(result.patient.profile.fullName).toEqual('Account Name');
+    expect(result.patient.settings.siteChangeSource).toEqual('cannulaPrime');
+    expect(result.patientTags).toEqual([]);
+    expect(result.sites).toEqual([]);
+  });
+
+  it('should send empty arrays for a patient account', () => {
+    const result = getPdfOpts(printOpts, { userid: 'patient-1', roles: [] }, patient, clinicPatient, clinic);
+
+    expect(result.patientTags).toEqual([]);
+    expect(result.sites).toEqual([]);
   });
 });
