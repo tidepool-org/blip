@@ -35,11 +35,13 @@ const useTableColumns = () => {
       {
         title: t('Device'),
         field: 'device',
+        align: 'left',
         render: patient => <DeviceNameCell patient={patient} />,
       },
       {
         title: t('Connection Status'),
         field: 'connectionStatus',
+        align: 'left',
         render: patient => <ConnectionStatusCell patient={patient} />,
       },
       {
