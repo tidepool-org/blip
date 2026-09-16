@@ -7,7 +7,7 @@ import { colors as vizColors } from '@tidepool/viz';
 import { useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import Icon from '../../../components/elements/Icon';
-import { getActiveDeviceIssue } from './helpers';
+import { getActiveDeviceIssue, getDaysAgo } from './helpers';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -70,24 +70,69 @@ export const ConnectionStatusCell = ({ patient }) => {
   );
 };
 
-export const StatusDescriptionCell = ({ patient }) => {
+export const StatusSummaryCell = ({ patient }) => {
   const { t } = useTranslation();
+  const category = useSelector(state => state.blip.connectionIssues.category);
 
-  const deviceIssue = {};
+  const deviceIssue = getActiveDeviceIssue(patient, category);
 
-  const daysAgo = deviceIssue?.time
-    ? moment().diff(moment(deviceIssue.time), 'days')
-    : null;
+  if (!deviceIssue?._type) return null;
 
-  const label = daysAgo === null ? '-' : t('{{daysAgo}} days ago', { daysAgo });
+  let label;
+  let color;
 
-  return <Box>
-    <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{label}</Text>
+  switch(deviceIssue._type) {
+    case 'staleData': {
+      const daysAgo = getDaysAgo(patient?.dataSources?.[0]?.latestDataTime);
+
+      label = daysAgo === null ? '-' : t('Disconnected {{daysAgo}} days ago', { daysAgo });
+      color = vizColors.red50;
+      break;
+    }
+
+    case 'erroring': {
+      const daysAgo = getDaysAgo(deviceIssue?.effectiveTime);
+
+      label = daysAgo === null ? '-' : t('Connection Error {{daysAgo}} days ago', { daysAgo });
+      color = vizColors.gold50;
+      break;
+    }
+
+    case 'disconnected': {
+      const daysAgo = getDaysAgo(deviceIssue?.effectiveTime);
+
+      label = daysAgo === null ? '-' : t('Disconnected {{daysAgo}} days ago', { daysAgo });
+      color = vizColors.red50;
+      break;
+    }
+
+    case 'expiredConnectionInvitation': {
+      const { providerId } = deviceIssue;
+      const lastInvitedAt = patient?.connectionRequests?.[providerId]?.[0]?.createdTime;
+      const daysAgo = getDaysAgo(lastInvitedAt);
+
+      label = daysAgo === null ? '-' : t('Invited {{daysAgo}} days ago', { daysAgo });
+      color = vizColors.red50;
+      break;
+    }
+
+    case 'staleConnectionInvitation': {
+      const { providerId } = deviceIssue;
+      const lastInvitedAt = patient?.connectionRequests?.[providerId]?.[0]?.createdTime;
+      const daysAgo = getDaysAgo(lastInvitedAt);
+
+      label = daysAgo === null ? '-' : t('Invited {{daysAgo}} days ago', { daysAgo });
+      color = vizColors.gold50;
+      break;
+    }
+
+    default:
+      return null;
+  }
+
+  return <Box sx={{ color }}>
+    <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>
+      {label}
+    </Text>
   </Box>;
-};
-
-export default {
-  PatientCell,
-  DeviceNameCell,
-  StatusDescriptionCell,
 };
