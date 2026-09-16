@@ -6,7 +6,7 @@ import {
   PatientCell,
   ConnectionStatusCell,
   DeviceNameCell,
-  StatusDescriptionCell,
+  StatusSummaryCell,
 } from './Cells';
 
 import TagListCell from '../components/TagListCell';
@@ -46,7 +46,7 @@ const useTableColumns = () => {
         title: t('Status Description'),
         field: 'statusDescription',
         align: 'left',
-        render: patient => <StatusDescriptionCell patient={patient} />,
+        render: patient => <StatusSummaryCell patient={patient} />,
       },
       {
         title: t('Last Contact'),
