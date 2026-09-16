@@ -3,31 +3,15 @@ import { getPrimaryDeviceProvider } from '../../../components/datasources/DataCo
 import pickBy from 'lodash/pickBy';
 import maxBy from 'lodash/maxBy';
 import isEmpty from 'lodash/isEmpty';
-import { CATEGORY } from './filters/FilterByCategory';
 import moment from 'moment-timezone';
 
-const pickByDeviceIssueByCategory = (issues, category) => {
-  const categoryKeyPreference = {
-    [CATEGORY.STALE_DATA]: ['staleData'],
-    [CATEGORY.ERROR_OR_DC]: ['disconnected', 'erroring'],
-    [CATEGORY.INVITE_EXPIRED]: ['expiredConnectionInvitation'],
-    [CATEGORY.INVITE_SENT]: ['staleConnectionInvitation'],
-  };
-
-  const preferredKeys = categoryKeyPreference[category];
-
-  if (preferredKeys) {
-    const match = preferredKeys.find(key => issues[key]);
-    if (match) return { ...issues[match], _type: match };
-  }
-
-  // No category preference — fall back to the issue with the most recent effectiveTime
-  const [type, issue] = maxBy(Object.entries(issues), ([, di]) => di.effectiveTime) ?? [];
+const getLatestIssue = (deviceIssues) => {
+  const [type, issue] = maxBy(Object.entries(deviceIssues), ([, di]) => di.effectiveTime) ?? [];
 
   return type ? { ...issue, _type: type } : null;
 };
 
-export const getActiveDeviceIssue = (patient, category) => {
+export const getActiveDeviceIssue = (patient) => {
   const { deviceIssues } = patient;
 
   if (!deviceIssues) return null;
@@ -42,12 +26,12 @@ export const getActiveDeviceIssue = (patient, category) => {
     const hasDeviceIssuesForPrimaryProvider = !isEmpty(filteredIssues);
 
     if (hasDeviceIssuesForPrimaryProvider) {
-      return pickByDeviceIssueByCategory(filteredIssues, category);
+      return getLatestIssue(filteredIssues);
     }
   }
 
   // Otherwise, show any deviceIssue
-  return pickByDeviceIssueByCategory(deviceIssues, category);
+  return getLatestIssue(deviceIssues);
 };
 
 export const getDaysAgo = (time) => {
