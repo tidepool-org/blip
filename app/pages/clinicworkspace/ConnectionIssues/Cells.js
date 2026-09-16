@@ -155,7 +155,7 @@ export const StatusSummaryCell = ({ patient }) => {
 
 export const LastContactCell = ({ patient }) => {
 
-  return <Box>
+  return <Box sx={{ minWidth: 120 }}>
     <LastContact patient={patient} />
   </Box>;
 };

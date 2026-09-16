@@ -4,15 +4,18 @@ import { useResendInviteMutation } from './lastContactApi';
 import { useSelector } from 'react-redux';
 import { useToasts } from '../../../../providers/ToastProvider';
 import { useTranslation } from 'react-i18next';
+import { getActiveDeviceIssue } from '../helpers';
 
 const LastContact = ({ patient }) => {
   const { t } = useTranslation();
   const { set: setToast } = useToasts();
+  const category = useSelector(state => state.blip.connectionIssues.category);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
   const [resendInvite, { isLoading: isResendingInvite }] = useResendInviteMutation();
 
-  const providerName = 'dexcom'; // TODO: set to primaryProviderName
+  const deviceIssue = getActiveDeviceIssue(patient, category);
+  const providerName = deviceIssue?.providerId;
 
   const handleClick = () => {
     resendInvite({ clinicId: selectedClinicId, patientId: patient.id, providerName })
@@ -25,7 +28,7 @@ const LastContact = ({ patient }) => {
       });
   };
 
-  const processing = false;
+  if (!providerName) return null;
 
   return (
     <HoverButton
@@ -33,10 +36,9 @@ const LastContact = ({ patient }) => {
       buttonProps={{
         onClick: handleClick,
         variant: 'quickActionCondensed',
-        processing,
+        processing: isResendingInvite,
       }}
       hideChildrenOnHover={true}
-      processing={isResendingInvite}
     >
       {'-'}
     </HoverButton>
