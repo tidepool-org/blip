@@ -1,5 +1,5 @@
 import { RTKQueryApi } from '../../../../redux/api/baseApi';
-import { tagTypes as connectionIssuesTagTypes } from '../../TideDashboardV2/tideDashboardApi';
+import { tagTypes as connectionIssuesTagTypes } from '../connectionIssuesApi';
 
 const { CONNECTION_ISSUES_PATIENTS } = connectionIssuesTagTypes;
 

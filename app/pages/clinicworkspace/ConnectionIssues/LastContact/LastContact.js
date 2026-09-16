@@ -30,9 +30,13 @@ const LastContact = ({ patient }) => {
 
   if (!providerName) return null;
 
+  // Render a different button copy if the clinic has re-invited at least once
+  const lastInviteAt = patient?.connectionRequests?.[deviceIssue.providerId]?.[0]?.createdTime;
+  const hasActionedBefore = lastInviteAt > deviceIssue.effectiveTime;
+
   return (
     <HoverButton
-      buttonText={t('Resend Invite')}
+      buttonText={hasActionedBefore ? t('Send Follow-Up') : t('Resend Invite')}
       buttonProps={{
         onClick: handleClick,
         variant: 'quickActionCondensed',
