@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { TagList } from '../../../components/elements/Tag';
+import { TagList } from '../../../../components/elements/Tag';
 
 const MAX_TAGS = 3;
 

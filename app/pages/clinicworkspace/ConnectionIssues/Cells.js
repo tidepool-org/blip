@@ -14,10 +14,12 @@ export const PatientCell = ({ patient }) => {
 
   const { fullName, birthDate, mrn } = patient || {};
 
-  return <Box>
-    <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{fullName}</Text>
-    <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{t('DOB:')} {birthDate}</Text>
-    {mrn && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: mrn })}</Text>}
+  return <Box sx={{ gap: 0, marginRight: -2 }}>
+    <Box sx={{ fontSize: 0, whiteSpace: 'nowrap', fontWeight: 'medium' }}>{fullName}</Box>
+    <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('DOB:')} {birthDate}</Box>
+    <Box sx={{ minHeight: '18px', fontSize: 0, whiteSpace: 'nowrap' }}>
+      {mrn ? t('MRN: {{mrn}}', { mrn: mrn }) : ''}
+    </Box>
   </Box>;
 };
 
