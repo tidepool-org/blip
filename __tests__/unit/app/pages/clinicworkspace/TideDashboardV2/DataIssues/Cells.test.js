@@ -73,12 +73,12 @@ describe('DataIssues Cells', () => {
       rerender(ui(
         {
           id: 'patient-1',
-          dataSources: [{
-            providerName: 'dexcom',
-            state: 'pending',
-            modifiedTime: '2025-05-27T10:00:00.000Z',
-            expirationTime: '2025-06-03T10:00:00.000Z',
-          }],
+          connectionRequests: {
+            dexcom: [{
+              createdTime: '2025-05-27T10:00:00.000Z',
+              expirationTime: '2025-06-03T10:00:00.000Z',
+            }],
+          },
         }
       ));
 
@@ -89,12 +89,12 @@ describe('DataIssues Cells', () => {
       rerender(ui(
         {
           id: 'patient-1',
-          dataSources: [{
-            providerName: 'dexcom',
-            state: 'pending',
-            modifiedTime: '2025-04-01T10:00:00.000Z',
-            expirationTime: '2025-05-01T10:00:00.000Z',
-          }],
+          connectionRequests: {
+            dexcom: [{
+              createdTime: '2025-04-01T10:00:00.000Z',
+              expirationTime: '2025-05-01T10:00:00.000Z',
+            }],
+          },
         }
       ));
 
