@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import {
-  PatientCell,
   ConnectionStatusCell,
   DeviceNameCell,
   StatusSummaryCell,
 } from './Cells';
 
-import TagListCell from '../components/TagListCell';
+import PatientCell from '../components/cells/PatientCell';
+import TagListCell from '../components/cells/TagListCell';
 
 const useTableColumns = () => {
   const { t } = useTranslation();
