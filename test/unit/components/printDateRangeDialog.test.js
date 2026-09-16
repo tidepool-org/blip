@@ -15,14 +15,14 @@ import configureStore from 'redux-mock-store';
 jest.mock('../../../app/core/metricUtils');
 import { trackMetric as mockTrackMetric } from '../../../app/core/metricUtils';
 
-import PrintDateRangeModal from '../../../app/components/PrintDateRangeModal';
+import PrintDateRangeDialog from '../../../app/components/PrintDateRangeDialog';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
 const expect = chai.expect;
 
 const mockStore = configureStore([]);
 
-describe('PrintDateRangeModal', function () {
+describe('PrintDateRangeDialog', function () {
   const loggedInUserId = 'clinicianUserId123';
   const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
   const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
@@ -55,7 +55,7 @@ describe('PrintDateRangeModal', function () {
   beforeEach(() => {
     localStorage.removeItem(enabledChartsLocalKey);
     localStorage.removeItem(defaultRangesLocalKey);
-    rendered = render(<PrintDateRangeModal {...props} />, { wrapper });
+    rendered = render(<PrintDateRangeDialog {...props} />, { wrapper });
   });
 
   afterEach(() => {
@@ -67,7 +67,7 @@ describe('PrintDateRangeModal', function () {
 
   it('should be visible when open prop is true', () => {
     expect(get('.MuiDialog-container').style.opacity).to.equal('1');
-    rendered.rerender(<PrintDateRangeModal {...props} open={false} />);
+    rendered.rerender(<PrintDateRangeDialog {...props} open={false} />);
     expect(get('.MuiDialog-container').style.opacity).to.equal('0');
   });
 
@@ -122,7 +122,7 @@ describe('PrintDateRangeModal', function () {
 
     // new render should load with the updated defaults from localStorage
     rendered.unmount();
-    rendered = render(<PrintDateRangeModal {...props} />, { wrapper });
+    rendered = render(<PrintDateRangeDialog {...props} />, { wrapper });
     expect(numValue(get('#days-agpCGM .selected'))).to.equal(7);
     expect(get('input[name="enabled-basics"]').checked).to.be.false;
   });
@@ -207,7 +207,7 @@ describe('PrintDateRangeModal', function () {
     );
 
     rendered.unmount();
-    rendered = render(<PrintDateRangeModal {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />, { wrapper });
+    rendered = render(<PrintDateRangeDialog {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />, { wrapper });
 
     expect(get('#basics-end-date').value).to.equal('Mar 9, 2020 (5:00 PM)');
     expect(get('#basics-start-date').value).to.equal('Feb 24, 2020 (5:00 PM)');
