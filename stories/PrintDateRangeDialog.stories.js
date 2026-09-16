@@ -10,7 +10,7 @@ import keys from 'lodash/keys';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';
-import PrintDateRangeModal from '../app/components/PrintDateRangeModal';
+import PrintDateRangeDialog from '../app/components/PrintDateRangeDialog';
 
 /* eslint-disable max-len */
 const sleep = (m) => new Promise((r) => setTimeout(r, m));
@@ -71,7 +71,7 @@ export const PrintDateRangeModalStory = {
         <Button variant="primary" onClick={handleClickOpen}>
           Open Print Dialog
         </Button>
-        <PrintDateRangeModal
+        <PrintDateRangeDialog
           mostRecentDatumDates={{
             basics: moment.utc().valueOf(),
             bgLog: moment.utc().subtract(2, 'd').valueOf(),

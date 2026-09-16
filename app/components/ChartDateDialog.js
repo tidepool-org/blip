@@ -18,7 +18,7 @@ import i18next from '../core/language';
 
 const t = i18next.t.bind(i18next);
 
-export const ChartDateModal = (props) => {
+export const ChartDateDialog = (props) => {
   const {
     chartType,
     defaultDate,
@@ -93,11 +93,11 @@ export const ChartDateModal = (props) => {
   }, [date]);
 
   return (
-    <Dialog id="ChartDatePicker" maxWidth="md" open={open} onClose={handleClose}>
+    <Dialog id="ChartDatePicker" aria-labelledby="dialog-title" maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
-        <MediumTitle>{title}</MediumTitle>
+        <MediumTitle id="dialog-title">{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider sx={{ minWidth: '330px' }} p={0}>
+      <DialogContent minWidth={330} p={0}>
         <Box px={3}>
           <Box mb={3}>
             <Body1 mb={2}>{t('Select a specific day')}</Body1>
@@ -124,7 +124,7 @@ export const ChartDateModal = (props) => {
           )}
         </Box>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between' }} py="12px">
+      <DialogActions>
         <Button variant="textSecondary" className="chart-dates-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>
@@ -136,7 +136,7 @@ export const ChartDateModal = (props) => {
   );
 };
 
-ChartDateModal.propTypes = {
+ChartDateDialog.propTypes = {
   chartType: PropTypes.string,
   defaultDate: PropTypes.string.isRequired,
   mostRecentDatumDate: PropTypes.number,
@@ -152,7 +152,7 @@ ChartDateModal.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-ChartDateModal.defaultProps = {
+ChartDateDialog.defaultProps = {
   onClose: noop,
   onDateChange: noop,
   onSubmit: noop,
@@ -160,4 +160,4 @@ ChartDateModal.defaultProps = {
   trackMetric: noop,
 };
 
-export default ChartDateModal;
+export default ChartDateDialog;

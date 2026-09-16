@@ -6,7 +6,7 @@ import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';
-import ChartDateRangeModal from '../app/components/ChartDateRangeModal';
+import ChartDateRangeDialog from '../app/components/ChartDateRangeDialog';
 
 /* eslint-disable max-len */
 const sleep = (m) => new Promise((r) => setTimeout(r, m));
@@ -67,7 +67,7 @@ export const ChartDateRangeModalStory = {
         <Button variant="primary" onClick={handleClickOpen}>
           Open Chart Dates Dialog
         </Button>
-        <ChartDateRangeModal
+        <ChartDateRangeDialog
           chartType="basics"
           defaultDates={defaultDates}
           mostRecentDatumDate={mostRecentDatumDate}

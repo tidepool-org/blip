@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
-import PatientEmailModal from '../../../../app/components/datasources/PatientEmailModal';
+import PatientEmailDialog from '../../../../app/components/datasources/PatientEmailDialog';
 import noop from 'lodash/noop';
 
 jest.mock('../../../../app/core/api', () => ({
@@ -24,7 +24,7 @@ const mockApi = jest.requireMock('../../../../app/core/api').default;
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('PatientEmailModal', () => {
+describe('PatientEmailDialog', () => {
   let wrapper;
   const patientWithEmail = {
     id: 'patient123',
@@ -68,7 +68,7 @@ describe('PatientEmailModal', () => {
     mockApi.clinics.updateClinicPatient.mockReset();
     wrapper = render(
       <Provider store={store}>
-        <PatientEmailModal {...defaultProps} />
+        <PatientEmailDialog {...defaultProps} />
       </Provider>
     );
   });
@@ -122,7 +122,7 @@ describe('PatientEmailModal', () => {
     cleanup();
     wrapper = render(
       <Provider store={store}>
-        <PatientEmailModal {...defaultProps} patient={{ ...defaultProps.patient, email: undefined }} />
+        <PatientEmailDialog {...defaultProps} patient={{ ...defaultProps.patient, email: undefined }} />
       </Provider>
     );
 

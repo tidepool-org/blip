@@ -359,7 +359,7 @@ export const MainContent = (props) => {
 
   return (
     <>
-      <DialogContent divider={false} sx={{ minWidth: '766px' }} pt={3} px={3}>
+      <DialogContent divider={false} minWidth={766} pt={3} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
             <Box
@@ -469,14 +469,7 @@ export const MainContent = (props) => {
           </Caption>
         )}
       </DialogContent>
-      <DialogActions
-        mt={3}
-        py="12px"
-        sx={{
-          borderTop: borders.default,
-          justifyContent: 'space-between',
-        }}
-      >
+      <DialogActions>
         <Button variant="textSecondary" className="print-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>
@@ -516,12 +509,12 @@ MainContent.defaultProps = {
 };
 
 export const LoadingContent = () => (
-  <DialogContent divider={false} sx={{ minWidth: '766px', minHeight: '540px' }} pt={3} px={3}>
+  <DialogContent divider={false} minWidth={766} sx={{ minHeight: '540px' }} pt={3} px={3}>
     <Loader show />
   </DialogContent>
 )
 
-export const ModalWrapper = (props) => {
+export const PrintDateRangeDialog = (props) => {
   const { isLoading = false, processing = false, open = false, onClose = noop } = props;
 
   const handleClose = () => {
@@ -530,9 +523,9 @@ export const ModalWrapper = (props) => {
   }
 
   return (
-    <Dialog id="printDateRangePicker" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
-      <DialogTitle divider={true} onClose={handleClose}>
-        <MediumTitle>{t('Print Report')}</MediumTitle>
+    <Dialog id="printDateRangePicker" aria-labelledby="dialog-title" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
+      <DialogTitle onClose={handleClose}>
+        <MediumTitle id="dialog-title">{t('Print Report')}</MediumTitle>
       </DialogTitle>
       { isLoading
         ? <LoadingContent />
@@ -542,4 +535,4 @@ export const ModalWrapper = (props) => {
   )
 }
 
-export default ModalWrapper;
+export default PrintDateRangeDialog;

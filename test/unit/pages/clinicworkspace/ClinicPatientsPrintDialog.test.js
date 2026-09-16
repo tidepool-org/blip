@@ -4,7 +4,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 
-import ClinicPatientsPrintModal from '@app/pages/clinicworkspace/ClinicPatientsPrintModal';
+import ClinicPatientsPrintDialog from '@app/pages/clinicworkspace/ClinicPatientsPrintDialog';
 import { ToastProvider } from '@app/providers/ToastProvider';
 import usePrintPDF, { STATUS } from '@app/core/usePrintPDF';
 
@@ -12,7 +12,7 @@ jest.mock('@app/core/usePrintPDF');
 
 const mockStore = configureStore([thunk]);
 
-describe('ClinicPatientsPrintModal', () => {
+describe('ClinicPatientsPrintDialog', () => {
   const api = {};
   const patientId = 'patient123';
   const mockPrint = jest.fn();
@@ -31,7 +31,7 @@ describe('ClinicPatientsPrintModal', () => {
     return render(
       <Provider store={store}>
         <ToastProvider>
-          <ClinicPatientsPrintModal {...defaultProps} {...props} />
+          <ClinicPatientsPrintDialog {...defaultProps} {...props} />
         </ToastProvider>
       </Provider>
     );
@@ -85,7 +85,7 @@ describe('ClinicPatientsPrintModal', () => {
   });
 
   describe('when latestDatumByType is available', () => {
-    it('renders the PrintDateRangeModal with options', () => {
+    it('renders the PrintDateRangeDialog with options', () => {
       usePrintPDF.mockReturnValue({
         status: STATUS.AWAITING_INPUT,
         canPrint: true,
