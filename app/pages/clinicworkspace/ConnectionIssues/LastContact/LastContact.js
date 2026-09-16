@@ -4,7 +4,9 @@ import { useResendInviteMutation } from './lastContactApi';
 import { useSelector } from 'react-redux';
 import { useToasts } from '../../../../providers/ToastProvider';
 import { useTranslation } from 'react-i18next';
-import { getActiveDeviceIssue } from '../helpers';
+import { getActiveDeviceIssue, getDaysAgo } from '../helpers';
+import { Text } from 'theme-ui';
+import { colors as vizColors } from '@tidepool/viz';
 
 const LastContact = ({ patient }) => {
   const { t } = useTranslation();
@@ -30,9 +32,18 @@ const LastContact = ({ patient }) => {
 
   if (!providerName) return null;
 
-  // Render a different button copy if the clinic has re-invited at least once
-  const lastInviteAt = patient?.connectionRequests?.[deviceIssue.providerId]?.[0]?.createdTime;
-  const hasActionedBefore = lastInviteAt > deviceIssue.effectiveTime;
+  // If the clinic has already re-invited at least once, render a different copy to show this
+  const lastInvitedAt = patient?.connectionRequests?.[deviceIssue.providerId]?.[0]?.createdTime;
+  const hasActionedBefore = lastInvitedAt > deviceIssue.effectiveTime;
+  const daysAgo = getDaysAgo(lastInvitedAt);
+
+  const buttonLabel = (() => {
+    switch(daysAgo) {
+      case null: return '-';
+      case 0: return t('Today');
+      default: return t('{{daysAgo}} days ago', { daysAgo });
+    }
+  })();
 
   return (
     <HoverButton
@@ -44,7 +55,9 @@ const LastContact = ({ patient }) => {
       }}
       hideChildrenOnHover={true}
     >
-      {'-'}
+      <Text sx={{ color: vizColors.gold50, fontWeight: 'medium' }}>
+        {buttonLabel}
+      </Text>
     </HoverButton>
   );
 };
