@@ -4,6 +4,8 @@ import { useResendInviteMutation } from './lastContactApi';
 import { useSelector } from 'react-redux';
 import { useToasts } from '../../../../providers/ToastProvider';
 import { useTranslation } from 'react-i18next';
+import Icon from '../../../../components/elements/Icon';
+import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import { getActiveDeviceIssue, getDaysAgo } from '../helpers';
 import { Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
@@ -36,9 +38,10 @@ const LastContact = ({ patient }) => {
   const lastInvitedAt = patient?.connectionRequests?.[deviceIssue.providerId]?.[0]?.createdTime;
   const hasActionedBefore = lastInvitedAt > deviceIssue.effectiveTime;
 
-  const buttonLabel = (() => {
-    const daysAgo = getDaysAgo(lastInvitedAt);
+  const daysAgo = getDaysAgo(lastInvitedAt);
+  const isLastActionedToday = daysAgo === 0;
 
+  const cellText = (() => {
     switch(daysAgo) {
       case null: return '-';
       case 0: return t('Today');
@@ -56,8 +59,15 @@ const LastContact = ({ patient }) => {
       }}
       hideChildrenOnHover={true}
     >
-      <Text sx={{ color: vizColors.gold50, fontWeight: 'medium' }}>
-        {buttonLabel}
+      <Text sx={{
+        color: isLastActionedToday ? vizColors.green50 : vizColors.gold50,
+        fontWeight: 'medium',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+      }}>
+        {isLastActionedToday && <Icon variant="static" icon={CheckRoundedIcon} />}
+        {cellText}
       </Text>
     </HoverButton>
   );
