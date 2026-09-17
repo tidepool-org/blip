@@ -491,6 +491,7 @@ export const PatientDataClass = createReactClass({
         <div className="app-no-print">
           <Settings
             chartPrefs={this.state.chartPrefs}
+            copyAsTextMetadata={this.getCopyAsTextMetadata()}
             currentPatientInViewId={this.props.currentPatientInViewId}
             data={this.props.data}
             patient={this.props.patient}
