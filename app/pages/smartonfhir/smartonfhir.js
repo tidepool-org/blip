@@ -79,7 +79,10 @@ export const SmartOnFhir = (props) => {
 
     const checkZendesk = () => {
       if (windowObj.zE) {
-        windowObj.zE('webWidget', 'hide');
+        // Classic and messaging expose different APIs, and the inactive one
+        // throws on an unknown API name. Try both until Classic is retired.
+        try { windowObj.zE('messenger', 'hide'); } catch (e) { /* not messaging */ }
+        try { windowObj.zE('webWidget', 'hide'); } catch (e) { /* not classic */ }
         return;
       }
 
