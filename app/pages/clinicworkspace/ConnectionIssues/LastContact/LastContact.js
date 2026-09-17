@@ -32,12 +32,13 @@ const LastContact = ({ patient }) => {
 
   if (!providerName) return null;
 
-  // If the clinic has already re-invited at least once, render a different copy to show this
+  // If the clinic has already re-invited at least once, render a different copy to indicate it
   const lastInvitedAt = patient?.connectionRequests?.[deviceIssue.providerId]?.[0]?.createdTime;
   const hasActionedBefore = lastInvitedAt > deviceIssue.effectiveTime;
-  const daysAgo = getDaysAgo(lastInvitedAt);
 
   const buttonLabel = (() => {
+    const daysAgo = getDaysAgo(lastInvitedAt);
+
     switch(daysAgo) {
       case null: return '-';
       case 0: return t('Today');
