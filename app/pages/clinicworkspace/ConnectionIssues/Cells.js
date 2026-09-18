@@ -88,7 +88,8 @@ export const StatusSummaryCell = ({ patient }) => {
 
   switch(deviceIssue._type) {
     case STALE_DATA: {
-      const daysAgo = getDaysAgo(patient?.dataSources?.[0]?.latestDataTime);
+      const providerIssues = patient?.dataSources?.filter(ds => ds.providerName === deviceIssue.providerId) || [];
+      const daysAgo = getDaysAgo(providerIssues[0]?.latestDataTime);
 
       label = daysAgo === null ? '-' : t('Disconnected {{daysAgo}} days ago', { daysAgo });
       color = vizColors.red50;
