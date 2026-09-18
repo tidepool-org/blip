@@ -31,7 +31,7 @@ export const getActiveDeviceIssue = (patient) => {
   }
 
   // Otherwise, show any deviceIssue
-  return getLatestIssue(deviceIssues);
+  return getLatestIssue(deviceIssues); // TODO: Future API will return separate device issue type for provider-agnostic issues
 };
 
 export const getDaysAgo = (time) => {
