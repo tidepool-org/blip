@@ -9,6 +9,9 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import Icon from '../../../components/elements/Icon';
 import { getActiveDeviceIssue, getDaysAgo } from './helpers';
 
+import { ISSUE_TYPE } from './connectionIssuesApi';
+const { STALE_DATA, DISCONNECTED, ERRORING,  EXPIRED_CONNECTION_INVITATION, STALE_CONNECTION_INVITATION } = ISSUE_TYPE;
+
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
 
@@ -44,11 +47,11 @@ export const ConnectionStatusCell = ({ patient }) => {
 
   const connectionStatus = (() => {
     switch(activeDeviceIssue._type) {
-      case 'staleData': return t('Stale Data');
-      case 'erroring': return t('Error Connecting');
-      case 'disconnected': return t('Patient Disconnected');
-      case 'expiredConnectionInvitation': return t('Invite Expired');
-      case 'staleConnectionInvitation': return t('Invite Sent');
+      case STALE_DATA: return t('Stale Data');
+      case DISCONNECTED: return t('Patient Disconnected');
+      case ERRORING: return t('Error Connecting');
+      case EXPIRED_CONNECTION_INVITATION: return t('Invite Expired');
+      case STALE_CONNECTION_INVITATION: return t('Invite Sent');
     }
 
     return null;
@@ -84,7 +87,7 @@ export const StatusSummaryCell = ({ patient }) => {
   let color;
 
   switch(deviceIssue._type) {
-    case 'staleData': {
+    case STALE_DATA: {
       const daysAgo = getDaysAgo(patient?.dataSources?.[0]?.latestDataTime);
 
       label = daysAgo === null ? '-' : t('Disconnected {{daysAgo}} days ago', { daysAgo });
@@ -92,15 +95,7 @@ export const StatusSummaryCell = ({ patient }) => {
       break;
     }
 
-    case 'erroring': {
-      const daysAgo = getDaysAgo(deviceIssue?.effectiveTime);
-
-      label = daysAgo === null ? '-' : t('Connection Error {{daysAgo}} days ago', { daysAgo });
-      color = vizColors.gold50;
-      break;
-    }
-
-    case 'disconnected': {
+    case DISCONNECTED: {
       const daysAgo = getDaysAgo(deviceIssue?.effectiveTime);
 
       label = daysAgo === null ? '-' : t('Disconnected {{daysAgo}} days ago', { daysAgo });
@@ -108,7 +103,15 @@ export const StatusSummaryCell = ({ patient }) => {
       break;
     }
 
-    case 'expiredConnectionInvitation': {
+    case ERRORING: {
+      const daysAgo = getDaysAgo(deviceIssue?.effectiveTime);
+
+      label = daysAgo === null ? '-' : t('Connection Error {{daysAgo}} days ago', { daysAgo });
+      color = vizColors.gold50;
+      break;
+    }
+
+    case EXPIRED_CONNECTION_INVITATION: {
       const { providerId } = deviceIssue;
       const lastInvitedAt = patient?.connectionRequests?.[providerId]?.[0]?.createdTime;
       const daysAgo = getDaysAgo(lastInvitedAt);
@@ -118,7 +121,7 @@ export const StatusSummaryCell = ({ patient }) => {
       break;
     }
 
-    case 'staleConnectionInvitation': {
+    case STALE_CONNECTION_INVITATION: {
       const { providerId } = deviceIssue;
       const lastInvitedAt = patient?.connectionRequests?.[providerId]?.[0]?.createdTime;
       const daysAgo = getDaysAgo(lastInvitedAt);
