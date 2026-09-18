@@ -3,13 +3,23 @@ import { useTranslation } from 'react-i18next';
 import { Box, Text, Flex } from 'theme-ui';
 import { providers, getCurrentDataSourceForProvider } from '../../../components/datasources/DataConnections';
 import { colors as vizColors } from '@tidepool/viz';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
+import EditIcon from '@material-ui/icons/EditRounded';
+import DataInIcon from '../../../core/icons/DataInIcon.svg';
 import Icon from '../../../components/elements/Icon';
 import { getActiveDeviceIssue, getDaysAgo } from './helpers';
 
 import { ISSUE_TYPE } from './connectionIssuesApi';
 const { STALE_DATA, DISCONNECTED, ERRORING,  EXPIRED_CONNECTION_INVITATION, STALE_CONNECTION_INVITATION } = ISSUE_TYPE;
+
+import {
+  setDataConnectionsModalIsOpen,
+  setDataConnectionsModalPatientId,
+  setEditPatientDialogIsOpen,
+  setEditPatientDialogPatientId,
+} from './connectionIssuesSlice';
+import PopoverMenu from '../../../components/elements/PopoverMenu';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -140,4 +150,57 @@ export const StatusSummaryCell = ({ patient }) => {
       {label}
     </Text>
   </Box>;
+};
+
+export const MoreMenuCell = ({ patient }) => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  const handleOpenEditPatientDialog = () => {
+    dispatch(setEditPatientDialogIsOpen(true));
+    dispatch(setEditPatientDialogPatientId(patient.id));
+  };
+
+  const handleOpenDataConnectionsModal = () => {
+    dispatch(setDataConnectionsModalIsOpen(true));
+    dispatch(setDataConnectionsModalPatientId(patient.id));
+  };
+
+  return (
+    <PopoverMenu
+      id={`action-menu-${patient?.id}`}
+      data-testid={`action-menu-${patient?.id}-icon`}
+      items={[{
+        icon: EditIcon,
+        iconLabel: t('Edit Patient Details'),
+        iconPosition: 'left',
+        id: `edit-${patient?.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleOpenEditPatientDialog();
+        },
+        text: t('Edit Patient Details'),
+      }, {
+        iconSrc: DataInIcon,
+        iconLabel: t('Manage Device Connections'),
+        iconPosition: 'left',
+        id: `edit-data-connections-${patient?.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleOpenDataConnectionsModal();
+        },
+        text: t('Manage Device Connections'),
+      }]}
+      sx={{ position: 'relative', left: '-2px' }}
+    />
+  );
+};
+
+export default {
+  PatientCell,
+  DeviceNameCell,
+  StatusSummaryCell,
+  MoreMenuCell,
 };
