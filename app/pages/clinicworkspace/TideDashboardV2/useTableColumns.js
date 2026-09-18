@@ -8,7 +8,6 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
 
 import {
-  PatientCell,
   AvgGlucoseHeader,
   AvgGlucoseCell,
   CGMUseCell,
@@ -27,7 +26,8 @@ import {
   MoreMenuCell,
 } from './Cells';
 
-import TagListCell from '../components/TagListCell';
+import PatientCell from '../components/cells/PatientCell';
+import TagListCell from '../components/cells/TagListCell';
 
 const buildColumnTypes = (t, category, thresholds) => ({
   patientDetails: {

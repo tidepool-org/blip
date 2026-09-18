@@ -8,8 +8,8 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
 import Table from '../../../../components/elements/Table';
 
-import { PatientCell } from '../Cells';
-import TagListCell from '../../components/TagListCell';
+import PatientCell from '../../components/cells/PatientCell';
+import TagListCell from '../../components/cells/TagListCell';
 
 import {
   DexcomConnectionStatusCell,
