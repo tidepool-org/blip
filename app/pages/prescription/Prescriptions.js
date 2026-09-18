@@ -470,7 +470,7 @@ const Prescriptions = props => {
                 </Button>
 
                 <Popover width="15em" {...bindPopover(popupFilterState)}>
-                  <DialogContent px={2} py={3} dividers>
+                  <DialogContent px={2} py={3}>
                     {map(prescriptionStateOptions, ({label, value}) => (
                       <Box>
                         <Checkbox
