@@ -47,8 +47,6 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://static.zdassets.com',
       'https://ekr.zdassets.com',
       'https://tidepoolsupport.zendesk.com',
-      'wss://tidepoolsupport.zendesk.com',
-      'wss://*.zopim.com',
       (req) => {
         return req.hostname !== 'app.tidepool.org' && "'unsafe-eval'"; //required for Pendo.io Designer
       },
@@ -72,6 +70,10 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     imgSrc: [
       "'self'",
       'data:',
+      'blob:', // Zendesk messaging attachment previews
+      'https://*.zdusercontent.com', // Zendesk messaging attachments and avatars
+      'https://media.smooch.io',
+      'https://*.zendesk.com', // Zendesk-hosted widget images and avatars
       'https://v2assets.zopim.io',
       'https://static.zdassets.com',
       'https://tidepoolsupport.zendesk.com',
@@ -82,6 +84,16 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://data.pendo.io'
     ],
     fontSrc: ["'self'", 'data:'],
+    // Zendesk voice plays ringtones/DTMF from generated blobs.
+    mediaSrc: [
+      "'self'",
+      'blob:',
+      'data:',
+      'https://static.zdassets.com',
+      'https://*.zdusercontent.com',
+      'https://media.smooch.io',
+      'https://*.twilio.com',
+    ],
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:'],
@@ -93,10 +105,15 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://api.github.com/repos/tidepool-org/uploader/releases',
       'https://static.zdassets.com',
       'https://ekr.zdassets.com',
-      'https://tidepoolsupport.zendesk.com',
-      'wss://tidepoolsupport.zendesk.com',
+      'https://*.zendesk.com', // messaging pod hosts, e.g. pod-20-sunco-ws
+      'wss://*.zendesk.com',
+      'https://*.smooch.io', // Sunshine Conversations
+      'wss://*.smooch.io',
+      'https://*.sentry.io', // Zendesk widget error reporting
+      'https://*.twilio.com', // Zendesk voice
+      'wss://*.twilio.com',
       'https://api.rollbar.com',
-      'wss://*.zopim.com',
+      'wss://*.zopim.com', // Zendesk Web Widget Classic, retained through the messaging migration
       'https://*.tidepool.org',
       'https://*.development.tidepool.org',
       'https://*.integration.tidepool.org',
