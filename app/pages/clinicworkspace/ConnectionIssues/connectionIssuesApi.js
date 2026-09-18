@@ -1,24 +1,34 @@
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { CATEGORY } from './filters/FilterByCategory';
 
+export const ISSUE_TYPE = {
+  STALE_DATA: 'staleData',
+  DISCONNECTED: 'disconnected',
+  ERRORING: 'erroring',
+  STALE_CONNECTION_INVITATION: 'staleConnectionInvitation',
+  EXPIRED_CONNECTION_INVITATION: 'expiredConnectionInvitation',
+};
+
+const { STALE_DATA, DISCONNECTED, ERRORING,  EXPIRED_CONNECTION_INVITATION, STALE_CONNECTION_INVITATION } = ISSUE_TYPE;
+
 const getConnectionIssuesParam = (category) => {
   switch(category) {
     case CATEGORY.STALE_DATA:
-      return ['staleData'];
+      return [STALE_DATA];
     case CATEGORY.ERROR_OR_DC:
-      return ['disconnected', 'erroring'];
+      return [DISCONNECTED, ERRORING];
     case CATEGORY.INVITE_SENT:
-      return ['staleConnectionInvitation'];
+      return [STALE_CONNECTION_INVITATION];
     case CATEGORY.INVITE_EXPIRED:
-      return ['expiredConnectionInvitation'];
+      return [EXPIRED_CONNECTION_INVITATION];
     case CATEGORY.HIDDEN:
     case CATEGORY.DEFAULT:
       return [
-        'staleData',
-        'disconnected',
-        'erroring',
-        'staleConnectionInvitation',
-        'expiredConnectionInvitation',
+        STALE_DATA,
+        DISCONNECTED,
+        ERRORING,
+        STALE_CONNECTION_INVITATION,
+        EXPIRED_CONNECTION_INVITATION,
       ];
     default:
       return undefined;
