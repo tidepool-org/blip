@@ -918,21 +918,21 @@ describe('ClinicPatients', ()  => {
         window.HTMLElement.prototype.scrollIntoView = jest.fn();
       });
 
-      it('offers the patient list export to an admin on a clinic with summary data', async () => {
-        renderFor('tier0201');
+      it('offers the patient list export to an admin on an essential clinic that has no summary dashboard', async () => {
+        renderFor('tier0200', { flags: { showSummaryDashboard: false } });
 
         await userEvent.click(screen.getByRole('button', { name: /Export/ }));
         expect(screen.getByText('Patient List')).toBeInTheDocument();
       });
 
       it('withholds the patient list export from a non-admin on the same clinic', async () => {
-        renderFor('tier0201', { roles: ['CLINIC_MEMBER'] });
+        renderFor('tier0200', { roles: ['CLINIC_MEMBER'] });
 
         expect(screen.queryByRole('button', { name: /Export/ })).not.toBeInTheDocument();
       });
 
-      it('renders no Export dropdown on a clinic without summary dashboard access', async () => {
-        renderFor('tier0100', { flags: { showSummaryDashboard: false } });
+      it('withholds the patient list export from a base tier clinic, even with the summary dashboard flag on', async () => {
+        renderFor('tier0100', { flags: { showSummaryDashboard: true } });
 
         expect(screen.queryByRole('button', { name: /Export/ })).not.toBeInTheDocument();
       });

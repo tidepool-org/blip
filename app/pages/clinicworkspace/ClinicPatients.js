@@ -577,7 +577,7 @@ export const ClinicPatients = (props) => {
   const previousShowSummaryData = usePrevious(showSummaryData)
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
-  const showPatientListExportUI = showSummaryData && isClinicAdmin;
+  const showPatientListExportUI = isClinicAdmin && !!clinic?.entitlements?.exportPatientList;
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -1550,23 +1550,24 @@ export const ClinicPatients = (props) => {
                     activeSummaryPeriod={activeSummaryPeriod}
                     setActiveSummaryPeriod={setActiveSummaryPeriod}
                   />
+                </Flex>
+              )}
 
-                  {(showRpmReportUI || showPatientListExportUI) && (
-                    <Flex
-                      alignItems="center"
-                      color="grays.4"
-                      py="1px"
-                      pl={[0, 0, 3]}
-                      sx={{ borderLeft: ['none', null, borders.dividerDarkThin] }}
-                    >
-                      <ExportDropdown
-                        period={activeSummaryPeriod}
-                        showRpmReport={showRpmReportUI}
-                        showPatientListExport={showPatientListExportUI}
-                        onSelectRpmReport={handleConfigureRpmReport}
-                      />
-                    </Flex>
-                  )}
+              {/* Export dropdown */}
+              {(showRpmReportUI || showPatientListExportUI) && (
+                <Flex
+                  alignItems="center"
+                  color="grays.4"
+                  py="1px"
+                  pl={showSummaryData ? [0, 0, 3] : 0}
+                  sx={{ borderLeft: showSummaryData ? ['none', null, borders.dividerDarkThin] : 'none' }}
+                >
+                  <ExportDropdown
+                    period={activeSummaryPeriod}
+                    showRpmReport={showRpmReportUI}
+                    showPatientListExport={showPatientListExportUI}
+                    onSelectRpmReport={handleConfigureRpmReport}
+                  />
                 </Flex>
               )}
 

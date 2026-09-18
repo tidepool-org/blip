@@ -13,6 +13,7 @@ import Button from '../../../components/elements/Button';
 import Popover from '../../../components/elements/Popover';
 import PatientListIcon from '../../../core/icons/PatientListIcon.svg';
 import { trackMetric } from '../../../core/metricUtils';
+import utils from '../../../core/utils';
 import { summaryPeriodOptions } from '../../../core/clinicUtils';
 import { useExportPatientListMutation } from '../../../redux/features/patientListExport/patientListExportApi';
 import { useToasts } from '../../../providers/ToastProvider';
@@ -41,10 +42,7 @@ const ExportDropdown = ({
 
     try {
       const { csv, filename } = await exportPatientList({ clinicId: selectedClinicId, period }).unwrap();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-      a.download = filename;
-      a.click();
+      utils.downloadCsv(csv, filename);
       setToast({ message: t('Your patient list will download shortly.'), variant: 'success' });
     } catch {
       setToast({ message: t('We were unable to generate your report. Please try again.'), variant: 'danger' });
