@@ -17,6 +17,13 @@ import ClinicPatients from '@app/pages/clinicworkspace/ClinicPatients';
 import { useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
 jest.mock('launchdarkly-react-client-sdk');
 
+// The page mounts with redux-mock-store, which carries no RTK Query middleware; the
+// real request path is covered by the ExportDropdown suite.
+jest.mock('@app/redux/features/patientListExport/patientListExportApi', () => ({
+  __esModule: true,
+  useExportPatientListMutation: () => [jest.fn(), { isLoading: false }],
+}));
+
 const TEST_TIMEOUT_MS = 30_000;
 
 describe('ClinicPatients', ()  => {
@@ -875,6 +882,59 @@ describe('ClinicPatients', ()  => {
             );
           }, TEST_TIMEOUT_MS);
         });
+      });
+    });
+
+    describe('Export dropdown', () => {
+      const clinicStateFor = (tier, roles) => {
+        const clinic = {
+          ...hasPatientsState.blip.clinics.clinicID123,
+          tier,
+          clinicians: { clinicianUserId123: { ...clinicianUserId123, roles } },
+        };
+
+        return {
+          blip: {
+            ...hasPatientsState.blip,
+            clinics: { clinicID123: { ...clinic, ...clinicUIDetails(clinic) } },
+          },
+        };
+      };
+
+      const renderFor = (tier, { roles = ['CLINIC_ADMIN'], flags = {} } = {}) => {
+        store = mockStore(clinicStateFor(tier, roles));
+
+        useFlags.mockReturnValue({ showSummaryDashboard: true, ...flags });
+        useLDClient.mockReturnValue({ getContext: jest.fn(() => ({ clinic: { tier } })) });
+
+        return render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+      };
+
+      beforeEach(() => {
+        window.HTMLElement.prototype.scrollIntoView = jest.fn();
+      });
+
+      it('offers the patient list export to an admin on an essential clinic that has no summary dashboard', async () => {
+        renderFor('tier0200', { flags: { showSummaryDashboard: false } });
+
+        await userEvent.click(screen.getByRole('button', { name: /Export/ }));
+        expect(screen.getByText('Patient List')).toBeInTheDocument();
+      });
+
+      it('withholds the patient list export from a non-admin on the same clinic', async () => {
+        renderFor('tier0200', { roles: ['CLINIC_MEMBER'] });
+
+        expect(screen.queryByRole('button', { name: /Export/ })).not.toBeInTheDocument();
+      });
+
+      it('withholds the patient list export from a base tier clinic, even with the summary dashboard flag on', async () => {
+        renderFor('tier0100', { flags: { showSummaryDashboard: true } });
+
+        expect(screen.queryByRole('button', { name: /Export/ })).not.toBeInTheDocument();
       });
     });
   });
