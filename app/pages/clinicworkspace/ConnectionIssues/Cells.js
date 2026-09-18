@@ -1,8 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Text, Flex } from 'theme-ui';
-import moment from 'moment-timezone';
-import { providers } from '../../../components/datasources/DataConnections';
+import { providers, getCurrentDataSourceForProvider } from '../../../components/datasources/DataConnections';
 import { colors as vizColors } from '@tidepool/viz';
 import { useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
@@ -88,10 +87,10 @@ export const StatusSummaryCell = ({ patient }) => {
 
   switch(deviceIssue._type) {
     case STALE_DATA: {
-      const providerIssues = patient?.dataSources?.filter(ds => ds.providerName === deviceIssue.providerId) || [];
-      const daysAgo = getDaysAgo(providerIssues[0]?.latestDataTime);
+      const dataSource = getCurrentDataSourceForProvider(patient, deviceIssue.providerId);
+      const daysAgo = getDaysAgo(dataSource?.latestDataTime);
 
-      label = daysAgo === null ? '-' : t('Disconnected {{daysAgo}} days ago', { daysAgo });
+      label = daysAgo === null ? '-' : t('Last data sync {{daysAgo}} days ago', { daysAgo });
       color = vizColors.red50;
       break;
     }
