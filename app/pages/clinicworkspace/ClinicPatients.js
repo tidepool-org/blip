@@ -77,10 +77,10 @@ import PopoverLabel from '../../components/elements/PopoverLabel';
 import Popover from '../../components/elements/Popover';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
-import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
 import ClearFilterButtons, { PATIENT_QUERY_STATE } from './components/ClearFilterButtons';
+import ExportDropdown from './components/ExportDropdown';
 
 import {
   Dialog,
@@ -577,6 +577,7 @@ export const ClinicPatients = (props) => {
   const previousShowSummaryData = usePrevious(showSummaryData)
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
+  const showPatientListExportUI = showSummaryData && isClinicAdmin;
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -1550,34 +1551,36 @@ export const ClinicPatients = (props) => {
                     setActiveSummaryPeriod={setActiveSummaryPeriod}
                   />
 
-                  {showRpmReportUI && (
+                  {(showRpmReportUI || showPatientListExportUI) && (
                     <Flex
                       alignItems="center"
                       color="grays.4"
                       py="1px"
                       pl={[0, 0, 3]}
-                      sx={{ borderLeft: ['none', null, borders.divider] }}
+                      sx={{ borderLeft: ['none', null, borders.dividerDarkThin] }}
                     >
-                      <Button
-                        id="open-rpm-report-config"
-                        variant="tertiary"
-                        onClick={handleConfigureRpmReport}
-                        lineHeight={1.3}
-                        px={2}
-                        py={1}
-                        iconSrc={TabularReportIcon}
-                        iconPosition="left"
-                        sx={{ fontSize: 0 }}
-                      >
-                        {t('RPM Report')}
-                      </Button>
+                      <ExportDropdown
+                        period={activeSummaryPeriod}
+                        showRpmReport={showRpmReportUI}
+                        showPatientListExport={showPatientListExportUI}
+                        onSelectRpmReport={handleConfigureRpmReport}
+                      />
                     </Flex>
                   )}
                 </Flex>
               )}
 
             {/* Info/Visibility Icons */}
-            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexShrink: 0, alignItems: 'center' }}>
+            <Flex
+              pl={showSummaryData ? [0, 0, 3] : 0}
+              sx={{
+                gap: 2,
+                justifyContent: 'flex-end',
+                flexShrink: 0,
+                alignItems: 'center',
+                borderLeft: showSummaryData ? ['none', null, borders.dividerDarkThin] : 'none',
+              }}
+            >
               {showSummaryData && isPatientListVisible && (
                 <>
                   <PopoverLabel
