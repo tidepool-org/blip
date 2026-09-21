@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import Button from '../../../../components/elements/Button';
-import { MS_IN_HOUR } from '../../../../core/constants';
+import Button from '../../../components/elements/Button';
+import { MS_IN_HOUR } from '../../../core/constants';
 import { Box, Flex } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
 const { agpCGMText } = vizUtils.text;

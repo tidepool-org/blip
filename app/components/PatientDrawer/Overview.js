@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
@@ -53,11 +52,9 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
-const Overview = ({ patientId, agpCGMData }) => {
+const Overview = ({ patient, agpCGMData }) => {
   const { t } = useTranslation();
   const { status, svgDataURLS, agpCGM, offsetAgpCGM } = agpCGMData;
-  const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  const patient = clinic?.patients?.[patientId];
 
   if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
   if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientData />;
