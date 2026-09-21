@@ -23,7 +23,7 @@ import useAuthorizationGate from './useAuthorizationGate';
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
 import EditPatientDialogController from './modals/EditPatientDialogController';
-import DataConnectionsModalController from './modals/DataConnectionsModalController';
+import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
@@ -96,7 +96,7 @@ const TideDashboardV2 = ({ api }) => {
       <PaginationController total={total} resolvedOffset={resolvedOffset} />
 
       <EditPatientDialogController api={api} patients={patients} />
-      <DataConnectionsModalController patients={patients}/>
+      <DataConnectionsDialogController patients={patients}/>
     </>
   );
 };
