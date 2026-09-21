@@ -60,6 +60,7 @@ const ExportDropdown = ({
         processing={isLoading}
         sx={{ fontSize: 0, lineHeight: 1.3 }}
         {...bindTrigger(popupState)}
+        aria-expanded={popupState.isOpen}
       >
         {t('Export')}
       </Button>
