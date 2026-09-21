@@ -21,7 +21,7 @@ import {
 import EmptyContentNode from '../EmptyContentNode';
 import useTideReportNoDataPatients from './useTideReportNoDataPatients';
 import EditPatientDialogController from './EditPatientDialogController';
-import DataConnectionsModalController from './DataConnectionsModalController';
+import DataConnectionsDialogController from './DataConnectionsDialogController';
 import { useGetPatientFromClinicQuery } from './tideDashboardLegacyApi';
 import Icon from '../../../../components/elements/Icon';
 
@@ -161,7 +161,7 @@ const DataIssues = ({ api }) => {
         onClose={handleCloseModals}
       />
 
-      <DataConnectionsModalController
+      <DataConnectionsDialogController
         isOpen={isDataConnectionsModalOpen}
         patient={activePatient}
         onClose={handleCloseModals}
