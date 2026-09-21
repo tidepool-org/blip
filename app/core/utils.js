@@ -559,7 +559,9 @@ utils.downloadCsv = (csv, filename) => {
   a.href = url;
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(url);
+  // Revocation is deferred: the download fetch is async, and revoking in the same
+  // tick can kill it before the browser reads the blob.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 };
 
 export default utils;
