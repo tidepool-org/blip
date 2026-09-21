@@ -1,23 +1,36 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Table from '../../../components/elements/Table';
-import { Flex } from 'theme-ui';
+import { Flex, Text, Box } from 'theme-ui';
 
-import FilterByCategory from './FilterByCategory';
+import FilterByCategory from './filters/FilterByCategory';
+import FilterByTags from './filters/FilterByTags';
+import FilterBySites from './filters/FilterBySites';
+import FilterByDataRecency from './filters/FilterByDataRecency';
+import FilterBySummaryPeriod from './filters/FilterBySummaryPeriod';
+import AppliedFiltersList from './filters/AppliedFiltersList';
 
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationController from './PaginationController';
 
 import useTideDashboardPatients from './useTideDashboardPatients';
+import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 
+const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
+
 const tableContainerProps = { sx: { containerType: 'inline-size' } };
 
 const TideDashboardV2 = () => {
   const { search } = useLocation();
+  const { t } = useTranslation();
+
+  usePruneInvalidFilters();
+
   const category = useSelector(state => state.blip.tideDashboard.category);
 
   const { isAuthorized, isUnauthorized } = useAuthorizationGate();
@@ -41,11 +54,21 @@ const TideDashboardV2 = () => {
 
   return (
     <>
+      <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Text sx={{ fontSize: 0, color: 'grays.4' }}>{t('Filter By')}</Text>
+        <FilterByTags />
+        <FilterBySites />
+        <FilterByDataRecency />
+        <Gap />
+        <FilterBySummaryPeriod />
+      </Flex>
+
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
       </Flex>
 
       <TableCategoryHeader category={resolvedCategory} />
+      <AppliedFiltersList patientCount={total} />
       <Table
         id="tideDashboardPatientsTable"
         variant="condensed"

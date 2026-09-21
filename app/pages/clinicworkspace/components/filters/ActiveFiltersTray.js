@@ -1,24 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import { useTranslation, withTranslation } from 'react-i18next';
-import { Flex, Text, Box } from 'theme-ui';
+import { useTranslation } from 'react-i18next';
+import { Flex, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import LocationOnOutlinedIcon from '@material-ui/icons/LocationOnOutlined';
-import TagIcon from '../../../core/icons/tagIcon.svg';
+import TagIcon from '../../../../core/icons/tagIcon.svg';
 
 import find from 'lodash/find';
 import isEqual from 'lodash/isEqual';
 import noop from 'lodash/noop';
 
-import Icon from '../../../components/elements/Icon';
-import utils from '../../../core/utils';
-import { transitions } from '../../../themes/baseTheme';
-import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
+import Icon from '../../../../components/elements/Icon';
+import utils from '../../../../core/utils';
+import { transitions } from '../../../../themes/baseTheme';
+import { SPECIAL_FILTER_STATES } from '../../useClinicPatientsFilters';
 
-const usePrimaryChips = (activeFilters) => {
+const usePrimaryChips = (activeFilters, requiredFilters) => {
   const { t } = useTranslation();
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange = [] } = activeFilters;
 
@@ -47,6 +47,7 @@ const usePrimaryChips = (activeFilters) => {
       type: 'lastData',
       value: `${lastDataType}-${lastData}`,
       label: getLastDataChipLabel(lastDataType, lastData),
+      required: requiredFilters?.['lastData'] || false,
     }),
 
     // CGM Wear Time Filter
@@ -111,8 +112,9 @@ const useSiteChips = (clinicSites = []) => {
     .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 };
 
-const Chip = ({ label, onRemove }) => {
+const Chip = ({ label, onRemove, required = false }) => {
   const { t } = useTranslation();
+  const canRemove = !required;
 
   return (
     <Flex
@@ -125,10 +127,10 @@ const Chip = ({ label, onRemove }) => {
         fontWeight: 'normal',
         cursor: 'default',
         ml: 1,
-        '&:hover': {
+        '&:hover': canRemove ? {
           color: vizColors.blue80,
           fontWeight: 'medium',
-        },
+        } : {},
         '.remove-filter-icon': {
           fontSize: '14px',
           padding: '2px',
@@ -150,16 +152,18 @@ const Chip = ({ label, onRemove }) => {
         },
       }}
     >
-      <Text sx={{ textDecoration: 'underline', whiteSpace: 'nowrap' }}>
+      <Text sx={{ textDecoration: canRemove ? 'underline' : 'none', whiteSpace: 'nowrap' }}>
         {label}
       </Text>
 
-      <Icon
-        className="remove-filter-icon"
-        icon={CloseRoundedIcon}
-        label={t('Remove {{ label }} filter', { label })}
-        onClick={onRemove}
-      />
+      { canRemove &&
+        <Icon
+          className="remove-filter-icon"
+          icon={CloseRoundedIcon}
+          label={t('Remove {{ label }} filter', { label })}
+          onClick={onRemove}
+        />
+      }
     </Flex>
   );
 };
@@ -175,6 +179,7 @@ const ChipGroup = ({ prefix, chips, onRemove }) => {
         <Chip
           key={`${chip.type}-${chip.value || 'filter'}`}
           label={chip.label}
+          required={chip.required}
           onRemove={() => onRemove(chip)}
         />
       ))}
@@ -183,22 +188,21 @@ const ChipGroup = ({ prefix, chips, onRemove }) => {
 };
 
 const ActiveFiltersTray = ({
+  patientCount = 0,
   filters = {},
+  requiredFilters = {},
   hasSearchActive = false,
   onRemoveFilter = noop,
   rightContent = null,
 }) => {
   const { t } = useTranslation();
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-
-  const primaryChips = usePrimaryChips(filters);
+  const primaryChips = usePrimaryChips(filters, requiredFilters);
   const tagChips = useTagChips(filters.patientTags);
   const siteChips = useSiteChips(filters.clinicSites);
 
-  const count = clinic?.fetchedPatientCount || 0;
-
   const handleRemoveChip = chip => onRemoveFilter(chip.type, chip.value);
+
+  const count = patientCount;
 
   return (
     <Flex
@@ -267,6 +271,8 @@ const ActiveFiltersTray = ({
 };
 
 ActiveFiltersTray.propTypes = {
+  patientCount: PropTypes.number,
+  requiredFilters: PropTypes.object,
   filters: PropTypes.shape({
     lastData: PropTypes.number,
     lastDataType: PropTypes.oneOf(['bgm', 'cgm']),
