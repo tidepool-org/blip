@@ -553,4 +553,15 @@ utils.compareLabels = (string1, string2) => {
   return string1.localeCompare(string2, undefined, { caseFirst: 'upper', numeric: true });
 };
 
+utils.downloadCsv = (csv, filename) => {
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  // Revocation is deferred: the download fetch is async, and revoking in the same
+  // tick can kill it before the browser reads the blob.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+};
+
 export default utils;
