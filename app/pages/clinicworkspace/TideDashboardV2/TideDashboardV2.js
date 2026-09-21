@@ -22,7 +22,7 @@ import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 
 import EditPatientDialogController from './modals/EditPatientDialogController';
-import DataConnectionsModalController from './modals/DataConnectionsModalController';
+import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
@@ -85,7 +85,7 @@ const TideDashboardV2 = ({ api }) => {
       <PaginationController total={total} />
 
       <EditPatientDialogController api={api} patients={patients} />
-      <DataConnectionsModalController patients={patients}/>
+      <DataConnectionsDialogController patients={patients}/>
     </>
   );
 };

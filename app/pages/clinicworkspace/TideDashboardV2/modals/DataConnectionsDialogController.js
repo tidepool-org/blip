@@ -1,9 +1,9 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import DataConnectionsModal from '../../../../components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../../../components/datasources/DataConnectionsDialog';
 import { closeModals } from '../tideDashboardSlice';
 
-const DataConnectionsModalController = ({ patients }) => {
+const DataConnectionsDialogController = ({ patients }) => {
   const dispatch = useDispatch();
 
   const dataConnectionsModal = useSelector(state => state.blip.tideDashboard.dataConnectionsModal);
@@ -14,7 +14,7 @@ const DataConnectionsModalController = ({ patients }) => {
   const handleClose = () => dispatch(closeModals());
 
   return (
-    <DataConnectionsModal
+    <DataConnectionsDialog
       open={isOpen}
       patient={patient}
       onClose={handleClose}
@@ -22,4 +22,4 @@ const DataConnectionsModalController = ({ patients }) => {
   );
 };
 
-export default DataConnectionsModalController;
+export default DataConnectionsDialogController;
