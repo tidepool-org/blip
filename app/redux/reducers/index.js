@@ -20,6 +20,7 @@ import working from './working';
 import pdf from './pdf';
 import data from './data';
 import patientListFilters from './patientListFilters';
+import tideDashboard from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
 import {
   bgPrefs,
@@ -109,4 +110,5 @@ export default combineReducers({
   pendoData,
   clinicMRNsForPatientFormValidation,
   patientListFilters,
+  tideDashboard,
 });
