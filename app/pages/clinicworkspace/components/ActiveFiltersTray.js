@@ -221,7 +221,7 @@ const ActiveFiltersTray = ({
           minWidth: 0,
           alignItems: 'center',
           columnGap: '4px',
-          rowGap: '8px',
+          rowGap: '4px',
           flexWrap: 'wrap',
         }}
       >
