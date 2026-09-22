@@ -109,6 +109,7 @@ import {
   rpmReportConfigSchema,
   maxClinicPatientTags,
   maxWorkspaceClinicSites,
+  getPatientTags,
 } from '../../core/clinicUtils';
 
 import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
@@ -532,7 +533,7 @@ const PatientTags = ({
     horizontal: 'center',
   }), []);
 
-  const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
+  const resolvedPatientTags = getPatientTags(clinic, patient);
 
   const handleEditPatient = useCallback(() => {
     editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'tag list');
@@ -542,14 +543,14 @@ const PatientTags = ({
   const hasMrnError = !patient.mrn && clinic?.mrnSettings?.required;
   const addTagsBindTrigger = hasMrnError ? {} : bindTrigger(addPatientTagsPopupState); // if MRN error, do not pass bindTrigger
 
-  return !!filteredPatientTags.length ? (
+  return !!resolvedPatientTags.length ? (
     <TagList
       maxTagsVisible={4}
       maxCharactersVisible={12}
       popupId={`tags-overflow-${patient?.id}`}
       onClickEdit={handleEditPatient}
       tagProps={{ variant: 'compact' }}
-      tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
+      tags={resolvedPatientTags}
     />
   ) : (
     <Box onClick={event => event.stopPropagation()}>
@@ -1630,8 +1631,8 @@ export const ClinicPatients = (props) => {
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
 
-    const sortedSiteFilterOptions = clinicSitesFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
-    const sortedTagFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
+    const sortedSiteFilterOptions = utils.sortByLabel(clinicSitesFilterOptions, 'label');
+    const sortedTagFilterOptions = utils.sortByLabel(patientTagsFilterOptions, 'label');
 
     const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
@@ -3201,7 +3202,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicSitesDialog = useCallback(() => {
-    const orderedSites = clinic?.sites?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedSites = utils.sortByLabel(clinic?.sites);
 
     return (
       <Dialog
@@ -3381,7 +3382,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
-    const orderedTags = clinic?.patientTags?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedTags = utils.sortByLabel(clinic?.patientTags);
 
     return (
       <Dialog

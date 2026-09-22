@@ -19,8 +19,7 @@ export const buildSelectOptions = (
   shouldSuggestSites = false,
 ) => {
   // Format sites for react-select (label and value properties), then sort
-  const options = clinicSites.map(site => ({ label: site.name, value: site.id }))
-    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+  const options = utils.sortByLabel(clinicSites.map(site => ({ label: site.name, value: site.id })), 'label');
 
   // If suggesting is disabled, return a single group of all options
   if (!shouldSuggestSites) return [{ options: options, label: '' }];

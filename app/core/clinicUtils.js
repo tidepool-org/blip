@@ -97,15 +97,13 @@ export const timezoneOptions = map(
 export const maxClinicPatientTags = 50;
 export const maxWorkspaceClinicSites = 50;
 
-const byName = (a, b) => utils.compareLabels(a.name, b.name);
-
 // The clinic patient's tags and sites resolved against the clinic catalogue, sorted alphabetically by name.
 // Ids no longer in the catalogue are dropped.
 export const getPatientTags = (clinic, clinicPatient) =>
-  filter(clinic?.patientTags, ({ id }) => includes(clinicPatient?.tags, id)).toSorted(byName);
+  utils.sortByLabel(filter(clinic?.patientTags, ({ id }) => includes(clinicPatient?.tags, id)));
 
 export const getPatientSites = (clinic, clinicPatient) =>
-  filter(clinic?.sites, ({ id }) => includes(map(clinicPatient?.sites, 'id'), id)).toSorted(byName);
+  utils.sortByLabel(filter(clinic?.sites, ({ id }) => includes(map(clinicPatient?.sites, 'id'), id)));
 
 export const clinicPlansNames = {
   base: t('Base'),

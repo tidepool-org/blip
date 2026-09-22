@@ -14,8 +14,8 @@ import { utils as vizUtils } from '@tidepool/viz';
 jest.mock('@app/core/utils', () => ({
   __esModule: true,
   default: {
+    ...jest.requireActual('@app/core/utils').default,
     getBGPrefsForDataProcessing: jest.fn().mockReturnValue({ units: 'mg/dL' }),
-    compareLabels: jest.requireActual('@app/core/utils').default.compareLabels,
   },
 }));
 

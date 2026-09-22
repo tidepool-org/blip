@@ -19,8 +19,7 @@ export const buildSelectOptions = (
   shouldSuggestTags = false,
 ) => {
   // Format tags for react-select (label and value properties), then sort
-  const options = clinicTags.map(tag => ({ label: tag.name, value: tag.id }))
-    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+  const options = utils.sortByLabel(clinicTags.map(tag => ({ label: tag.name, value: tag.id })), 'label');
 
   // If suggesting is disabled, return a single group of all options
   if (!shouldSuggestTags) return [{ options: options, label: '' }];

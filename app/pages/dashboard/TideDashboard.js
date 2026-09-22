@@ -78,6 +78,7 @@ import {
   tideDashboardConfigSchema,
   lastDataFilterOptions,
   summaryPeriodOptions,
+  getPatientTags,
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
@@ -342,7 +343,6 @@ const TideDashboardSection = React.memo(props => {
     emptyContentNode,
     emptyText,
     patients,
-    patientTags,
     section,
     sections,
     selectedClinicId,
@@ -356,6 +356,7 @@ const TideDashboardSection = React.memo(props => {
     trackMetric,
   } = props;
 
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const statEmptyText = '--';
 
   const dexcomConnectStateUI = React.useMemo(() => ({
@@ -497,19 +498,15 @@ const TideDashboardSection = React.memo(props => {
     );
   }, []);
 
-  const renderPatientTags = useCallback(({ patient }) => {
-    const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
-
-    return (
-      <TagList
-          maxTagsVisible={4}
-          maxCharactersVisible={12}
-          popupId={`tags-overflow-${patient?.id}`}
-          tagProps={{ variant: 'compact' }}
-          tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
-      />
-    );
-  }, [patientTags]);
+  const renderPatientTags = useCallback(({ patient }) => (
+    <TagList
+        maxTagsVisible={4}
+        maxCharactersVisible={12}
+        popupId={`tags-overflow-${patient?.id}`}
+        tagProps={{ variant: 'compact' }}
+        tags={getPatientTags(clinic, patient)}
+    />
+  ), [clinic]);
 
   const renderLastReviewed = useCallback(({ patient }) => {
     return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="TIDE dashboard" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('isoWeek').toISOString()} />
@@ -1372,7 +1369,6 @@ export const TideDashboard = (props) => {
       clinicBgUnits,
       config,
       dispatch,
-      patientTags,
       sections,
       selectedClinicId,
       setSelectedPatient,
@@ -1446,7 +1442,6 @@ export const TideDashboard = (props) => {
     config,
     dispatch,
     patientGroups,
-    patientTags,
     sections,
     selectedClinicId,
     setSelectedPatient,

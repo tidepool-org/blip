@@ -34,6 +34,7 @@ import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
+import { getPatientSites, getPatientTags } from '../../core/clinicUtils';
 import { getMostRecentDatumTimeByChartType, getStatsByChartType } from '../../core/dataViewUtils';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
@@ -1334,18 +1335,10 @@ export const PatientDataClass = createReactClass({
     const diagnosisType = clinicPatient?.diagnosisType || patient?.profile?.patient?.diagnosisType;
     const diagnosisTypeLabel = DIABETES_TYPES().find(t => t.value === diagnosisType)?.label; // eslint-disable-line new-cap
 
-    // Tags
-    const patientTagIds = clinicPatient?.tags || [];
-    const patientTags = clinic?.patientTags?.filter(tag => patientTagIds.includes(tag.id)) || [];
-
-    // Sites
-    const patientSiteIds = clinicPatient?.sites?.map(s => s.id) || [];
-    const sites = clinic?.sites?.filter(site => patientSiteIds.includes(site.id)) || [];
-
     return {
       diagnosisTypeLabel,
-      patientTags: isClinicianAccount ? patientTags : [],
-      sites: isClinicianAccount ? sites: [],
+      patientTags: isClinicianAccount ? getPatientTags(clinic, clinicPatient) : [],
+      sites: isClinicianAccount ? getPatientSites(clinic, clinicPatient) : [],
     };
   },
 
