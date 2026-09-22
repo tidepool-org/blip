@@ -130,8 +130,8 @@ describe('ClinicPatientsPrintModal', () => {
 
       wrapper = renderComponent();
 
-      expect(document.body.querySelector('.PatientFormSelectTags__multi-value__label').textContent).toEqual('A tag');
-      expect(document.body.querySelector('.PatientFormSelectSites__multi-value__label').textContent).toEqual('A site');
+      expect(document.body.querySelector('.PatientFormSelectTags__multi-value__label')).toHaveTextContent('A tag');
+      expect(document.body.querySelector('.PatientFormSelectSites__multi-value__label')).toHaveTextContent('A site');
     });
   });
 });
