@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
+import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
@@ -86,10 +87,14 @@ export const MainContent = (props) => {
     });
   };
 
+  // Split-date charts can have a window that is offset from midnight.
+  // The window cannot end beyond the time of the last datum.
+  const isSplitDateChartType = (chartType) => {
+    return ['agpBGM', 'agpCGM', 'basics'].includes(chartType);
+  };
+
   const getLastNDays = (days, chartType) => {
-    // Basics chart can have a window that is offset from midnight.
-    // The window cannot end beyond the time of the last datum.
-    if (chartType === 'basics') {
+    if (isSplitDateChartType(chartType)) {
       return getLastN24HourPeriods(days, chartType);
     }
 
@@ -239,8 +244,8 @@ export const MainContent = (props) => {
     moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
   ] : []);
 
-  // Basics is a special because it allows split dates
-  const formatBasicsDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
+  // Split-date charts are special because their window may be offset from midnight
+  const formatSplitDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     moment.utc(startDate).tz(timezoneName).valueOf(),
     moment.utc(endDate).tz(timezoneName).valueOf(),
   ] : []);
@@ -251,7 +256,7 @@ export const MainContent = (props) => {
     setRangePresets({ ...rangePresets, [key]: presetIndex })
   };
 
-  const handleSplitDatesChange = (newDates, chartType = 'basics') => {
+  const handleSplitDatesChange = (newDates, chartType) => {
     const mostRecentDatumMoment = moment.utc(mostRecentDatumDates[chartType]).tz(timezoneName);
     const midnightAlignedDates = setDateRangeToExtents(newDates);
 
@@ -277,7 +282,7 @@ export const MainContent = (props) => {
   };
 
   const handleDatesChange = (newDates, chartType) => {
-    if (chartType === 'basics') {
+    if (isSplitDateChartType(chartType)) {
       return handleSplitDatesChange(newDates, chartType);
     }
 
@@ -297,9 +302,9 @@ export const MainContent = (props) => {
     if (!isEqual(validationErrors, defaults.errors)) return;
 
     const printOpts = {
-      agpBGM: { endpoints: formatDateEndpoints(dates.agpBGM), disabled: !enabled.agpBGM },
-      agpCGM: { endpoints: formatDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
-      basics: { endpoints: formatBasicsDateEndpoints(dates.basics), disabled: !enabled.basics },
+      agpBGM: { endpoints: formatSplitDateEndpoints(dates.agpBGM), disabled: !enabled.agpBGM },
+      agpCGM: { endpoints: formatSplitDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
+      basics: { endpoints: formatSplitDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
       daily: {
         endpoints: formatDateEndpoints(dates.daily),
