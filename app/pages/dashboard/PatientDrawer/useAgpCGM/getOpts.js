@@ -5,7 +5,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import utils from '../../../../core/utils';
 import { getMostRecentDatumTimeByChartType } from '../../../../core/dataViewUtils';
 
-const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
+const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 const getOpts = (
   requestId,
@@ -30,34 +30,34 @@ const getOpts = (
 
   const endOfToday = moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms');
 
-  const setDateRangeToExtents = ({ startDate, endDate }) => ({
-    startDate: startDate ? moment.utc(startDate).tz(timezoneName).startOf('day') : null,
-    endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
-  });
-
-  const getLastNDays = (days, chartType) => {
+  const getLastN24HourPeriods = (numOfPeriods, chartType) => {
     const endDate = get(mostRecentDatumDates, chartType)
       ? moment.utc(mostRecentDatumDates[chartType])
       : endOfToday;
 
-    return setDateRangeToExtents({
-      startDate: moment.utc(endDate).tz(timezoneName).subtract(days - 1, 'days'),
-      endDate,
+    const endHourCeiling = getLocalizedCeiling(endDate.valueOf(), timePrefs, 'hour');
+
+    const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
+    const startHourCeiling = getLocalizedCeiling(startDate.valueOf(), timePrefs, 'hour');
+
+    return ({
+      startDate: moment.utc(startHourCeiling).tz(timezoneName),
+      endDate: moment.utc(endHourCeiling).tz(timezoneName),
     });
   };
 
-  // Get the date range for the current AGP, ending the date of the latest datum
-  const dates = getLastNDays(agpPeriodInDays, 'agpCGM');
+  // Get the date range for the current AGP, ending at the hour ceiling of the latest datum
+  const dates = getLastN24HourPeriods(agpPeriodInDays, 'agpCGM');
 
-  // Get the date range for the offset AGP, ending the moment before the start of current AGP
+  // Get the date range for the offset AGP, ending exactly where the current AGP begins
   const offsetDates = {
     startDate: dates.startDate.clone().subtract(agpPeriodInDays, 'days'),
-    endDate: dates.startDate.clone().subtract(1, 'ms'),
+    endDate: dates.startDate.clone(),
   };
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     startDate.valueOf(),
-    moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
+    endDate.valueOf(),
   ] : []);
 
   const opts = {

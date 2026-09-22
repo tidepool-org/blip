@@ -80,8 +80,9 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const {
     data: {
       current: {
+        endpoints: { range: endpointsRange } = {},
         stats: {
-          bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
+          bgExtents: { newestDatum, bgDaysWorn },
           sensorUsage: { sensorUsageAGP: offsetSensorUsageAGPRaw },
           timeInRange: { counts: offsetCounts },
         },
@@ -90,7 +91,7 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   } = offsetAgpCGM;
 
   const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const dateRange  = getReportDaysText(newestDatum, oldestDatum, bgDaysWorn, timezone);
+  const dateRange  = getReportDaysText({ endpointsRange, newestDatum, bgDaysWorn, timezone });
   const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
 
   // Current Period Values
@@ -190,7 +191,7 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
     <>
       <Flex mb={2} sx={{ justifyContent: 'space-between', fontSize: 1, fontWeight: 'medium', color: vizColors.gray50 }}>
         <Box>{t('Tidepool Summary: Changes Since Last Time Period')}</Box>
-        <Box sx={{ fontWeight: 'normal' }}>
+        <Box sx={{ fontWeight: 'normal' }} data-testid="cgm-delta-summary-time-range">
           {t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange: values.dateRange, bgDaysWorn: values.roundedBgDaysWorn })}
         </Box>
       </Flex>
