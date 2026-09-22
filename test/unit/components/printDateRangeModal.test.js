@@ -10,6 +10,7 @@ import React from 'react';
 import moment from 'moment-timezone';
 import { render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 
 jest.mock('../../../app/core/metricUtils');
@@ -27,8 +28,21 @@ describe('PrintDateRangeModal', function () {
   const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
   const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
 
-  const store = mockStore({ blip: { loggedInUserId } });
-  const wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;
+  const selectedClinicId = 'clinicId123';
+
+  const store = mockStore({
+    blip: {
+      loggedInUserId,
+      selectedClinicId,
+      clinics: { [selectedClinicId]: { id: selectedClinicId, patientTags: [], sites: [] } },
+    },
+  });
+
+  const wrapper = ({ children }) => (
+    <Provider store={store}>
+      <MemoryRouter>{children}</MemoryRouter>
+    </Provider>
+  );
 
   const props = {
     loggedInUserId,
@@ -294,6 +308,175 @@ describe('PrintDateRangeModal', function () {
         daily: '30 days',
         settings: 'enabled',
       }]);
+    });
+  });
+
+  describe('tags and clinic sites', () => {
+    const patientTags = [{ id: 'tag-a', name: 'A tag' }, { id: 'tag-b', name: 'B tag' }];
+    const sites = [{ id: 'site-a', name: 'A site' }];
+
+    // The panels seed their selection when the dialog mounts, so each case renders fresh
+    // rather than re-rendering the suite's default (propless) instance.
+    const renderWith = (extraProps = { patientTags, sites }) => {
+      rendered.unmount();
+      rendered = render(<PrintDateRangeModal {...props} {...extraProps} />, { wrapper });
+    };
+
+    // The panels render the same react-select multi the Edit Patient Details form uses
+    const prefix = (key) => (key === 'tags' ? 'PatientFormSelectTags' : 'PatientFormSelectSites');
+    const chipNames = (key) => getAll(`.${prefix(key)}__multi-value__label`).map(el => el.textContent);
+    const removeChip = (key, i) => fireEvent.click(getAll(`.${prefix(key)}__multi-value__remove`)[i]);
+
+    // react-select opens its menu on mousedown, so the overflow control needs the full sequence
+    const clickOverflow = (key) => {
+      const trigger = get(`#${key}-content .value-overflow-count`);
+      fireEvent.mouseDown(trigger);
+      fireEvent.click(trigger);
+    };
+    const submit = () => fireEvent.click(get('button.print-submit'));
+
+    const manyTags = Array.from({ length: 25 }, (_, i) => ({
+      id: `tag-${i}`,
+      name: `Tag ${String(i).padStart(2, '0')}`,
+    }));
+
+    it('should not render either panel when the patient has no tags or sites', () => {
+      expect(get('#tags-header')).to.not.exist;
+      expect(get('#clinicSites-header')).to.not.exist;
+    });
+
+    it('should render both panels after Device Settings with everything selected', () => {
+      renderWith();
+
+      const headerIds = getAll('[id$="-header"]').map(el => el.id);
+      expect(headerIds).to.eql([
+        'agpCGM-header',
+        'agpBGM-header',
+        'basics-header',
+        'daily-header',
+        'bgLog-header',
+        'settings-header',
+        'tags-header',
+        'clinicSites-header',
+      ]);
+
+      expect(get('input[name="enabled-tags"]').checked).to.be.true;
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.true;
+      expect(get('#export-all-tags').checked).to.be.true;
+      expect(get('#export-all-clinicSites').checked).to.be.true;
+      expect(chipNames('tags')).to.eql(['A tag', 'B tag']);
+      expect(chipNames('clinicSites')).to.eql(['A site']);
+      expect(get('#tags-content .value-overflow-count')).to.not.exist;
+    });
+
+    it('should drop a removed chip from the selection and uncheck "Export all"', () => {
+      renderWith();
+      removeChip('tags', 0);
+
+      expect(get('#export-all-tags').checked).to.be.false;
+
+      submit();
+      expect(props.onClickPrint.getCall(0).args[0].tagSelection).to.eql({ enabled: true, ids: ['tag-b'] });
+    });
+
+    it('should clear the selection when "Export all" is unchecked and restore it when re-checked', () => {
+      renderWith();
+
+      fireEvent.click(get('#export-all-tags'));
+      expect(chipNames('tags')).to.eql([]);
+
+      submit();
+      expect(props.onClickPrint.getCall(0).args[0].tagSelection).to.eql({ enabled: true, ids: [] });
+
+      fireEvent.click(get('#export-all-tags'));
+      expect(chipNames('tags')).to.eql(['A tag', 'B tag']);
+
+      submit();
+      expect(props.onClickPrint.getCall(1).args[0].tagSelection).to.eql({ enabled: true, ids: ['tag-a', 'tag-b'] });
+    });
+
+    it('should hide a panel\'s body and submit it as disabled when its toggle is off', () => {
+      renderWith();
+      fireEvent.click(get('input[name="enabled-clinicSites"]'));
+
+      expect(get('#clinicSites-content')).to.not.exist;
+      expect(get('#tags-content')).to.exist;
+
+      submit();
+      expect(props.onClickPrint.getCall(0).args[0].clinicSiteSelection.enabled).to.be.false;
+    });
+
+    it('should render 20 chips and collapse the rest behind a "+N" that reveals them', () => {
+      renderWith({ patientTags: manyTags, sites });
+
+      expect(chipNames('tags')).to.have.lengthOf(20);
+      expect(get('#tags-content .value-overflow-count').textContent).to.equal('+5');
+
+      // The cap is presentational — every tag is still submitted
+      submit();
+      expect(props.onClickPrint.getCall(0).args[0].tagSelection.ids).to.have.lengthOf(25);
+
+      clickOverflow('tags');
+
+      expect(chipNames('tags')).to.have.lengthOf(25);
+      expect(get('#tags-content .value-overflow-count')).to.not.exist;
+    });
+
+    it('should leave the select menu closed when the "+N" is clicked', () => {
+      renderWith({ patientTags: manyTags, sites });
+      clickOverflow('tags');
+
+      expect(get('.PatientFormSelectTags__menu')).to.not.exist;
+    });
+
+    it('should label both panels with their export limits', () => {
+      renderWith();
+
+      expect(get('#tags-content').textContent).to.contain('Export all Tags (50 tags max)');
+      expect(get('#tags-content').textContent).to.contain('Or select from your tags (20 tags max)');
+      expect(get('#clinicSites-content').textContent).to.contain('Export all patient clinic sites (50 sites max)');
+      expect(get('#clinicSites-content').textContent).to.contain('Select from your clinic sites (20 sites max)');
+    });
+
+    it('should not write the new panels into the persisted enabled map', () => {
+      renderWith();
+      fireEvent.click(get('input[name="enabled-tags"]'));
+      fireEvent.click(get('input[name="enabled-basics"]'));
+
+      expect(JSON.parse(localStorage[enabledChartsLocalKey])).to.eql({
+        agpBGM: true,
+        agpCGM: true,
+        basics: false,
+        bgLog: true,
+        daily: true,
+        settings: true,
+      });
+    });
+
+    it('should still require at least one chart when only the new panels are enabled', () => {
+      renderWith();
+
+      ['agpCGM', 'agpBGM', 'basics', 'daily', 'bgLog', 'settings'].forEach(key => {
+        fireEvent.click(get(`input[name="enabled-${key}"]`));
+      });
+
+      submit();
+
+      expect(get('#general-print-error').textContent).to.equal('Please enable at least one chart to print');
+      sinon.assert.notCalled(props.onClickPrint);
+    });
+
+    it('should report the new sections in the print options metric', () => {
+      renderWith();
+      removeChip('tags', 0);
+      fireEvent.click(get('input[name="enabled-clinicSites"]'));
+
+      submit();
+
+      expect(mockTrackMetric.mock.calls[0][1]).to.include({
+        tags: 'partial',
+        clinicSites: 'disabled',
+      });
     });
   });
 

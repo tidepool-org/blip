@@ -5,6 +5,7 @@ import noop from 'lodash/noop';
 import utils from '../utils';
 import personUtils from '../personutils';
 import { useGenerateAGPImages } from '../agpUtils';
+import { getPatientTags, getPatientSites } from '../clinicUtils';
 import { selectPatient, selectUser } from '../selectors';
 import usePrintWindow from './usePrintWindow';
 import { trackMetric } from '../../core/metricUtils';
@@ -84,6 +85,7 @@ const usePrintPDF = (
   const user = useSelector(state => selectUser(state));
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
+  const isClinician = personUtils.isClinicianAccount(user);
 
   const printOptsRef = useRef(null);
   const timePrefsRef = useRef(null);
@@ -184,6 +186,8 @@ const usePrintPDF = (
     modalData: {
       timePrefs: getTimePrefs(),
       latestDatumByType: canPrint ? data?.metaData?.latestDatumByType : null,
+      patientTags: isClinician ? getPatientTags(clinic, clinicPatient) : [],
+      sites: isClinician ? getPatientSites(clinic, clinicPatient) : [],
     },
   };
 };

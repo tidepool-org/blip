@@ -10,6 +10,7 @@ import { noop } from 'lodash';
 import utils from '../../../core/utils';
 
 import { selectElementStyleOverrides } from './styles';
+import CappedValueContainer from './CappedValueContainer';
 
 export const buildSelectOptions = (
   t,
@@ -37,6 +38,9 @@ export const buildSelectOptions = (
 const SelectSites = ({
   currentSites = [], // Array of sites, e.g. [{ id: 'id1', name: 'Site1' }]
   onChange,
+  options, // Optional array of sites to choose from, e.g. [{ id: 'id1', name: 'Site1' }]
+  maxVisibleValues,
+  menuPlacement,
   selectMenuHeight = 240,
   onMenuOpen = noop,
   isDisabled = false,
@@ -53,10 +57,12 @@ const SelectSites = ({
     onChange(formattedSites);
   };
 
-  // Suggest sites only if user is viewing ClinicPatients list (where Filters are used)
-  const shouldSuggestSites = pathname?.includes('/clinic-workspace');
+  // Suggestions come from the clinic patient list's own filters, which is the only filter store
+  // this reads, so they are offered on that route alone. A caller supplying its own options is not
+  // choosing from that catalogue at all.
+  const shouldSuggestSites = !options && pathname?.includes('/clinic-workspace');
 
-  const selectOptions = buildSelectOptions(t, clinic?.sites, activeFilters, shouldSuggestSites);
+  const selectOptions = buildSelectOptions(t, options || clinic?.sites, activeFilters, shouldSuggestSites);
 
   const selectValue = currentSites.map(site => ({
     label: site.name || '',
@@ -66,6 +72,9 @@ const SelectSites = ({
   return (
     <Select
       styles={selectElementStyleOverrides}
+      components={{ ValueContainer: CappedValueContainer }}
+      maxVisibleValues={maxVisibleValues}
+      menuPlacement={menuPlacement}
       name="patient-form-select-sites"
       id="patient-form-select-sites"
       classNamePrefix="PatientFormSelectSites"
@@ -93,6 +102,12 @@ SelectSites.propTypes = {
     })
   ).isRequired,
   onChange: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  })),
+  maxVisibleValues: PropTypes.number,
+  menuPlacement: PropTypes.oneOf(['auto', 'bottom', 'top']),
   selectMenuHeight: PropTypes.number,
   onMenuOpen: PropTypes.func,
   isDisabled: PropTypes.bool,

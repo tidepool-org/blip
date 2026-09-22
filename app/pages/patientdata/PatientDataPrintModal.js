@@ -32,7 +32,7 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
     print(enrichedOpts);
   };
 
-  const { latestDatumByType, timePrefs } = modalData;
+  const { latestDatumByType, timePrefs, patientTags, sites } = modalData;
 
   const isLoading = !latestDatumByType || !timePrefs;
 
@@ -52,6 +52,8 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
       onClickPrint={handleClickPrint}
       processing={!canPrint || isProcessing}
       timePrefs={timePrefs}
+      patientTags={patientTags}
+      sites={sites}
     />
   );
 };

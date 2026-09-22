@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { noop } from 'lodash';
 import utils from '../../../core/utils';
 import { selectElementStyleOverrides } from './styles';
+import CappedValueContainer from './CappedValueContainer';
 
 export const buildSelectOptions = (
   t,
@@ -37,6 +38,9 @@ export const buildSelectOptions = (
 const SelectTags = ({
   currentTagIds, // Array of tag IDs, e.g. ['id1', 'id2', 'id3']
   onChange,
+  options, // Optional array of tags to choose from, e.g. [{ id: 'id1', name: 'Tag1' }]
+  maxVisibleValues,
+  menuPlacement,
   selectMenuHeight = 240,
   onMenuOpen = noop,
   closeMenuOnSelect = false,
@@ -46,7 +50,8 @@ const SelectTags = ({
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+  const availableTags = options || clinic?.patientTags;
+  const clinicPatientTags = useMemo(() => keyBy(availableTags, 'id'), [availableTags]);
   const [activeFilters] = useClinicPatientsFilters();
 
   const handleTagSelectionChange = (tags) => {
@@ -55,10 +60,12 @@ const SelectTags = ({
     onChange(tagIds);
   };
 
-  // Suggest tags only if user is viewing ClinicPatients list (where Filters are used)
-  const shouldSuggestTags = pathname?.includes('/clinic-workspace');
+  // Suggestions come from the clinic patient list's own filters, which is the only filter store
+  // this reads, so they are offered on that route alone. A caller supplying its own options is not
+  // choosing from that catalogue at all.
+  const shouldSuggestTags = !options && pathname?.includes('/clinic-workspace');
 
-  const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, shouldSuggestTags);
+  const selectOptions = buildSelectOptions(t, availableTags, activeFilters, shouldSuggestTags);
 
   const selectValue = currentTagIds.map(tagId => ({
     label: clinicPatientTags[tagId]?.name || '',
@@ -68,6 +75,9 @@ const SelectTags = ({
   return (
     <Select
       styles={selectElementStyleOverrides}
+      components={{ ValueContainer: CappedValueContainer }}
+      maxVisibleValues={maxVisibleValues}
+      menuPlacement={menuPlacement}
       name="patient-form-select-tags"
       id="patient-form-select-tags"
       classNamePrefix="PatientFormSelectTags"
@@ -90,6 +100,12 @@ const SelectTags = ({
 SelectTags.propTypes = {
   currentTagIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   onChange: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  })),
+  maxVisibleValues: PropTypes.number,
+  menuPlacement: PropTypes.oneOf(['auto', 'bottom', 'top']),
   selectMenuHeight: PropTypes.number,
   onMenuOpen: PropTypes.func,
   closeMenuOnSelect: PropTypes.bool,

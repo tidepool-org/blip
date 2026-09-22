@@ -2,6 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
+import find from 'lodash/find';
+import forEach from 'lodash/forEach';
+import fromPairs from 'lodash/fromPairs';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
@@ -15,6 +18,9 @@ const { Loader } = vizComponents;
 import { trackMetric } from '../core/metricUtils';
 
 import Button from './elements/Button';
+import Checkbox from './elements/Checkbox';
+import SelectTags from './clinic/PatientForm/SelectTags';
+import SelectSites from './clinic/PatientForm/SelectSites';
 import DateRangePicker from './elements/DateRangePicker';
 import {
   Dialog,
@@ -26,6 +32,7 @@ import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
+import { maxClinicPatientTags, maxWorkspaceClinicSites } from '../core/clinicUtils';
 import PartialDaysTooltip from './PartialDaysTooltip';
 
 import { utils as vizUtils } from '@tidepool/viz';
@@ -38,6 +45,64 @@ const {
 
 const t = i18next.t.bind(i18next);
 
+// The select renders this many chips before collapsing the remainder into a "+N". Everything
+// selected is still exported.
+const maxVisibleChips = 20;
+
+// One selection panel's body: the "Export all" checkbox plus the multi-select the Edit Patient
+// Details form uses, scoped to what the patient actually has.
+export const SelectionPanelContent = ({ panel, selectedIds, onChangeIds }) => {
+  const isAllSelected = selectedIds.length === panel.items.length;
+
+  const handleToggleAll = event => onChangeIds(event.target.checked ? map(panel.items, 'id') : []);
+
+  return (
+    <Box id={`${panel.key}-content`}>
+      <Checkbox
+        id={`export-all-${panel.key}`}
+        name={`export-all-${panel.key}`}
+        label={panel.exportAllLabel}
+        checked={isAllSelected}
+        onChange={handleToggleAll}
+      />
+
+      <Body0 mt={3} mb={2}>{panel.selectLabel}</Body0>
+
+      {panel.key === 'tags' ? (
+        <SelectTags
+          options={panel.items}
+          maxVisibleValues={maxVisibleChips}
+          menuPlacement="auto"
+          currentTagIds={selectedIds}
+          onChange={onChangeIds}
+        />
+      ) : (
+        <SelectSites
+          options={panel.items}
+          maxVisibleValues={maxVisibleChips}
+          menuPlacement="auto"
+          currentSites={filter(panel.items, ({ id }) => selectedIds.includes(id))}
+          onChange={sites => onChangeIds(map(sites, 'id'))}
+        />
+      )}
+    </Box>
+  );
+};
+
+SelectionPanelContent.propTypes = {
+  panel: PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    exportAllLabel: PropTypes.string.isRequired,
+    selectLabel: PropTypes.string.isRequired,
+    items: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+    })).isRequired,
+  }).isRequired,
+  selectedIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onChangeIds: PropTypes.func.isRequired,
+};
+
 export const MainContent = (props) => {
   const {
     maxDays,
@@ -49,6 +114,8 @@ export const MainContent = (props) => {
     processing,
     timePrefs,
     metricSource,
+    patientTags = [],
+    sites = [],
   } = props;
 
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
@@ -153,14 +220,19 @@ export const MainContent = (props) => {
       general: false,
     },
     expandedPanel: 'basics',
+    selections: {
+      tags: { enabled: true, ids: map(patientTags, 'id') },
+      clinicSites: { enabled: true, ids: map(sites, 'id') },
+    },
     submitted: false,
-  }), [mostRecentDatumDates]);
+  }), [mostRecentDatumDates, patientTags, sites]);
 
   const [dates, setDates] = useState(defaults.dates);
   const [enabled, setEnabled] = useLocalStorage(enabledChartsLocalKey, defaults.enabled, true);
   const [errors, setErrors] = useState(defaults.errors);
   const [submitted, setSubmitted] = useState(defaults.submitted);
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
+  const [selections, setSelections] = useState(defaults.selections);
 
   const presetDateRanges = {
     agpBGM: useMemo(() => map(presetDaysOptions.agpBGM, days => getLastNDays(days, 'agpBGM')), [open]),
@@ -232,6 +304,22 @@ export const MainContent = (props) => {
       header: t('Device Settings'),
       key: 'settings',
     },
+    ...filter([
+      {
+        header: t('Tags'),
+        key: 'tags',
+        items: patientTags,
+        exportAllLabel: t('Export all Tags ({{max}} tags max)', { max: maxClinicPatientTags }),
+        selectLabel: t('Or select from your tags ({{max}} tags max)', { max: maxVisibleChips }),
+      },
+      {
+        header: t('Clinic Sites'),
+        key: 'clinicSites',
+        items: sites,
+        exportAllLabel: t('Export all patient clinic sites ({{max}} sites max)', { max: maxWorkspaceClinicSites }),
+        selectLabel: t('Select from your clinic sites ({{max}} sites max)', { max: maxVisibleChips }),
+      },
+    ], ({ items }) => !!items.length),
   ];
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
@@ -249,6 +337,10 @@ export const MainContent = (props) => {
   const handleClickPreset = (key, days, presetIndex) => {
     setDates({ ...dates, [key]: getLastNDays(days, key) });
     setRangePresets({ ...rangePresets, [key]: presetIndex })
+  };
+
+  const handleSelectionIdsChange = (key, ids) => {
+    setSelections(selections => ({ ...selections, [key]: { ...selections[key], ids } }));
   };
 
   const handleSplitDatesChange = (newDates, chartType = 'basics') => {
@@ -309,6 +401,20 @@ export const MainContent = (props) => {
       settings: { disabled: !enabled.settings },
     };
 
+    const selectionKeys = { tags: 'tagSelection', clinicSites: 'clinicSiteSelection' };
+    const selectionPanelKeys = map(filter(panels, 'items'), 'key');
+
+    forEach(selectionPanelKeys, key => {
+      printOpts[selectionKeys[key]] = { ...selections[key] };
+    });
+
+    const getSelectionMetric = key => {
+      const selection = selections[key];
+      if (!selection.enabled) return 'disabled';
+
+      return selection.ids.length === find(panels, { key }).items.length ? 'all' : 'partial';
+    };
+
     const getDateRangeMetric = (presets, chartType) => {
       const matches = filter(
         presets,
@@ -326,6 +432,7 @@ export const MainContent = (props) => {
       bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.bgLog, 'bgLog'),
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
       settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
+      ...fromPairs(map(selectionPanelKeys, key => [key, getSelectionMetric(key)])),
     };
 
     trackMetric('Submitted Print Options', metrics);
@@ -343,6 +450,7 @@ export const MainContent = (props) => {
       setDatePickerOpen(defaults.datePickerOpen);
       setDates(defaults.dates);
       setErrors(defaults.errors);
+      setSelections(defaults.selections);
       setSubmitted(defaults.submitted);
     }
   }, [open]);
@@ -359,8 +467,23 @@ export const MainContent = (props) => {
 
   return (
     <>
-      <DialogContent divider={false} sx={{ minWidth: '766px' }} pt={3} px={3}>
-        {map(panels, panel => (
+      <DialogContent
+        divider={false}
+        pt={3}
+        px={3}
+        sx={{ minWidth: '766px' }}
+      >
+        {map(panels, panel => {
+          const isSelectionPanel = !!panel.items;
+          const isEnabled = isSelectionPanel ? selections[panel.key].enabled : enabled[panel.key];
+          const hasBody = isEnabled && (isSelectionPanel || !!panel.daysOptions);
+
+          const handleToggle = () => (isSelectionPanel
+            ? setSelections({ ...selections, [panel.key]: { ...selections[panel.key], enabled: !isEnabled } })
+            : setEnabled({ ...enabled, [panel.key]: !isEnabled })
+          );
+
+          return (
           <Element name={`${panel.key}-wrapper`}>
             <Box
               key={panel.key}
@@ -374,10 +497,10 @@ export const MainContent = (props) => {
             >
               <Flex
                 id={`${panel.key}-header`}
-                mb={enabled[panel.key] && panel.daysOptions ? 2 : 0}
-                pb={enabled[panel.key] && panel.daysOptions ? 3 : 0}
+                mb={hasBody ? 2 : 0}
+                pb={hasBody ? 3 : 0}
                 sx={{
-                  borderBottom: enabled[panel.key] && panel.daysOptions ? borders.input : 'none',
+                  borderBottom: hasBody ? borders.input : 'none',
                   justifyContent: 'space-between',
                 }}
               >
@@ -387,11 +510,19 @@ export const MainContent = (props) => {
                     theme={baseTheme}
                     name={`enabled-${panel.key}`}
                     ml={4}
-                    checked={enabled[panel.key]}
-                    onClick={() => setEnabled({ ...enabled, [panel.key]: !enabled[panel.key] })}
+                    checked={isEnabled}
+                    onClick={handleToggle}
                   />
                 </Box>
               </Flex>
+
+              {isSelectionPanel && isEnabled && (
+                <SelectionPanelContent
+                  panel={panel}
+                  selectedIds={selections[panel.key].ids}
+                  onChangeIds={ids => handleSelectionIdsChange(panel.key, ids)}
+                />
+              )}
 
               {enabled[panel.key] && panel.daysOptions && (
                 <Box id={`${panel.key}-content`}>
@@ -462,7 +593,8 @@ export const MainContent = (props) => {
               </Caption>
             )}
           </Element>
-        ))}
+          );
+        })}
         {errors.general && (
           <Caption mx={5} mt={2} sx={{ color: 'feedback.danger' }} id="general-print-error">
             {errors.general}
@@ -502,6 +634,14 @@ MainContent.propTypes = {
   onDatesChange: PropTypes.func.isRequired,
   open: PropTypes.bool,
   processing: PropTypes.bool,
+  patientTags: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  })),
+  sites: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  })),
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool,
     timezoneName: PropTypes.string,

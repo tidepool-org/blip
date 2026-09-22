@@ -16,6 +16,7 @@ import {
 
 import get from 'lodash/get';
 import filter from 'lodash/filter';
+import includes from 'lodash/includes';
 import min from 'lodash/min';
 import at from 'lodash/at';
 import map from 'lodash/map';
@@ -74,11 +75,19 @@ export const getPdfOpts = (printOpts, user, patient, clinicPatient, clinic) => {
 
   const toIdAndName = item => pick(item, ['id', 'name']);
 
+  const exportedItems = (items, selection) => {
+    if (!isClinician) return [];
+    if (!selection) return map(items, toIdAndName); // no selection panel — export everything
+    if (!selection.enabled) return [];
+
+    return map(filter(items, ({ id }) => includes(selection.ids, id)), toIdAndName);
+  };
+
   return {
     ...printOpts,
     patient: pdfPatient,
-    patientTags: isClinician ? map(getPatientTags(clinic, clinicPatient), toIdAndName) : [],
-    sites: isClinician ? map(getPatientSites(clinic, clinicPatient), toIdAndName) : [],
+    patientTags: exportedItems(getPatientTags(clinic, clinicPatient), printOpts.tagSelection),
+    sites: exportedItems(getPatientSites(clinic, clinicPatient), printOpts.clinicSiteSelection),
   };
 };
 

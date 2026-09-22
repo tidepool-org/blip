@@ -48,7 +48,7 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
     print(opts);
   };
 
-  const { latestDatumByType, timePrefs } = modalData;
+  const { latestDatumByType, timePrefs, patientTags, sites } = modalData;
 
   const isLoading = !latestDatumByType || !timePrefs;
 
@@ -68,6 +68,8 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
       onClickPrint={handleClickPrint}
       processing={!canPrint || isProcessing}
       timePrefs={timePrefs}
+      patientTags={patientTags}
+      sites={sites}
     />
   );
 };

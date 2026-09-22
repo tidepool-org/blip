@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import { thunk } from 'redux-thunk';
 
 import ClinicPatientsPrintModal from '@app/pages/clinicworkspace/ClinicPatientsPrintModal';
@@ -17,9 +18,13 @@ describe('ClinicPatientsPrintModal', () => {
   const patientId = 'patient123';
   const mockPrint = jest.fn();
 
+  const selectedClinicId = 'clinic123';
+
   const defaultStoreState = {
     blip: {
       loggedInUserId: 'clinician123',
+      selectedClinicId,
+      clinics: { [selectedClinicId]: { id: selectedClinicId, patientTags: [], sites: [] } },
     },
   };
 
@@ -30,9 +35,11 @@ describe('ClinicPatientsPrintModal', () => {
   const renderComponent = (props = {}) => {
     return render(
       <Provider store={store}>
-        <ToastProvider>
-          <ClinicPatientsPrintModal {...defaultProps} {...props} />
-        </ToastProvider>
+        <MemoryRouter>
+          <ToastProvider>
+            <ClinicPatientsPrintModal {...defaultProps} {...props} />
+          </ToastProvider>
+        </MemoryRouter>
       </Provider>
     );
   };
@@ -104,6 +111,27 @@ describe('ClinicPatientsPrintModal', () => {
       printButton.click();
 
       expect(mockPrint).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('when the patient has tags and sites', () => {
+    it('forwards them from modalData to the PrintDateRangeModal panels', () => {
+      usePrintPDF.mockReturnValue({
+        status: STATUS.AWAITING_INPUT,
+        canPrint: true,
+        print: jest.fn(),
+        modalData: {
+          latestDatumByType: { cbg: { time: '2020-03-10T00:00:00.000Z' } },
+          timePrefs: { timezoneName: 'UTC' },
+          patientTags: [{ id: 'tag-a', name: 'A tag' }],
+          sites: [{ id: 'site-a', name: 'A site' }],
+        },
+      });
+
+      wrapper = renderComponent();
+
+      expect(document.body.querySelector('.PatientFormSelectTags__multi-value__label').textContent).toEqual('A tag');
+      expect(document.body.querySelector('.PatientFormSelectSites__multi-value__label').textContent).toEqual('A site');
     });
   });
 });

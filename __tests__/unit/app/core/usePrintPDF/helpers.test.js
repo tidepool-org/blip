@@ -397,4 +397,49 @@ describe('getPdfOpts', () => {
     expect(result.patientTags).toEqual([]);
     expect(result.sites).toEqual([]);
   });
+
+  describe('with a selection from the print dialog', () => {
+    it('should send an empty array for a disabled section', () => {
+      const result = getPdfOpts(
+        { ...printOpts, tagSelection: { enabled: false, ids: ['tag-a', 'tag-b'] } },
+        clinicianUser, patient, clinicPatient, clinic
+      );
+
+      expect(result.patientTags).toEqual([]);
+      expect(result.sites).toEqual([{ id: 'site-a', name: 'A site' }, { id: 'site-b', name: 'B site' }]);
+    });
+
+    it('should send only the selected items, still sorted alphabetically by name', () => {
+      const result = getPdfOpts(
+        {
+          ...printOpts,
+          tagSelection: { enabled: true, ids: ['tag-b'] },
+          clinicSiteSelection: { enabled: true, ids: ['site-b', 'site-a'] },
+        },
+        clinicianUser, patient, clinicPatient, clinic
+      );
+
+      expect(result.patientTags).toEqual([{ id: 'tag-b', name: 'B tag' }]);
+      expect(result.sites).toEqual([{ id: 'site-a', name: 'A site' }, { id: 'site-b', name: 'B site' }]);
+    });
+
+    // The AGP report is generated in two passes, and the second one re-derives its options from
+    // the first one's output, so the selections have to survive a round trip.
+    it('should resolve to the same arrays when its own output is fed back in', () => {
+      const optsWithSelection = {
+        ...printOpts,
+        tagSelection: { enabled: true, ids: ['tag-a'] },
+        clinicSiteSelection: { enabled: false, ids: ['site-a'] },
+      };
+
+      const firstPass = getPdfOpts(optsWithSelection, clinicianUser, patient, clinicPatient, clinic);
+      const secondPass = getPdfOpts(firstPass, clinicianUser, patient, clinicPatient, clinic);
+
+      expect(firstPass.patientTags).toEqual([{ id: 'tag-a', name: 'A tag' }]);
+      expect(firstPass.sites).toEqual([]);
+      expect(secondPass.patientTags).toEqual(firstPass.patientTags);
+      expect(secondPass.sites).toEqual(firstPass.sites);
+      expect(secondPass.requestId).toEqual('request-1');
+    });
+  });
 });
