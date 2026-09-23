@@ -310,14 +310,14 @@ export const MainContent = (props) => {
         key: 'tags',
         items: patientTags,
         exportAllLabel: t('Export all Tags ({{max}} tags max)', { max: maxClinicPatientTags }),
-        selectLabel: t('Or select from your tags ({{max}} tags max)', { max: maxVisibleChips }),
+        selectLabel: t('Or select from your tags'),
       },
       {
         header: t('Clinic Sites'),
         key: 'clinicSites',
         items: sites,
         exportAllLabel: t('Export all patient clinic sites ({{max}} sites max)', { max: maxWorkspaceClinicSites }),
-        selectLabel: t('Select from your clinic sites ({{max}} sites max)', { max: maxVisibleChips }),
+        selectLabel: t('Or select from your clinic sites'),
       },
     ], ({ items }) => !!items.length),
   ];

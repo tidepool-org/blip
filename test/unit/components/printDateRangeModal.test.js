@@ -433,9 +433,9 @@ describe('PrintDateRangeModal', function () {
       renderWith();
 
       expect(get('#tags-content').textContent).to.contain('Export all Tags (50 tags max)');
-      expect(get('#tags-content').textContent).to.contain('Or select from your tags (20 tags max)');
+      expect(get('#tags-content').textContent).to.contain('Or select from your tags');
       expect(get('#clinicSites-content').textContent).to.contain('Export all patient clinic sites (50 sites max)');
-      expect(get('#clinicSites-content').textContent).to.contain('Select from your clinic sites (20 sites max)');
+      expect(get('#clinicSites-content').textContent).to.contain('Or select from your clinic sites');
     });
 
     it('should not write the new panels into the persisted enabled map', () => {
