@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions';
 import noop from 'lodash/noop';
@@ -86,6 +86,10 @@ const usePrintPDF = (
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
   const isClinician = personUtils.isClinicianAccount(user);
+
+  // Stable identities so the print dialog's mount-time defaults only recompute when the source changes
+  const patientTags = useMemo(() => (isClinician ? getPatientTags(clinic, clinicPatient) : []), [isClinician, clinic, clinicPatient]);
+  const sites = useMemo(() => (isClinician ? getPatientSites(clinic, clinicPatient) : []), [isClinician, clinic, clinicPatient]);
 
   const printOptsRef = useRef(null);
   const timePrefsRef = useRef(null);
@@ -186,8 +190,8 @@ const usePrintPDF = (
     modalData: {
       timePrefs: getTimePrefs(),
       latestDatumByType: canPrint ? data?.metaData?.latestDatumByType : null,
-      patientTags: isClinician ? getPatientTags(clinic, clinicPatient) : [],
-      sites: isClinician ? getPatientSites(clinic, clinicPatient) : [],
+      patientTags,
+      sites,
     },
   };
 };

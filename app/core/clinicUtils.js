@@ -102,8 +102,10 @@ export const maxWorkspaceClinicSites = 50;
 export const getPatientTags = (clinic, clinicPatient) =>
   utils.sortByLabel(filter(clinic?.patientTags, ({ id }) => includes(clinicPatient?.tags, id)));
 
-export const getPatientSites = (clinic, clinicPatient) =>
-  utils.sortByLabel(filter(clinic?.sites, ({ id }) => includes(map(clinicPatient?.sites, 'id'), id)));
+export const getPatientSites = (clinic, clinicPatient) => {
+  const siteIds = map(clinicPatient?.sites, 'id');
+  return utils.sortByLabel(filter(clinic?.sites, ({ id }) => includes(siteIds, id)));
+};
 
 export const clinicPlansNames = {
   base: t('Base'),

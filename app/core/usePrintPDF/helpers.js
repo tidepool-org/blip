@@ -76,7 +76,6 @@ export const getPdfOpts = (printOpts, user, patient, clinicPatient, clinic) => {
   const toIdAndName = item => pick(item, ['id', 'name']);
 
   const exportedItems = (items, selection) => {
-    if (!isClinician) return [];
     if (!selection) return map(items, toIdAndName); // no selection panel — export everything
     if (!selection.enabled) return [];
 
@@ -86,8 +85,8 @@ export const getPdfOpts = (printOpts, user, patient, clinicPatient, clinic) => {
   return {
     ...printOpts,
     patient: pdfPatient,
-    patientTags: exportedItems(getPatientTags(clinic, clinicPatient), printOpts.tagSelection),
-    sites: exportedItems(getPatientSites(clinic, clinicPatient), printOpts.clinicSiteSelection),
+    patientTags: isClinician ? exportedItems(getPatientTags(clinic, clinicPatient), printOpts.tagSelection) : [],
+    sites: isClinician ? exportedItems(getPatientSites(clinic, clinicPatient), printOpts.clinicSiteSelection) : [],
   };
 };
 

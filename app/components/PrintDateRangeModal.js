@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
-import find from 'lodash/find';
 import forEach from 'lodash/forEach';
 import fromPairs from 'lodash/fromPairs';
 import get from 'lodash/get';
@@ -308,6 +307,7 @@ export const MainContent = (props) => {
       {
         header: t('Tags'),
         key: 'tags',
+        optsKey: 'tagSelection',
         items: patientTags,
         exportAllLabel: t('Export all Tags ({{max}} tags max)', { max: maxClinicPatientTags }),
         selectLabel: t('Or select from your tags'),
@@ -315,6 +315,7 @@ export const MainContent = (props) => {
       {
         header: t('Clinic Sites'),
         key: 'clinicSites',
+        optsKey: 'clinicSiteSelection',
         items: sites,
         exportAllLabel: t('Export all patient clinic sites ({{max}} sites max)', { max: maxWorkspaceClinicSites }),
         selectLabel: t('Or select from your clinic sites'),
@@ -401,18 +402,17 @@ export const MainContent = (props) => {
       settings: { disabled: !enabled.settings },
     };
 
-    const selectionKeys = { tags: 'tagSelection', clinicSites: 'clinicSiteSelection' };
-    const selectionPanelKeys = map(filter(panels, 'items'), 'key');
+    const selectionPanels = filter(panels, 'items');
 
-    forEach(selectionPanelKeys, key => {
-      printOpts[selectionKeys[key]] = { ...selections[key] };
+    forEach(selectionPanels, ({ key, optsKey }) => {
+      printOpts[optsKey] = { ...selections[key] };
     });
 
-    const getSelectionMetric = key => {
+    const getSelectionMetric = ({ key, items }) => {
       const selection = selections[key];
       if (!selection.enabled) return 'disabled';
 
-      return selection.ids.length === find(panels, { key }).items.length ? 'all' : 'partial';
+      return selection.ids.length === items.length ? 'all' : 'partial';
     };
 
     const getDateRangeMetric = (presets, chartType) => {
@@ -432,7 +432,7 @@ export const MainContent = (props) => {
       bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.bgLog, 'bgLog'),
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
       settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
-      ...fromPairs(map(selectionPanelKeys, key => [key, getSelectionMetric(key)])),
+      ...fromPairs(map(selectionPanels, panel => [panel.key, getSelectionMetric(panel)])),
     };
 
     trackMetric('Submitted Print Options', metrics);
@@ -479,14 +479,16 @@ export const MainContent = (props) => {
           const hasBody = isEnabled && (isSelectionPanel || !!panel.daysOptions);
 
           const handleToggle = () => (isSelectionPanel
-            ? setSelections({ ...selections, [panel.key]: { ...selections[panel.key], enabled: !isEnabled } })
+            ? setSelections(prev => ({
+              ...prev,
+              [panel.key]: { ...prev[panel.key], enabled: !prev[panel.key].enabled },
+            }))
             : setEnabled({ ...enabled, [panel.key]: !isEnabled })
           );
 
           return (
-          <Element name={`${panel.key}-wrapper`}>
+          <Element key={panel.key} name={`${panel.key}-wrapper`}>
             <Box
-              key={panel.key}
               variant="containers.fluidBordered"
               sx={{
                 bg: 'white',
