@@ -64,7 +64,7 @@ const CGMStatistics = ({ agpCGM }) => {
 
   const avgGlucoseTarget = bgUnits === MGDL_UNITS ? '154' : '8.6';
 
-  const dateRange  = getReportDaysText(newestDatum, oldestDatum, bgDaysWorn, timezone);
+  const dateRange  = getReportDaysText({ newestDatum, oldestDatum, bgDaysWorn, timezone });
   const cgmActive  = bankersRound(sensorUsageAGP, 1);
   const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true });
   const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', { bgPrefs, useAGPFormat: true });
