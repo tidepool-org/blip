@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
-import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
@@ -27,6 +26,7 @@ import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
+import { getLastN24HourPeriods } from '../core/datetime';
 import PartialDaysTooltip from './PartialDaysTooltip';
 
 import { utils as vizUtils } from '@tidepool/viz';
@@ -68,25 +68,6 @@ export const MainContent = (props) => {
     endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
-  // Returns the bounds for the last N 24-hour periods based on the most recent datum. This method
-  // will shift the window to end at the start of the hour after the last datum. For example, if the
-  // latest datum was Oct 20 @ 15:23, the 14-day window will be Oct 6 @ 16:00 - Oct 20 @ 16:00
-  const getLastN24HourPeriods = (numOfPeriods, chartType) => {
-    const endDate = get(mostRecentDatumDates, chartType)
-      ? moment.utc(mostRecentDatumDates[chartType])
-      : endOfToday;
-
-    const endHourCeiling = getLocalizedCeiling(endDate.valueOf(), timePrefs, 'hour');
-
-    const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
-    const startHourCeiling = getLocalizedCeiling(startDate.valueOf(), timePrefs, 'hour');
-
-    return ({
-      startDate: moment.utc(startHourCeiling).tz(timezoneName),
-      endDate: moment.utc(endHourCeiling).tz(timezoneName),
-    });
-  };
-
   // Split-date charts can have a window that is offset from midnight.
   // The window cannot end beyond the time of the last datum.
   const isSplitDateChartType = (chartType) => {
@@ -95,7 +76,7 @@ export const MainContent = (props) => {
 
   const getLastNDays = (days, chartType) => {
     if (isSplitDateChartType(chartType)) {
-      return getLastN24HourPeriods(days, chartType);
+      return getLastN24HourPeriods(days, timePrefs, get(mostRecentDatumDates, chartType));
     }
 
     const endDate = get(mostRecentDatumDates, chartType)
