@@ -269,7 +269,7 @@ export const ClinicInvite = (props) => {
         <DialogActions>
           <Button
             id="confirmDialogCancel"
-            variant="secondary"
+            variant="textSecondary"
             onClick={handleDialogClose}
           >
             {t('Cancel')}

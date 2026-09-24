@@ -226,7 +226,7 @@ var PatientCard = withTranslation()(class extends React.Component {
           <Body1 id="dialog-title">{t('Are you sure you want to leave this person\'s Care Team? You will no longer be able to view their data.')}</Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={this.modalDismissHandler}>
+          <Button variant="textSecondary" onClick={this.modalDismissHandler}>
             {t('Cancel')}
           </Button>
           <Button variant="danger" onClick={this.handleRemovePatient(patient)}>

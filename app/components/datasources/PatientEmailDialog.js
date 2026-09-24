@@ -127,7 +127,7 @@ export const PatientEmailDialog = (props) => {
       <DialogActions>
         <Button
           id="patient-email-modal-close"
-          variant="secondary"
+          variant="textSecondary"
           onClick={onClose}
         >
           {t('Cancel')}

@@ -359,7 +359,7 @@ export const MainContent = (props) => {
 
   return (
     <>
-      <DialogContent divider={false} minWidth={766} pt={3} px={3}>
+      <DialogContent minWidth={766} pt={3} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
             <Box

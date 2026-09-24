@@ -559,7 +559,7 @@ const Prescriptions = props => {
           </DialogContent>
 
           <DialogActions>
-            <Button variant="secondary" onClick={closeDeleteDialog}>
+            <Button variant="textSecondary" onClick={closeDeleteDialog}>
               Cancel
             </Button>
 

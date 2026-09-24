@@ -1316,7 +1316,7 @@ export const TideDashboard = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="editPatientCancel" variant="secondary" onClick={() => {
+          <Button id="editPatientCancel" variant="textSecondary" onClick={() => {
             trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'TIDE dashboard' });
             handleCloseOverlays();
           }}>
