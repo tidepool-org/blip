@@ -2086,7 +2086,7 @@ export const ClinicPatients = (props) => {
             <MediumTitle id="dialog-title">{t('Edit Sites')}</MediumTitle>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} sx={{ maxHeight: '70vh' }}>
+          <DialogContent pt={0} sx={{ maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(clinicSite, context) => {
@@ -2265,7 +2265,7 @@ export const ClinicPatients = (props) => {
             <MediumTitle id="dialog-title">{t('Edit Tags')}</MediumTitle>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} sx={{ maxHeight: '70vh' }}>
+          <DialogContent pt={0} sx={{ maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(tag, context) => {
