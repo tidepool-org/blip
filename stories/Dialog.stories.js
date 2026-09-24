@@ -106,7 +106,7 @@ export const DialogStory = {
 
           {showActions() && (
             <DialogActions>
-              <Button variant="secondary" onClick={() => handleClose(alertOnActions())}>
+              <Button variant="textSecondary" onClick={() => handleClose(alertOnActions())}>
                 Cancel
               </Button>
               <Button variant="primary" onClick={handleSubmit}>

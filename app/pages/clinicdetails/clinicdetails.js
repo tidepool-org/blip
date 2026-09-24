@@ -508,7 +508,7 @@ export const ClinicDetails = (props) => {
               </Body1>
             </DialogContent>
             <DialogActions>
-              <Button variant="secondary" disabled={logoutPending} onClick={closeMigrationConfirmationModal}>
+              <Button variant="textSecondary" disabled={logoutPending} onClick={closeMigrationConfirmationModal}>
                 {t('Cancel')}
               </Button>
               <Button
