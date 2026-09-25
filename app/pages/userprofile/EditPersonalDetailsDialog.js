@@ -153,7 +153,7 @@ export function EditPersonalDetailsDialog({ open, onClose, trackMetric }) {
       </DialogContent>
 
       <DialogActions>
-        <Button variant="secondary" onClick={handleClose}>
+        <Button variant="textSecondary" onClick={handleClose}>
           {t('Cancel')}
         </Button>
         <Button

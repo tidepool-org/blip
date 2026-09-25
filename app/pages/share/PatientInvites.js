@@ -261,7 +261,7 @@ export const PatientInvites = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="editInvitedPatientCancel" variant="secondary" onClick={() => {
+          <Button id="editInvitedPatientCancel" variant="textSecondary" onClick={() => {
             trackMetric('Clinic - Edit invited patient cancel', { clinicId: selectedClinicId });
             handleCloseOverlays();
           }}>
@@ -456,7 +456,7 @@ export const PatientInvites = (props) => {
             </Body1>
           </DialogContent>
           <DialogActions>
-            <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
+            <Button variant="textSecondary" onClick={() => setShowDeleteDialog(false)}>
               {t('Cancel')}
             </Button>
             <Button
