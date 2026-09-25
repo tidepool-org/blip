@@ -363,10 +363,12 @@ describe('SmartOnFhir', () => {
     expect(fetchPatientsAction).toBeDefined();
   });
 
-  it('should hide Zendesk widget in Smart-on-FHIR mode', async () => {
+  it('should hide the Messaging widget when the Classic API is unavailable', async () => {
     const mockWindow = {
       sessionStorage: mockSessionStorage,
-      zE: jest.fn()
+      zE: jest.fn((api) => {
+        if (api === 'webWidget') throw new Error(`Unsupported API: ${api}`);
+      })
     };
 
     render(
@@ -382,8 +384,37 @@ describe('SmartOnFhir', () => {
     );
 
     await waitFor(() => {
-      expect(mockWindow.zE).toHaveBeenCalledWith('webWidget', 'hide');
+      expect(mockWindow.zE).toHaveBeenCalledTimes(2);
     });
+    expect(mockWindow.zE).toHaveBeenNthCalledWith(1, 'messenger', 'hide');
+    expect(mockWindow.zE).toHaveBeenNthCalledWith(2, 'webWidget', 'hide');
+  });
+
+  it('should hide the Classic widget when the Messaging API is unavailable', async () => {
+    const mockWindow = {
+      sessionStorage: mockSessionStorage,
+      zE: jest.fn((api) => {
+        if (api === 'messenger') throw new Error(`Unsupported API: ${api}`);
+      })
+    };
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={mockWindow}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockWindow.zE).toHaveBeenCalledTimes(2);
+    });
+    expect(mockWindow.zE).toHaveBeenNthCalledWith(1, 'messenger', 'hide');
+    expect(mockWindow.zE).toHaveBeenNthCalledWith(2, 'webWidget', 'hide');
   });
 
   it('should track "Direct Connect Patient Lookup Failure" when fetchPatients returns an error', async () => {

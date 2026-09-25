@@ -56,7 +56,7 @@ export const ResendDataSourceConnectRequestDialog = (props) => {
         </Body1>
       </DialogContent>
       <DialogActions>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="textSecondary" onClick={onClose}>
           {t('Cancel')}
         </Button>
         <Button

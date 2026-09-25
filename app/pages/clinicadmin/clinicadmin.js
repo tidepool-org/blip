@@ -938,7 +938,7 @@ export const ClinicAdmin = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button variant="secondary" onClick={closeDeleteDialog}>
+          <Button variant="textSecondary" onClick={closeDeleteDialog}>
             {t('Cancel')}
           </Button>
 
@@ -980,7 +980,7 @@ export const ClinicAdmin = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button variant="secondary" onClick={closeResendInviteDialog}>
+          <Button variant="textSecondary" onClick={closeResendInviteDialog}>
             {t('Cancel')}
           </Button>
 
@@ -1016,7 +1016,7 @@ export const ClinicAdmin = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button variant="secondary" onClick={closeRevokeInviteDialog}>
+          <Button variant="textSecondary" onClick={closeRevokeInviteDialog}>
             {t('Cancel')}
           </Button>
 
@@ -1046,7 +1046,7 @@ export const ClinicAdmin = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button variant="secondary" onClick={closeEditClinicProfileDialog}>
+          <Button variant="textSecondary" onClick={closeEditClinicProfileDialog}>
             {t('Cancel')}
           </Button>
 
