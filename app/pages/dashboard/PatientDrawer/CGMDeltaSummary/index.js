@@ -81,7 +81,7 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
     data: {
       current: {
         stats: {
-          bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
+          bgExtents: { newestDatum, oldestDatum, bg24hPeriodsWorn },
           sensorUsage: { sensorUsageAGP: offsetSensorUsageAGPRaw },
           timeInRange: { counts: offsetCounts },
         },
@@ -90,8 +90,8 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   } = offsetAgpCGM;
 
   const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const dateRange  = getReportDaysText({ newestDatum, oldestDatum, bgDaysWorn, timezone });
-  const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
+  const dateRange  = getReportDaysText({ newestDatum, oldestDatum, bg24hPeriodsWorn, timezone });
+  const roundedBgDaysWorn = bankersRound(bg24hPeriodsWorn, 0);
 
   // Current Period Values
   const timeInVeryHighFraction = _.toNumber(counts.veryHigh || 0) / counts.total;
