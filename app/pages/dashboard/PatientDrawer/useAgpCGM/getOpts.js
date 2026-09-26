@@ -23,7 +23,7 @@ const getOpts = (
   // Get the date range for the current AGP, ending at the hour ceiling of the latest datum
   const dates = getLastN24HourPeriods(agpPeriodInDays, timePrefs, mostRecentDatumDate);
 
-  // Get the date range for the offset AGP, ending exactly where the current AGP begins
+  // Get the date range for the offset AGP, ending where the current AGP begins
   const offsetDates = {
     startDate: dates.startDate.clone().subtract(agpPeriodInDays, 'days'),
     endDate: dates.startDate.clone(),

@@ -68,8 +68,6 @@ export const MainContent = (props) => {
     endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
-  // Split-date charts can have a window that is offset from midnight.
-  // The window cannot end beyond the time of the last datum.
   const isSplitDateChartType = (chartType) => {
     return ['agpBGM', 'agpCGM', 'basics'].includes(chartType);
   };
@@ -225,7 +223,6 @@ export const MainContent = (props) => {
     moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
   ] : []);
 
-  // Split-date charts are special because their window may be offset from midnight
   const formatSplitDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     moment.utc(startDate).tz(timezoneName).valueOf(),
     moment.utc(endDate).tz(timezoneName).valueOf(),
