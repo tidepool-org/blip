@@ -4,31 +4,31 @@ import { CATEGORY } from './filters/FilterByCategory';
 export const ISSUE_TYPE = {
   STALE_DATA: 'staleData',
   DISCONNECTED: 'disconnected',
-  ERRORING: 'erroring',
-  STALE_CONNECTION_INVITATION: 'staleConnectionInvitation',
-  EXPIRED_CONNECTION_INVITATION: 'expiredConnectionInvitation',
+  ERROR: 'error',
+  STALE_INVITE: 'staleInvite',
+  EXPIRED_INVITE: 'expiredInvite',
 };
 
-const { STALE_DATA, DISCONNECTED, ERRORING,  EXPIRED_CONNECTION_INVITATION, STALE_CONNECTION_INVITATION } = ISSUE_TYPE;
+const { STALE_DATA, DISCONNECTED, ERROR,  EXPIRED_INVITE, STALE_INVITE } = ISSUE_TYPE;
 
 const getConnectionIssuesParam = (category) => {
   switch(category) {
     case CATEGORY.STALE_DATA:
       return [STALE_DATA];
     case CATEGORY.ERROR_OR_DC:
-      return [DISCONNECTED, ERRORING];
+      return [DISCONNECTED, ERROR];
     case CATEGORY.INVITE_SENT:
-      return [STALE_CONNECTION_INVITATION];
+      return [STALE_INVITE];
     case CATEGORY.INVITE_EXPIRED:
-      return [EXPIRED_CONNECTION_INVITATION];
+      return [EXPIRED_INVITE];
     case CATEGORY.HIDDEN:
     case CATEGORY.DEFAULT:
       return [
         STALE_DATA,
         DISCONNECTED,
-        ERRORING,
-        STALE_CONNECTION_INVITATION,
-        EXPIRED_CONNECTION_INVITATION,
+        ERROR,
+        STALE_INVITE,
+        EXPIRED_INVITE,
       ];
     default:
       return undefined;

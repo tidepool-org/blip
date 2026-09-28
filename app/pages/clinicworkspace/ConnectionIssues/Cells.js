@@ -9,7 +9,7 @@ import Icon from '../../../components/elements/Icon';
 import { getActiveDeviceIssue, getDaysAgo } from './helpers';
 
 import { ISSUE_TYPE } from './connectionIssuesApi';
-const { STALE_DATA, DISCONNECTED, ERRORING,  EXPIRED_CONNECTION_INVITATION, STALE_CONNECTION_INVITATION } = ISSUE_TYPE;
+const { STALE_DATA, DISCONNECTED, ERROR,  EXPIRED_INVITE, STALE_INVITE } = ISSUE_TYPE;
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -48,9 +48,9 @@ export const ConnectionStatusCell = ({ patient }) => {
     switch(activeDeviceIssue._type) {
       case STALE_DATA: return t('Stale Data');
       case DISCONNECTED: return t('Patient Disconnected');
-      case ERRORING: return t('Error Connecting');
-      case EXPIRED_CONNECTION_INVITATION: return t('Invite Expired');
-      case STALE_CONNECTION_INVITATION: return t('Invite Sent');
+      case ERROR: return t('Error Connecting');
+      case EXPIRED_INVITE: return t('Invite Expired');
+      case STALE_INVITE: return t('Invite Sent');
     }
 
     return null;
@@ -103,7 +103,7 @@ export const StatusSummaryCell = ({ patient }) => {
       break;
     }
 
-    case ERRORING: {
+    case ERROR: {
       const daysAgo = getDaysAgo(deviceIssue?.effectiveTime);
 
       label = daysAgo === null ? '-' : t('Connection Error {{daysAgo}} days ago', { daysAgo });
@@ -111,7 +111,7 @@ export const StatusSummaryCell = ({ patient }) => {
       break;
     }
 
-    case EXPIRED_CONNECTION_INVITATION: {
+    case EXPIRED_INVITE: {
       const { providerId } = deviceIssue;
       const lastInvitedAt = patient?.connectionRequests?.[providerId]?.[0]?.createdTime;
       const daysAgo = getDaysAgo(lastInvitedAt);
@@ -121,7 +121,7 @@ export const StatusSummaryCell = ({ patient }) => {
       break;
     }
 
-    case STALE_CONNECTION_INVITATION: {
+    case STALE_INVITE: {
       const { providerId } = deviceIssue;
       const lastInvitedAt = patient?.connectionRequests?.[providerId]?.[0]?.createdTime;
       const daysAgo = getDaysAgo(lastInvitedAt);
