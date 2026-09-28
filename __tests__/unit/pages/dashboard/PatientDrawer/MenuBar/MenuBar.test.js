@@ -1,45 +1,20 @@
-/* global jest, beforeEach, afterEach, test, expect, describe, it */
+/* global jest, beforeEach, expect, describe, it */
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import configureStore from 'redux-mock-store';
-import { thunk } from 'redux-thunk';
 import { I18nextProvider } from 'react-i18next';
+import { trackMetric as mockTrackMetric } from '../../../../../../app/core/metricUtils';
 
-import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from '@app/pages/dashboard/PatientDrawer/MenuBar/MenuBar';
+import { setupStore } from '@tests/utils/setupStore';
+import blipReducer from '@app/redux/reducers';
+import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from '@app/components/PatientDrawer/MenuBar/MenuBar';
 import i18n from '@app/core/language';
 
-// Mock LaunchDarkly
-jest.mock('launchdarkly-react-client-sdk', () => ({
-  useFlags: jest.fn(() => ({
-    showTideDashboardLastReviewed: false,
-  })),
-}));
-
-// Mock actions
-jest.mock('@app/redux/actions', () => ({
-  async: {
-    fetchPatientFromClinic: jest.fn(() => ({ type: 'MOCK_FETCH_PATIENT' })),
-  },
-}));
-
 // Mock connected-react-router
-jest.mock('connected-react-router', () => ({
-  push: jest.fn(),
-}));
-
-// Mock api
-jest.mock('@app/core/api', () => ({}));
-
-// Mock PatientLastReviewed component
-jest.mock('@app/components/clinic/PatientLastReviewed', () => {
-  return function MockPatientLastReviewed(props) {
-    return <div data-testid="patient-last-reviewed">Last Reviewed Component</div>;
-  };
-});
+jest.mock('connected-react-router', () => ({ push: jest.fn() }));
 
 // Mock the agpCGMText function from @tidepool/viz while preserving other exports
 jest.mock('@tidepool/viz', () => {
@@ -56,31 +31,20 @@ jest.mock('@tidepool/viz', () => {
   };
 });
 
-const mockStore = configureStore([thunk]);
+jest.mock('@app/providers/ToastProvider', () => ({
+  useToasts: () => ({ set: jest.fn() }),
+}));
 
 const defaultProps = {
-  patientId: 'patient123',
+  patient: { id: 'patient123', fullName: 'Zhilei Zhang', birthDate: '1990-01-15' },
   onClose: jest.fn(),
   onSelectTab: jest.fn(),
   selectedTab: OVERVIEW_TAB_INDEX,
-  trackMetric: jest.fn(),
-};
-
-const defaultPatient = {
-  fullName: 'John Doe',
-  birthDate: '1990-01-15',
 };
 
 const defaultState = {
   blip: {
     selectedClinicId: 'clinic123',
-    clinics: {
-      clinic123: {
-        patients: {
-          patient123: defaultPatient,
-        },
-      },
-    },
     pdf: {
       data: {
         agpCGM: {
@@ -100,14 +64,8 @@ const defaultState = {
   },
 };
 
-const renderMenuBar = (props = {}, state = defaultState, flags = {}) => {
-  const store = mockStore(state);
-
-  // Mock useFlags
-  require('launchdarkly-react-client-sdk').useFlags.mockReturnValue({
-    showTideDashboardLastReviewed: false,
-    ...flags,
-  });
+const renderMenuBar = (props = {}, state = defaultState) => {
+  const store = setupStore(state, { blip: blipReducer });
 
   return render(
     <Provider store={store}>
@@ -126,56 +84,28 @@ describe('MenuBar Component', () => {
   });
 
   describe('Patient Information Display', () => {
-    it('should display patient name when patient data is available', () => {
+    it('should display patient name and birthdate', () => {
       renderMenuBar();
 
-      expect(screen.getByTestId('patient-name')).toHaveTextContent('John Doe');
-    });
-
-    it('should display patient birthdate when patient data is available', () => {
-      renderMenuBar();
-
+      expect(screen.getByTestId('patient-name')).toHaveTextContent('Zhilei Zhang');
       expect(screen.getByTestId('patient-birthdate')).toHaveTextContent('DOB: 1990-01-15');
     });
 
     it('should handle missing patient birthdate gracefully', () => {
-      const stateWithoutBirthdate = {
-        ...defaultState,
-        blip: {
-          ...defaultState.blip,
-          clinics: {
-            clinic123: {
-              patients: {
-                patient123: {
-                  fullName: 'John Doe',
-                },
-              },
-            },
-          },
-        },
-      };
+      renderMenuBar({ patient: { id: 'patient123', fullName: 'Zhilei Zhang' } });
 
-      renderMenuBar({}, stateWithoutBirthdate);
-
-      expect(screen.getByTestId('patient-name')).toHaveTextContent('John Doe');
+      expect(screen.getByText('Zhilei Zhang')).toBeInTheDocument();
       expect(screen.queryByTestId('patient-birthdate')).not.toBeInTheDocument();
     });
   });
 
   describe('Last Reviewed Component', () => {
-    it('should display last reviewed section when feature flag is enabled', () => {
-      renderMenuBar({}, defaultState, { showTideDashboardLastReviewed: true });
+    it('should display last reviewed section', () => {
+      renderMenuBar();
 
       expect(screen.getByTestId('last-reviewed-section')).toBeInTheDocument();
-      expect(screen.getByTestId('patient-last-reviewed')).toBeInTheDocument();
+      expect(screen.getByTestId('patient-review-toggle')).toBeInTheDocument();
       expect(screen.getByText('Last Reviewed')).toBeInTheDocument();
-    });
-
-    it('should not display last reviewed section when feature flag is disabled', () => {
-      renderMenuBar({}, defaultState, { showTideDashboardLastReviewed: false });
-
-      expect(screen.queryByTestId('last-reviewed-section')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('patient-last-reviewed')).not.toBeInTheDocument();
     });
   });
 
@@ -213,12 +143,8 @@ describe('MenuBar Component', () => {
 
     it('calls onSelectTab and trackMetric when a tab is clicked', () => {
       const mockOnSelectTab = jest.fn();
-      const mockTrackMetric = jest.fn();
 
-      renderMenuBar({
-        onSelectTab: mockOnSelectTab,
-        trackMetric: mockTrackMetric
-      });
+      renderMenuBar({ onSelectTab: mockOnSelectTab });
 
       fireEvent.click(screen.getByTestId('tab-stackedDaily'));
 
@@ -231,7 +157,7 @@ describe('MenuBar Component', () => {
   });
 
   describe('View Data Button', () => {
-    it('should render view data button', () => {
+    it('should render view data button', async () => {
       renderMenuBar();
 
       const viewDataButton = screen.getByTestId('view-data-button');

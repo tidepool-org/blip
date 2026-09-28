@@ -58,7 +58,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
-import PatientDrawer, { isValidAgpPeriod } from './PatientDrawer';
+import PatientDrawer, { isValidAgpPeriod } from '../../components/PatientDrawer';
 import utils from '../../core/utils';
 
 import {
@@ -85,7 +85,7 @@ import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
-import { OVERVIEW_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
+import { OVERVIEW_TAB_INDEX } from '../../components/PatientDrawer/MenuBar/MenuBar';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;

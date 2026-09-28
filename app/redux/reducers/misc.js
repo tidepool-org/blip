@@ -763,6 +763,11 @@ export const clinics = (state = initialState.clinics, action) => {
       const patient = _.get(action.payload, 'patient');
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
+
+      if (!state[clinicId].patients) {
+        return state;
+      }
+
       let fetchedPatientCount = state[clinicId].fetchedPatientCount;
 
       // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
