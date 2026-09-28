@@ -6,19 +6,19 @@ const getConnectionIssuesParam = (category) => {
     case CATEGORY.STALE_DATA:
       return ['staleData'];
     case CATEGORY.ERROR_OR_DC:
-      return ['disconnected', 'erroring'];
+      return ['disconnected', 'error'];
     case CATEGORY.INVITE_SENT:
-      return ['staleConnectionInvitation'];
+      return ['staleInvite'];
     case CATEGORY.INVITE_EXPIRED:
-      return ['expiredConnectionInvitation'];
+      return ['expiredInvite'];
     case CATEGORY.HIDDEN:
     case CATEGORY.DEFAULT:
       return [
         'staleData',
         'disconnected',
-        'erroring',
-        'staleConnectionInvitation',
-        'expiredConnectionInvitation',
+        'error',
+        'staleInvite',
+        'expiredInvite',
       ];
     default:
       return undefined;
@@ -31,16 +31,16 @@ const connectionIssuesApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getConnectionIssuesPatients: builder.query({
       query: ({ clinicId, offset, category, limit }) => {
-        const deviceIssues = getConnectionIssuesParam(category);
-        const omitHiddenDevicesIssues = category !== CATEGORY.HIDDEN;
+        const connectionIssueCauses = getConnectionIssuesParam(category);
+        const onlyHiddenConnectionIssues = category === CATEGORY.HIDDEN || undefined;
 
         return {
           url: `/clinics/${clinicId}/patients`,
           params: {
             offset,
             limit,
-            deviceIssues,
-            omitHiddenDevicesIssues,
+            connectionIssueCauses,
+            onlyHiddenConnectionIssues,
           },
         };
       },
