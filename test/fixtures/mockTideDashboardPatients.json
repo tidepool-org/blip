@@ -657,9 +657,13 @@
             "646f7ed208e23bc18d91caa3",
             "646f7ed708e23bc18d91caa4"
           ],
-          "dataSources": [
-            { "providerName": "dexcom", "state": "pending", "expirationTime": "2024-11-17T15:17:20.159+00:00" }
-          ]
+          "connectionRequests": {
+            "dexcom": [{
+              "providerName": "dexcom",
+              "createdTime": "2024-10-18T15:17:20.159+00:00",
+              "expirationTime": "2024-11-17T15:17:20.159+00:00"
+            }]
+          }
         }
       },
       {
@@ -684,9 +688,13 @@
             "6455353c299ee2ccddbdbe94",
             "646f7f0408e23bc18d91caa7"
           ],
-          "dataSources": [
-            { "providerName": "dexcom", "state": "pending" }
-          ]
+          "connectionRequests": {
+            "dexcom": [{
+              "providerName": "dexcom",
+              "createdTime": "2099-01-01T00:00:00.000+00:00",
+              "expirationTime": "2099-12-31T00:00:00.000+00:00"
+            }]
+          }
         }
       }
     ]
