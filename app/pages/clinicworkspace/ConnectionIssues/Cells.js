@@ -3,13 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Box, Text, Flex } from 'theme-ui';
 import { providers, getCurrentDataSourceForProvider } from '../../../components/datasources/DataConnections';
 import { colors as vizColors } from '@tidepool/viz';
-import { useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import Icon from '../../../components/elements/Icon';
-import { getActiveDeviceIssue, getDaysAgo } from './helpers';
+import { getDaysAgo } from './helpers';
 
 import { ISSUE_TYPE } from './connectionIssuesApi';
-const { STALE_DATA, DISCONNECTED, ERROR,  EXPIRED_INVITE, STALE_INVITE } = ISSUE_TYPE;
+const { STALE_DATA, DISCONNECTED, ERROR, EXPIRED_INVITE, STALE_INVITE } = ISSUE_TYPE;
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();

@@ -9,7 +9,7 @@ export const ISSUE_TYPE = {
   EXPIRED_INVITE: 'expiredInvite',
 };
 
-const { STALE_DATA, DISCONNECTED, ERROR,  EXPIRED_INVITE, STALE_INVITE } = ISSUE_TYPE;
+const { STALE_DATA, DISCONNECTED, ERROR, EXPIRED_INVITE, STALE_INVITE } = ISSUE_TYPE;
 
 const getConnectionIssuesParam = (category) => {
   switch(category) {
