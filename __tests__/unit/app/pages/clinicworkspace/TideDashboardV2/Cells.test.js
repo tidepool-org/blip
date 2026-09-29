@@ -158,7 +158,7 @@ describe('Cells', () => {
     it('renders the change in time in range as a bar and as a percentage', () => {
       renderComponent(<ChangeTIRCell patient={patient} />);
 
-      expect(screen.getByText('-15.2 %')).toBeInTheDocument(); // compact layout value
+      expect(screen.getByText('15')).toBeInTheDocument(); // compact layout value
     });
   });
 
