@@ -144,25 +144,19 @@ export const ChangeTIRHeader = withTranslation()(({ t }) => (
 
 export const ChangeTIRCell = ({ patient }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
-  const timeInTargetPercentDelta = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercentDelta;
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercentDelta;
 
-  if (!timeInTargetPercentDelta) return <Text sx={{ fontWeight: 'medium' }}>-</Text>;
+  if (!rawValue) return <Text sx={{ fontWeight: 'medium' }}>-</Text>;
 
-  const compactDisplayValue = utils.formatDecimal(timeInTargetPercentDelta * 100, 1);
+  const value = utils.formatDecimal(rawValue * 100, 0);
 
-  return <>
-    <Box sx={{ [COMPACT]: { display: 'none' } }}>
-      <DeltaBar
-        sx={{ fontWeight: 'medium' }}
-        delta={timeInTargetPercentDelta * 100}
-        max={30}
-      />
-    </Box>
-    <Box sx={{ display: 'none', [COMPACT]: { display: 'block' } }}>
-      <NumericTemplateCell value={compactDisplayValue} isPercent />
-    </Box>
-  </>
-  ;
+  return <Box>
+    <DeltaBar
+      sx={{ fontWeight: 'medium' }}
+      delta={value}
+      max={30}
+    />
+  </Box>;
 };
 
 export const FlagCell = ({ patient, category = null }) => {
