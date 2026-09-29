@@ -14,10 +14,25 @@ export const tideDashboardExclusionQuery = new CGMExclusionQuery()
   .addRule(CATEGORY.LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<', 0.70)         // queries <0.695
   .addRule(CATEGORY.TARGET, 'cgm.timeCGMUsePercent', '>=', 0.70);             // queries >=0.695 and overwrites previous
 
+const getSortParam = (category) => {
+  switch(category) {
+    case CATEGORY.VERY_LOW: return '-timeInVeryLowPercent';
+    case CATEGORY.ANY_LOW: return '-timeInAnyLowPercent';
+    case CATEGORY.DROP_IN_TIR: return '+timeInTargetPercentDelta';
+    case CATEGORY.ANY_HIGH: return '-timeInAnyHighPercent';
+    case CATEGORY.VERY_HIGH: return '-timeInVeryHighPercent';
+    case CATEGORY.LOW_CGM_WEAR: return '+timeCGMUsePercent';
+    case CATEGORY.TARGET: return '-timeInTargetPercent';
+    case CATEGORY.DEFAULT:
+    default: return '+fullName';
+  }
+};
+
 export const buildGetTideDashboardPatientsParams = (offset, limit, category, summaryPeriod, lastDataFrom, lastDataTo, tags = [], sites = []) => {
   const formattedTags = tags?.length > 0 ? tags.join(',') : undefined;
   const formattedSites = sites?.length > 0 ? sites.join(',') : undefined;
 
+  const sort = getSortParam(category);
   const cgmQueryParams = tideDashboardExclusionQuery.getQueryParams(category);
 
   return {
@@ -28,6 +43,8 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, sum
     'cgm.lastDataFrom': lastDataFrom,
     tags: formattedTags,
     sites: formattedSites,
+    sort: sort,
+    sortType: 'cgm',
     ...cgmQueryParams,
   };
 };
