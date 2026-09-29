@@ -54,7 +54,6 @@ const ExportDropdown = ({
       <Button
         id="export-dropdown-trigger"
         variant="filter"
-        selected={popupState.isOpen}
         icon={KeyboardArrowDownRoundedIcon}
         iconLabel="Export options"
         processing={isLoading}

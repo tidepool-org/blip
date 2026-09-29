@@ -12,7 +12,7 @@ const patientListExportApi = RTKQueryApi.injectEndpoints({
       }),
       transformResponse: (csv, meta) => ({
         csv,
-        filename: meta?.response?.headers?.get('content-disposition')?.match(/filename="?([^";]+)"?/)?.[1] ?? 'patient-list.csv',
+        filename: meta?.response?.headers?.get('content-disposition')?.match(/filename="?([^";]+)"?/)?.[1] ?? 'Patient List.csv',
       }),
     }),
   }),

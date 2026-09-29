@@ -75,18 +75,6 @@ describe('ExportDropdown', () => {
       expect(items.map(item => item.textContent)).toEqual(['RPM Report', 'Patient List']);
     });
 
-    it('marks the trigger selected only while the menu is open', async () => {
-      renderComponent();
-      const trigger = document.querySelector('#export-dropdown-trigger');
-      expect(trigger).not.toHaveClass('selected');
-
-      await openMenu();
-      expect(trigger).toHaveClass('selected');
-
-      await userEvent.click(screen.getByText('RPM Report'));
-      await waitFor(() => expect(trigger).not.toHaveClass('selected'));
-    });
-
     it('lists only Patient List when the RPM gate is false', async () => {
       renderComponent({ showRpmReport: false });
       await openMenu();
@@ -208,14 +196,14 @@ describe('ExportDropdown', () => {
       });
     });
 
-    it('falls back to patient-list.csv when the response carries no Content-Disposition', async () => {
+    it('falls back to Patient List.csv when the response carries no Content-Disposition', async () => {
       server.use(http.get(EXPORT_URL, () => HttpResponse.text('name,mrn\n')));
 
       renderComponent();
       await clickPatientList();
 
       await waitFor(() => expect(clickSpy).toHaveBeenCalledTimes(1));
-      expect(clickSpy.mock.instances[0].download).toBe('patient-list.csv');
+      expect(clickSpy.mock.instances[0].download).toBe('Patient List.csv');
     });
 
     it('toasts the failure and downloads nothing when the export errors', async () => {
