@@ -11,20 +11,20 @@ describe ('tideDashboardApi', () => {
 
     it('returns correct query args for VERY_LOW category', () => {
       expect(tideDashboardExclusionQuery.getQueryParams(VERY_LOW)).toStrictEqual({
-        'cgm.timeInVeryLowPercent': '>=0.005', // >= 1%
+        'cgm.timeInVeryLowPercent': '>=0.01', // >= 1%
       });
     });
 
     it('returns correct query args for ANY_LOW category', () => {
       expect(tideDashboardExclusionQuery.getQueryParams(ANY_LOW)).toStrictEqual({
-        'cgm.timeInVeryLowPercent': '<0.005', // < 1%
+        'cgm.timeInVeryLowPercent': '<0.01', // < 1%
         'cgm.timeInAnyLowPercent': '>=0.035', // >= 4%
       });
     });
 
     it('returns correct query args for DROP_IN_TIR category', () => {
       expect(tideDashboardExclusionQuery.getQueryParams(DROP_IN_TIR)).toStrictEqual({
-        'cgm.timeInVeryLowPercent': '<0.005', // < 1%
+        'cgm.timeInVeryLowPercent': '<0.01', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '<=-0.145', // <= -15%
       });
@@ -32,7 +32,7 @@ describe ('tideDashboardApi', () => {
 
     it('returns correct query args for ANY_HIGH category', () => {
       expect(tideDashboardExclusionQuery.getQueryParams(ANY_HIGH)).toStrictEqual({
-        'cgm.timeInVeryLowPercent': '<0.005', // < 1%
+        'cgm.timeInVeryLowPercent': '<0.01', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '>-0.145', // > -15%
         'cgm.timeInAnyHighPercent': '>=0.245', // >= 25%
@@ -41,7 +41,7 @@ describe ('tideDashboardApi', () => {
 
     it('returns correct query args for VERY_HIGH category', () => {
       expect(tideDashboardExclusionQuery.getQueryParams(VERY_HIGH)).toStrictEqual({
-        'cgm.timeInVeryLowPercent': '<0.005', // < 1%
+        'cgm.timeInVeryLowPercent': '<0.01', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '>-0.145', // > -15%
         'cgm.timeInAnyHighPercent': '<0.245', // < 25%
@@ -51,7 +51,7 @@ describe ('tideDashboardApi', () => {
 
     it('returns correct query args for LOW_CGM_WEAR category', () => {
       expect(tideDashboardExclusionQuery.getQueryParams(LOW_CGM_WEAR)).toStrictEqual({
-        'cgm.timeInVeryLowPercent': '<0.005', // < 1%
+        'cgm.timeInVeryLowPercent': '<0.01', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '>-0.145', // > -15%
         'cgm.timeInAnyHighPercent': '<0.245', // < 25%
@@ -62,7 +62,7 @@ describe ('tideDashboardApi', () => {
 
     it('returns correct query args for TARGET category', () => {
       expect(tideDashboardExclusionQuery.getQueryParams(TARGET)).toStrictEqual({
-        'cgm.timeInVeryLowPercent': '<0.005', // < 1%
+        'cgm.timeInVeryLowPercent': '<0.01', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '>-0.145', // > -15%
         'cgm.timeInAnyHighPercent': '<0.245', // < 25%
@@ -92,7 +92,7 @@ describe ('tideDashboardApi', () => {
         tags: 'tagId1,tagId2',
         sites: 'siteId1,siteId2',
         'cgm.timeInAnyLowPercent': '>=0.035',
-        'cgm.timeInVeryLowPercent': '<0.005',
+        'cgm.timeInVeryLowPercent': '<0.01',
         sort: '-timeInAnyLowPercent',
         sortType: 'cgm',
       });
@@ -117,7 +117,7 @@ describe ('tideDashboardApi', () => {
         tags: undefined,
         sites: undefined,
         'cgm.timeInAnyLowPercent': '>=0.035',
-        'cgm.timeInVeryLowPercent': '<0.005',
+        'cgm.timeInVeryLowPercent': '<0.01',
         sort: '-timeInAnyLowPercent',
         sortType: 'cgm',
       });
