@@ -98,6 +98,8 @@ describe ('tideDashboardApi', () => {
         omitNonStandardRanges: true,
         'cgm.timeInAnyLowPercent': '>=0.035',
         'cgm.timeInVeryLowPercent': '<=0.005',
+        sort: '-timeInAnyLowPercent',
+        sortType: 'cgm',
       });
     });
 
@@ -122,6 +124,8 @@ describe ('tideDashboardApi', () => {
         omitNonStandardRanges: true,
         'cgm.timeInAnyLowPercent': '>=0.035',
         'cgm.timeInVeryLowPercent': '<=0.005',
+        sort: '-timeInAnyLowPercent',
+        sortType: 'cgm',
       });
     });
   });

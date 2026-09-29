@@ -56,6 +56,8 @@ const anticipatedQueries = {
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
     omitNonStandardRanges: 'true',
+    sort: '+fullName',
+    sortType: 'cgm',
   },
   [VERY_LOW]: {
     offset: '0',
@@ -65,6 +67,8 @@ const anticipatedQueries = {
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
     omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '>0.005',
+    sort: '-timeInVeryLowPercent',
+    sortType: 'cgm',
   },
   [ANY_LOW]: {
     offset: '0',
@@ -75,6 +79,8 @@ const anticipatedQueries = {
     omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '>=0.035',
+    sort: '-timeInAnyLowPercent',
+    sortType: 'cgm',
   },
   [DROP_IN_TIR]: {
     offset: '0',
@@ -86,6 +92,8 @@ const anticipatedQueries = {
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '<0.035',
     'cgm.timeInTargetPercentDelta': '<-0.145',
+    sort: '+timeInTargetPercentDelta',
+    sortType: 'cgm',
   },
   [ANY_HIGH]: {
     offset: '0',
@@ -99,6 +107,8 @@ const anticipatedQueries = {
     'cgm.timeInTargetPercentDelta': '>=-0.145',
     includeNullDeltas: 'cgm.timeInTargetPercentDelta',
     'cgm.timeInAnyHighPercent': '>0.245',
+    sort: '-timeInAnyHighPercent',
+    sortType: 'cgm',
   },
   [VERY_HIGH]: {
     offset: '0',
@@ -113,6 +123,8 @@ const anticipatedQueries = {
     includeNullDeltas: 'cgm.timeInTargetPercentDelta',
     'cgm.timeInAnyHighPercent': '<=0.245',
     'cgm.timeInVeryHighPercent': '>0.045',
+    sort: '-timeInVeryHighPercent',
+    sortType: 'cgm',
   },
   [LOW_CGM_WEAR]: {
     offset: '0',
@@ -128,6 +140,8 @@ const anticipatedQueries = {
     'cgm.timeInAnyHighPercent': '<=0.245',
     'cgm.timeInVeryHighPercent': '<=0.045',
     'cgm.timeCGMUsePercent': '<0.695',
+    sort: '+timeCGMUsePercent',
+    sortType: 'cgm',
   },
   [TARGET]: {
     offset: '0',
@@ -143,6 +157,8 @@ const anticipatedQueries = {
     'cgm.timeInAnyHighPercent': '<=0.245',
     'cgm.timeInVeryHighPercent': '<=0.045',
     'cgm.timeCGMUsePercent': '>=0.695',
+    sort: '-timeInTargetPercent',
+    sortType: 'cgm',
   },
   'DEFAULT_WITH_FILTERS': {
     offset: '0',
@@ -153,6 +169,8 @@ const anticipatedQueries = {
     tags: 'tag8',
     sites: 'site9',
     omitNonStandardRanges: 'true',
+    sort: '+fullName',
+    sortType: 'cgm',
   },
 };
 
