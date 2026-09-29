@@ -31,6 +31,12 @@ jest.mock('launchdarkly-react-client-sdk', () => ({
   }),
 }));
 
+jest.mock('@app/providers/ToastProvider', () => ({
+  useToasts: jest.fn().mockReturnValue({
+    set: jest.fn(),
+  }),
+}));
+
 const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
 const TEST_TIMEOUT_MS = 30_000;
