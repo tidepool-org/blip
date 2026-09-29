@@ -27,7 +27,7 @@ export const PatientCell = ({ patient }) => {
 
 export const DeviceNameCell = ({ patient }) => {
   const providerName = patient?.connectionIssueSource;
-  const displayName = providerName ? providers[providerName].displayName : '-';
+  const displayName = providers[providerName]?.displayName ?? '-';
 
   return <Box>
     <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{displayName}</Text>
