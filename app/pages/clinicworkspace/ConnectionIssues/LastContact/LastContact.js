@@ -6,18 +6,18 @@ import { useToasts } from '../../../../providers/ToastProvider';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../../../components/elements/Icon';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
-import { getActiveDeviceIssue, getDaysAgo } from '../helpers';
+import { getDaysAgo } from '../helpers';
 import { Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 import moment from 'moment-timezone';
 import { ISSUE_TYPE } from '../connectionIssuesApi';
 
-const { STALE_CONNECTION_INVITATION, EXPIRED_CONNECTION_INVITATION } = ISSUE_TYPE;
+const { STALE_INVITE, EXPIRED_INVITE } = ISSUE_TYPE;
 
-const getHasActionedBefore = (deviceIssue, providerConnectionRequests) => {
+const getHasActionedBefore = (connectionIssue, providerConnectionRequests) => {
   const isInviteIssue = (
-    deviceIssue._type === STALE_CONNECTION_INVITATION ||
-    deviceIssue._type === EXPIRED_CONNECTION_INVITATION
+    connectionIssue.cause === STALE_INVITE ||
+    connectionIssue.cause === EXPIRED_INVITE
   );
 
   // Invite Issues
@@ -28,21 +28,22 @@ const getHasActionedBefore = (deviceIssue, providerConnectionRequests) => {
   // Data Source Issues
   const lastInvitedAt = providerConnectionRequests[0]?.createdTime;
 
-  if (!lastInvitedAt || !deviceIssue.effectiveTime) return false;
+  // TODO: EFFECTIVETIME NEEDS TO BE EXPOSED BY BACKEND
+  if (!lastInvitedAt || !connectionIssue.effectiveTime) return false;
 
-  return moment.utc(lastInvitedAt).isAfter(moment.utc(deviceIssue.effectiveTime));
+  return moment.utc(lastInvitedAt).isAfter(moment.utc(connectionIssue.effectiveTime));
 };
 
 const LastContact = ({ patient }) => {
   const { t } = useTranslation();
   const { set: setToast } = useToasts();
-  const category = useSelector(state => state.blip.connectionIssues.category);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
   const [resendInvite, { isLoading: isResendingInvite }] = useResendInviteMutation();
 
-  const deviceIssue = getActiveDeviceIssue(patient, category);
-  const providerName = deviceIssue?.providerId;
+  const { connectionIssue, connectionIssueSource } = patient;
+
+  const providerName = connectionIssueSource;
 
   const handleClick = () => {
     resendInvite({ clinicId: selectedClinicId, patientId: patient.id, providerName })
@@ -60,7 +61,7 @@ const LastContact = ({ patient }) => {
   // If the clinic has already taken action at least once, render a different copy to indicate it
   const providerConnectionRequests = patient?.connectionRequests?.[providerName] || [];
   const lastInvitedAt = providerConnectionRequests[0]?.createdTime;
-  const hasActionedBefore = getHasActionedBefore(deviceIssue, providerConnectionRequests);
+  const hasActionedBefore = getHasActionedBefore(connectionIssue, providerConnectionRequests);
 
   const daysAgo = getDaysAgo(lastInvitedAt);
   const isLastActionedToday = daysAgo === 0;
