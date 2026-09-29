@@ -8,8 +8,8 @@ import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 
-import StackedDaily from '@app/pages/dashboard/PatientDrawer/StackedDaily';
-import { STATUS } from '@app/pages/dashboard/PatientDrawer/useAgpCGM';
+import StackedDaily from '@app/components/PatientDrawer/StackedDaily';
+import { STATUS } from '@app/components/PatientDrawer/useAgpCGM';
 import { mean } from 'lodash';
 import { MS_IN_DAY } from '../../../../../../app/core/constants';
 
@@ -58,7 +58,7 @@ jest.mock('@tidepool/viz', () => {
 });
 
 // Mock Overview components
-jest.mock('@app/pages/dashboard/PatientDrawer/Overview', () => ({
+jest.mock('@app/components/PatientDrawer/Overview', () => ({
   NoPatientData: function MockNoPatientData({ patientName }) {
     return <div data-testid="no-patient-data">No data for {patientName}</div>;
   },
@@ -77,7 +77,7 @@ jest.mock('@app/components/chart/BgLegend', () => {
 const mockStore = configureStore([thunk]);
 
 const defaultProps = {
-  patientId: 'patient123',
+  patient: { id: 'patient123', fullName: 'John Doe' },
   agpCGMData: {
     status: STATUS.DATA_PROCESSED,
     agpCGM: {
@@ -107,18 +107,7 @@ const defaultProps = {
 };
 
 const defaultState = {
-  blip: {
-    selectedClinicId: 'clinic123',
-    clinics: {
-      clinic123: {
-        patients: {
-          patient123: {
-            fullName: 'John Doe',
-          },
-        },
-      },
-    },
-  },
+  blip: {},
 };
 
 const renderComponent = (props = {}, storeState = {}) => {
