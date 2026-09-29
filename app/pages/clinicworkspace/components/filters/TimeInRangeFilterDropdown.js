@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import { trackMetric } from '../../../core/metricUtils';
+import { trackMetric } from '../../../../core/metricUtils';
 import { colors as vizColors, utils as vizUtils } from '@tidepool/viz';
 
 import { Box, Flex, Grid, Text } from 'theme-ui';
@@ -16,17 +16,17 @@ import noop from 'lodash/noop';
 
 import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state/hooks';
 
-import Button from '../../../components/elements/Button';
-import Pill from '../../../components/elements/Pill';
-import Popover from '../../../components/elements/Popover';
-import Checkbox from '../../../components/elements/Checkbox';
+import Button from '../../../../components/elements/Button';
+import Pill from '../../../../components/elements/Pill';
+import Popover from '../../../../components/elements/Popover';
+import Checkbox from '../../../../components/elements/Checkbox';
 
-import { colors } from '../../../themes/baseTheme';
-import { MGDL_UNITS } from '../../../core/constants';
+import { colors } from '../../../../themes/baseTheme';
+import { MGDL_UNITS } from '../../../../core/constants';
 
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
-import useClinicMetricsPageName from '../useClinicMetricsPageName';
-import { timeInRangeFilterThresholds } from '../../../core/clinicUtils';
+import useClinicMetricsPageName from '../../useClinicMetricsPageName';
+import { timeInRangeFilterThresholds } from '../../../../core/clinicUtils';
 
 const getRangeDefinition = (t, { comparator, threshold, bgRange, isBounded }) => {
   if (isBounded) {
