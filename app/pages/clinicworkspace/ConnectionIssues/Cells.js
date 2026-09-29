@@ -26,9 +26,7 @@ export const PatientCell = ({ patient }) => {
 };
 
 export const DeviceNameCell = ({ patient }) => {
-  const category = useSelector(state => state.blip.connectionIssues.category);
-
-  const providerName = getActiveDeviceIssue(patient, category)?.providerId;
+  const providerName = patient?.connectionIssueSource;
   const displayName = providerName ? providers[providerName].displayName : '-';
 
   return <Box>
@@ -38,14 +36,12 @@ export const DeviceNameCell = ({ patient }) => {
 
 export const ConnectionStatusCell = ({ patient }) => {
   const { t } = useTranslation();
-  const category = useSelector(state => state.blip.connectionIssues.category);
+  const connectionIssue = patient?.connectionIssue;
 
-  const activeDeviceIssue = getActiveDeviceIssue(patient, category);
-
-  if (!activeDeviceIssue) return null;
+  if (!connectionIssue) return null;
 
   const connectionStatus = (() => {
-    switch(activeDeviceIssue._type) {
+    switch(connectionIssue.cause) {
       case STALE_DATA: return t('Stale Data');
       case DISCONNECTED: return t('Patient Disconnected');
       case ERROR: return t('Error Connecting');
@@ -76,18 +72,16 @@ export const ConnectionStatusCell = ({ patient }) => {
 
 export const StatusSummaryCell = ({ patient }) => {
   const { t } = useTranslation();
-  const category = useSelector(state => state.blip.connectionIssues.category);
+  const connectionIssue = patient?.connectionIssue;
 
-  const deviceIssue = getActiveDeviceIssue(patient, category);
-
-  if (!deviceIssue?._type) return null;
+  if (!connectionIssue?.cause) return null;
 
   let label;
   let color;
 
-  switch(deviceIssue._type) {
+  switch(connectionIssue.cause) {
     case STALE_DATA: {
-      const dataSource = getCurrentDataSourceForProvider(patient, deviceIssue.providerId);
+      const dataSource = getCurrentDataSourceForProvider(patient, patient.connectionIssueSource);
       const daysAgo = getDaysAgo(dataSource?.latestDataTime);
 
       label = daysAgo === null ? '-' : t('Last data sync {{daysAgo}} days ago', { daysAgo });
@@ -96,7 +90,8 @@ export const StatusSummaryCell = ({ patient }) => {
     }
 
     case DISCONNECTED: {
-      const daysAgo = getDaysAgo(deviceIssue?.effectiveTime);
+      // TODO: EFFECTIVETIME NEEDS TO BE EXPOSED BY BACKEND
+      const daysAgo = getDaysAgo(connectionIssue?.effectiveTime);
 
       label = daysAgo === null ? '-' : t('Disconnected {{daysAgo}} days ago', { daysAgo });
       color = vizColors.red50;
@@ -104,7 +99,8 @@ export const StatusSummaryCell = ({ patient }) => {
     }
 
     case ERROR: {
-      const daysAgo = getDaysAgo(deviceIssue?.effectiveTime);
+      // TODO: EFFECTIVETIME NEEDS TO BE EXPOSED BY BACKEND
+      const daysAgo = getDaysAgo(connectionIssue?.effectiveTime);
 
       label = daysAgo === null ? '-' : t('Connection Error {{daysAgo}} days ago', { daysAgo });
       color = vizColors.gold50;
@@ -112,7 +108,7 @@ export const StatusSummaryCell = ({ patient }) => {
     }
 
     case EXPIRED_INVITE: {
-      const { providerId } = deviceIssue;
+      const providerId = patient.connectionIssueSource;
       const lastInvitedAt = patient?.connectionRequests?.[providerId]?.[0]?.createdTime;
       const daysAgo = getDaysAgo(lastInvitedAt);
 
@@ -122,7 +118,7 @@ export const StatusSummaryCell = ({ patient }) => {
     }
 
     case STALE_INVITE: {
-      const { providerId } = deviceIssue;
+      const providerId = patient.connectionIssueSource;
       const lastInvitedAt = patient?.connectionRequests?.[providerId]?.[0]?.createdTime;
       const daysAgo = getDaysAgo(lastInvitedAt);
 
