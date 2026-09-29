@@ -23,7 +23,7 @@ import useAuthorizationGate from './useAuthorizationGate';
 
 import PatientDrawerController from './PatientDrawerController';
 import EditPatientDialogController from './modals/EditPatientDialogController';
-import DataConnectionsModalController from './modals/DataConnectionsModalController';
+import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
 import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar';
 import DataIssues from './DataIssues/DataIssues';
 
@@ -105,7 +105,7 @@ const TideDashboardV2 = ({ api }) => {
 
       <PatientDrawerController api={api} patients={patients} />
       <EditPatientDialogController api={api} patients={patients} />
-      <DataConnectionsModalController patients={patients}/>
+      <DataConnectionsDialogController patients={patients}/>
     </>
   );
 };
