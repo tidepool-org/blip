@@ -8,13 +8,13 @@ import CGMExclusionQuery from './CGMExclusionQuery';
 const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
 export const tideDashboardExclusionQuery = new CGMExclusionQuery()
-  .addRule(VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.01)         // queries >=0.005
-  .addRule(ANY_LOW, 'cgm.timeInAnyLowPercent', '>=', 0.04)           // queries >=0.035
-  .addRule(DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=', -0.15) // queries <=-0.145
-  .addRule(ANY_HIGH, 'cgm.timeInAnyHighPercent', '>=', 0.25)         // queries >=0.245
-  .addRule(VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=', 0.05)       // queries >=0.045
-  .addRule(LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<', 0.70)         // queries <0.695
-  .addRule(TARGET, 'cgm.timeCGMUsePercent', '>=', 0.70);             // queries >=0.695 and overwrites previous
+  .addRule(VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.01, { adjust: false }) // queries >=0.01 (no 0.5% adjustment)
+  .addRule(ANY_LOW, 'cgm.timeInAnyLowPercent', '>=', 0.04)                      // queries >=0.035
+  .addRule(DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=', -0.15)            // queries <=-0.145
+  .addRule(ANY_HIGH, 'cgm.timeInAnyHighPercent', '>=', 0.25)                    // queries >=0.245
+  .addRule(VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=', 0.05)                  // queries >=0.045
+  .addRule(LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<', 0.70)                    // queries <0.695
+  .addRule(TARGET, 'cgm.timeCGMUsePercent', '>=', 0.70);                        // queries >=0.695 and overwrites previous
 
 const getSortArg = (category) => {
   switch(category) {

@@ -21,7 +21,11 @@ export default class CGMExclusionQuery {
   // Each rule is adjusted for the half-percent rounding cutoff e.g. if querying
   // for X >= 4%, we need to include patients that have X >= 3.5%, since anything
   // above 3.6% gets rounded to 4% in the view
-  getAdjustedThreshold(value, operator) {
+  getAdjustedThreshold(value, operator, opts = {}) {
+    const { adjust = true } = opts;
+
+    if (!adjust) return value;
+
     const rounded = Math.round(value * 100) / 100; // round to 2 decimal places
 
     if (operator === '>=' || operator === '<') {
@@ -31,8 +35,8 @@ export default class CGMExclusionQuery {
     }
   }
 
-  addRule(name, param, operator, value) {
-    const threshold = this.getAdjustedThreshold(value, operator);
+  addRule(name, param, operator, value, opts = {}) {
+    const threshold = this.getAdjustedThreshold(value, operator, opts);
 
     const queryParamsForRule = {};
 
