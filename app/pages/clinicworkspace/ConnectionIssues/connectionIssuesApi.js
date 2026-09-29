@@ -79,7 +79,18 @@ const connectionIssuesApi = RTKQueryApi.injectEndpoints({
       }),
       providesTags: [CONNECTION_ISSUES_PATIENTS],
     }),
+    setConnectionIssueHidden: builder.mutation({
+      query: ({ clinicId, patientId, hidden }) => ({
+        url: `/clinics/${clinicId}/patients/${patientId}/connection_issue/hidden`,
+        method: 'PUT',
+        body: { hidden },
+      }),
+      invalidatesTags: [CONNECTION_ISSUES_PATIENTS],
+    }),
   }),
 });
 
-export const { useGetConnectionIssuesPatientsQuery } = connectionIssuesApi;
+export const {
+  useGetConnectionIssuesPatientsQuery,
+  useSetConnectionIssueHiddenMutation,
+} = connectionIssuesApi;
