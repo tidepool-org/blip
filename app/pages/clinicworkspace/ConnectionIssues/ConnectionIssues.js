@@ -13,7 +13,7 @@ import PaginationController from './PaginationController';
 import EmptyContentNode from './EmptyNodeContent';
 
 import EditPatientDialogController from './modals/EditPatientDialogController';
-import DataConnectionsModalController from './modals/DataConnectionsModalController';
+import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
 
 import { resetConnectionIssuesState } from './connectionIssuesSlice';
 import useTableColumns from './useTableColumns';
@@ -76,7 +76,7 @@ const ConnectionIssues = ({ api }) => {
       <PaginationController total={total} />
 
       <EditPatientDialogController api={api} patients={patients} />
-      <DataConnectionsModalController patients={patients}/>
+      <DataConnectionsDialogController patients={patients}/>
     </>
   );
 };
