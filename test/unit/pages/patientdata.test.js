@@ -317,12 +317,16 @@ describe('PatientData', function () {
   let isCustomBgRangeStub;
   let defineBasicsAggregationsStub;
   let processBasicsAggregationsStub;
+  let getSiteChangeSourceStub;
+  let getSiteChangeSourceLabelStub;
   let originalSelectDailyViewData;
   let originalSelectBgLogViewData;
   let originalReshapeBgClassesToBgBounds;
   let originalIsCustomBgRange;
   let originalDefineBasicsAggregations;
   let originalProcessBasicsAggregations;
+  let originalGetSiteChangeSource;
+  let originalGetSiteChangeSourceLabel;
 
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
@@ -375,6 +379,8 @@ describe('PatientData', function () {
     originalIsCustomBgRange = vizUtils.bg.isCustomBgRange;
     originalDefineBasicsAggregations = vizUtils.aggregation.defineBasicsAggregations;
     originalProcessBasicsAggregations = vizUtils.aggregation.processBasicsAggregations;
+    originalGetSiteChangeSource = vizUtils.aggregation.getSiteChangeSource;
+    originalGetSiteChangeSourceLabel = vizUtils.aggregation.getSiteChangeSourceLabel;
 
     selectDailyViewDataStub = sinon.stub().returns('stubbed filtered daily data');
     selectBgLogViewDataStub = sinon.stub().returns('stubbed filtered bgLog data');
@@ -382,6 +388,8 @@ describe('PatientData', function () {
     isCustomBgRangeStub = sinon.stub().returns(false);
     defineBasicsAggregationsStub = sinon.stub().returns('stubbed aggregations definitions');
     processBasicsAggregationsStub = sinon.stub().returns('stubbed processed aggregations');
+    getSiteChangeSourceStub = sinon.stub().returns('stubbed site change source');
+    getSiteChangeSourceLabelStub = sinon.stub().returns('stubbed site change source label');
 
     vizUtils.data.selectDailyViewData = selectDailyViewDataStub;
     vizUtils.data.selectBgLogViewData = selectBgLogViewDataStub;
@@ -389,6 +397,8 @@ describe('PatientData', function () {
     vizUtils.bg.isCustomBgRange = isCustomBgRangeStub;
     vizUtils.aggregation.defineBasicsAggregations = defineBasicsAggregationsStub;
     vizUtils.aggregation.processBasicsAggregations = processBasicsAggregationsStub;
+    vizUtils.aggregation.getSiteChangeSource = getSiteChangeSourceStub;
+    vizUtils.aggregation.getSiteChangeSourceLabel = getSiteChangeSourceLabelStub;
   });
 
   beforeEach(() => {
@@ -407,6 +417,8 @@ describe('PatientData', function () {
     vizUtils.bg.isCustomBgRange = originalIsCustomBgRange;
     vizUtils.aggregation.defineBasicsAggregations = originalDefineBasicsAggregations;
     vizUtils.aggregation.processBasicsAggregations = originalProcessBasicsAggregations;
+    vizUtils.aggregation.getSiteChangeSource = originalGetSiteChangeSource;
+    vizUtils.aggregation.getSiteChangeSourceLabel = originalGetSiteChangeSourceLabel;
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -1681,6 +1693,59 @@ describe('PatientData', function () {
         instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
 
         sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
+      });
+    });
+
+    it('should remove the generated PDF when an unsaved site change source is reverted to the saved one', () => {
+      const settingsProps = _.assign({}, defaultProps, {
+        patient: _.assign({}, defaultProps.patient, {
+          settings: {
+            siteChangeSource: 'cannulaPrime',
+          },
+        }),
+      });
+
+      const wrapper = shallow(<PatientDataClass {...settingsProps} />);
+      const instance = wrapper.instance();
+      defaultProps.removeGeneratedPDFS.resetHistory();
+
+      let canUpdateSettings = false;
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, { siteChangeSource: 'tubingPrime' }, canUpdateSettings);
+      expect(wrapper.state('updatedSiteChangeSource')).to.equal('tubingPrime');
+
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, { siteChangeSource: 'cannulaPrime' }, canUpdateSettings);
+      expect(wrapper.state('updatedSiteChangeSource')).to.equal('cannulaPrime');
+      sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 2);
+    });
+  });
+
+  describe('renderChart', () => {
+    context('daily', () => {
+      let wrapper;
+      let instance;
+
+      beforeEach(() => {
+        wrapper = shallow(<PatientDataClass {...defaultProps} patient={{
+          ...defaultProps.patient,
+          settings: { siteChangeSource: 'cannulaPrime' },
+        }} data={{
+          ...defaultProps.data,
+          metaData: { latestPumpUpload: { manufacturer: 'tandem' } },
+        }} />);
+        instance = wrapper.instance();
+        wrapper.setState({ chartType: 'daily' });
+        getSiteChangeSourceStub.resetHistory();
+      });
+
+      it('should resolve the site change source from the saved patient settings', () => {
+        expect(instance.renderChart().props.siteChangeSource).to.equal('stubbed site change source');
+        sinon.assert.calledWithMatch(getSiteChangeSourceStub, { settings: { siteChangeSource: 'cannulaPrime' } }, 'tandem');
+      });
+
+      it('should resolve the site change source from an unsaved Basics pick over the saved patient settings', () => {
+        wrapper.setState({ updatedSiteChangeSource: 'tubingPrime' });
+        instance.renderChart();
+        sinon.assert.calledWithMatch(getSiteChangeSourceStub, { settings: { siteChangeSource: 'tubingPrime' } }, 'tandem');
       });
     });
   });

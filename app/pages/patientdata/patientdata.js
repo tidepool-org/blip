@@ -610,7 +610,14 @@ export const PatientDataClass = createReactClass({
           );
       case 'daily': {
         const manufacturer = this.getMetaData('latestPumpUpload.manufacturer', '');
-        const siteChangeSource = vizUtils.aggregation.getSiteChangeSource(this.props.patient, manufacturer);
+        // Honor an unsaved Basics pick (care-team members can't persist it), matching the PDF
+        const siteChangeSource = vizUtils.aggregation.getSiteChangeSource({
+          ...this.props.patient,
+          settings: {
+            ...this.props.patient?.settings,
+            siteChangeSource: this.state.updatedSiteChangeSource || this.props.patient?.settings?.siteChangeSource,
+          },
+        }, manufacturer);
         const siteChangeSourceLabel = vizUtils.aggregation.getSiteChangeSourceLabel(siteChangeSource, manufacturer);
 
         return (
@@ -1392,8 +1399,8 @@ export const PatientDataClass = createReactClass({
     // If the user makes a change to the site change source settings,
     // we should remove the currently generated PDF, which will trigger a rebuild of
     // the PDF with the updated settings.
-    const settingsSiteChangeSource = _.get(this.props, 'patient.settings.siteChangeSource');
-    if (settings.siteChangeSource && settings.siteChangeSource !== settingsSiteChangeSource) {
+    const currentSiteChangeSource = this.state.updatedSiteChangeSource || _.get(this.props, 'patient.settings.siteChangeSource');
+    if (settings.siteChangeSource && settings.siteChangeSource !== currentSiteChangeSource) {
       this.setState({ updatedSiteChangeSource: settings.siteChangeSource }, this.props.removeGeneratedPDFS);
     }
   },
