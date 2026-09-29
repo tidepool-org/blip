@@ -4,6 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Box } from 'theme-ui';
 import styled from '@emotion/styled';
 import { colors as vizColors } from '@tidepool/viz';
+import noop from 'lodash/noop';
 
 export const PATIENT_QUERY_STATE = {
   FILTER_AND_SEARCH: 'FILTER_AND_SEARCH',
@@ -23,7 +24,7 @@ const ClearButton = styled.button`
   text-decoration: underline;
 `;
 
-const ClearFilterButtons = ({ patientQueryState, onClearSearch, onResetFilters }) => {
+const ClearFilterButtons = ({ patientQueryState, onClearSearch = noop, onResetFilters = noop }) => {
   const { t } = useTranslation();
 
   const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_QUERY_STATE;
@@ -60,8 +61,8 @@ const ClearFilterButtons = ({ patientQueryState, onClearSearch, onResetFilters }
 
 ClearFilterButtons.propTypes = {
   patientQueryState: PropTypes.oneOf(Object.values(PATIENT_QUERY_STATE)).isRequired,
-  onClearSearch: PropTypes.func.isRequired,
-  onResetFilters: PropTypes.func.isRequired,
+  onClearSearch: PropTypes.func,
+  onResetFilters: PropTypes.func,
 };
 
 export default ClearFilterButtons;
