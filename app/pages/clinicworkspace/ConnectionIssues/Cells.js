@@ -3,14 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { Box, Text, Flex } from 'theme-ui';
 import { providers, getCurrentDataSourceForProvider } from '../../../components/datasources/DataConnections';
 import { colors as vizColors } from '@tidepool/viz';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import DataInIcon from '../../../core/icons/DataInIcon.svg';
 import Icon from '../../../components/elements/Icon';
 import { getDaysAgo } from './helpers';
 
-import { ISSUE_TYPE } from './connectionIssuesApi';
+import { ISSUE_TYPE, useSetConnectionIssueHiddenMutation } from './connectionIssuesApi';
 const { STALE_DATA, DISCONNECTED, ERROR, EXPIRED_INVITE, STALE_INVITE } = ISSUE_TYPE;
 
 import {
@@ -163,6 +165,10 @@ export const LastContactCell = ({ patient }) => {
 export const MoreMenuCell = ({ patient }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const [setConnectionIssueHidden] = useSetConnectionIssueHiddenMutation();
+
+  const hidden = patient?.connectionIssue?.hidden ?? false;
 
   const handleOpenEditPatientDialog = () => {
     dispatch(setEditPatientDialogIsOpen(true));
@@ -172,6 +178,11 @@ export const MoreMenuCell = ({ patient }) => {
   const handleOpenDataConnectionsModal = () => {
     dispatch(setDataConnectionsModalIsOpen(true));
     dispatch(setDataConnectionsModalPatientId(patient.id));
+  };
+
+  const handleToggleHidden = () => {
+    const newValue = !hidden;
+    setConnectionIssueHidden({ clinicId: selectedClinicId, patientId: patient.id, hidden: newValue });
   };
 
   return (
@@ -200,6 +211,17 @@ export const MoreMenuCell = ({ patient }) => {
           handleOpenDataConnectionsModal();
         },
         text: t('Manage Device Connections'),
+      }, {
+        icon: hidden ? VisibilityIcon : VisibilityOffIcon,
+        iconLabel: hidden ? t('Unhide Issue') : t('Hide Issue'),
+        iconPosition: 'left',
+        id: `hide-unhide-${patient?.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleToggleHidden();
+        },
+        text: hidden ? t('Unhide Issue') : t('Hide Issue'),
       }]}
       sx={{ position: 'relative', left: '-2px' }}
     />
