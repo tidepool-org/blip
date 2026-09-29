@@ -72,7 +72,7 @@ export const ConnectionStatusCell = ({ patient }) => {
 
 export const StatusSummaryCell = ({ patient }) => {
   const { t } = useTranslation();
-  const connectionIssue = patient?.connectionIssue;
+  const { connectionIssueSource, connectionIssue } = patient || {};
 
   if (!connectionIssue?.cause) return null;
 
@@ -81,8 +81,9 @@ export const StatusSummaryCell = ({ patient }) => {
 
   switch(connectionIssue.cause) {
     case STALE_DATA: {
-      const dataSource = getCurrentDataSourceForProvider(patient, patient.connectionIssueSource);
-      const daysAgo = getDaysAgo(dataSource?.latestDataTime);
+      const dataSource = getCurrentDataSourceForProvider(patient, connectionIssueSource);
+      const effectiveTime = dataSource?.latestDataTime;
+      const daysAgo = getDaysAgo(effectiveTime);
 
       label = daysAgo === null ? '-' : t('Last data sync {{daysAgo}} days ago', { daysAgo });
       color = vizColors.red50;
@@ -90,8 +91,9 @@ export const StatusSummaryCell = ({ patient }) => {
     }
 
     case DISCONNECTED: {
-      // TODO: EFFECTIVETIME NEEDS TO BE EXPOSED BY BACKEND
-      const daysAgo = getDaysAgo(connectionIssue?.effectiveTime);
+      const dataSource = getCurrentDataSourceForProvider(patient, connectionIssueSource);
+      const effectiveTime = dataSource?.modifiedTime;
+      const daysAgo = getDaysAgo(effectiveTime);
 
       label = daysAgo === null ? '-' : t('Disconnected {{daysAgo}} days ago', { daysAgo });
       color = vizColors.red50;
@@ -99,8 +101,9 @@ export const StatusSummaryCell = ({ patient }) => {
     }
 
     case ERROR: {
-      // TODO: EFFECTIVETIME NEEDS TO BE EXPOSED BY BACKEND
-      const daysAgo = getDaysAgo(connectionIssue?.effectiveTime);
+      const dataSource = getCurrentDataSourceForProvider(patient, connectionIssueSource);
+      const effectiveTime = dataSource?.modifiedTime;
+      const daysAgo = getDaysAgo(effectiveTime);
 
       label = daysAgo === null ? '-' : t('Connection Error {{daysAgo}} days ago', { daysAgo });
       color = vizColors.gold50;
