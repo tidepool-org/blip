@@ -11,27 +11,35 @@ import { Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 import moment from 'moment-timezone';
 import { ISSUE_TYPE } from '../connectionIssuesApi';
+import { getCurrentDataSourceForProvider } from '../../../../components/datasources/DataConnections';
 
-const { STALE_INVITE, EXPIRED_INVITE } = ISSUE_TYPE;
+const { STALE_INVITE, EXPIRED_INVITE, STALE_DATA, DISCONNECTED, ERROR } = ISSUE_TYPE;
 
-const getHasActionedBefore = (connectionIssue, providerConnectionRequests) => {
-  const isInviteIssue = (
-    connectionIssue.cause === STALE_INVITE ||
-    connectionIssue.cause === EXPIRED_INVITE
-  );
+const getHasActionedBefore = (patient, providerConnectionRequests) => {
+  const { connectionIssueSource, connectionIssue: { cause } } = patient;
 
   // Invite Issues
+  const isInviteIssue = (cause === STALE_INVITE || cause === EXPIRED_INVITE);
+
   if (isInviteIssue) {
     return providerConnectionRequests.length > 1;
   }
 
   // Data Source Issues
   const lastInvitedAt = providerConnectionRequests[0]?.createdTime;
+  const dataSource = getCurrentDataSourceForProvider(patient, connectionIssueSource);
 
-  // TODO: EFFECTIVETIME NEEDS TO BE EXPOSED BY BACKEND
-  if (!lastInvitedAt || !connectionIssue.effectiveTime) return false;
+  if (!lastInvitedAt) return false;
 
-  return moment.utc(lastInvitedAt).isAfter(moment.utc(connectionIssue.effectiveTime));
+  const effectiveTime = (() => {
+    switch(cause) {
+      case STALE_DATA: return dataSource?.latestDataTime;
+      case DISCONNECTED: return dataSource?.modifiedTime;
+      case ERROR: return dataSource?.modifiedTime;
+    }
+  })();
+
+  return moment.utc(lastInvitedAt).isAfter(moment.utc(effectiveTime));
 };
 
 const LastContact = ({ patient }) => {
@@ -41,9 +49,7 @@ const LastContact = ({ patient }) => {
 
   const [resendInvite, { isLoading: isResendingInvite }] = useResendInviteMutation();
 
-  const { connectionIssue, connectionIssueSource } = patient;
-
-  const providerName = connectionIssueSource;
+  const { connectionIssueSource: providerName } = patient;
 
   const handleClick = () => {
     resendInvite({ clinicId: selectedClinicId, patientId: patient.id, providerName })
@@ -61,7 +67,7 @@ const LastContact = ({ patient }) => {
   // If the clinic has already taken action at least once, render a different copy to indicate it
   const providerConnectionRequests = patient?.connectionRequests?.[providerName] || [];
   const lastInvitedAt = providerConnectionRequests[0]?.createdTime;
-  const hasActionedBefore = getHasActionedBefore(connectionIssue, providerConnectionRequests);
+  const hasActionedBefore = getHasActionedBefore(patient, providerConnectionRequests);
 
   const daysAgo = getDaysAgo(lastInvitedAt);
   const isLastActionedToday = daysAgo === 0;
