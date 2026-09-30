@@ -81,7 +81,7 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
     data: {
       current: {
         stats: {
-          bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
+          bgExtents: { newestDatum, oldestDatum, bg24hPeriodsWorn },
           sensorUsage: { sensorUsageAGP: offsetSensorUsageAGPRaw },
           timeInRange: { counts: offsetCounts },
         },
@@ -90,8 +90,8 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   } = offsetAgpCGM;
 
   const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const dateRange  = getReportDaysText({ newestDatum, oldestDatum, bgDaysWorn, timezone });
-  const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
+  const dateRange  = getReportDaysText({ newestDatum, oldestDatum, bg24hPeriodsWorn, timezone });
+  const roundedBgDaysWorn = bankersRound(bg24hPeriodsWorn, 0);
 
   // Current Period Values
   const timeInVeryHighFraction = _.toNumber(counts.veryHigh || 0) / counts.total;
@@ -191,7 +191,7 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
       <Flex mb={2} sx={{ justifyContent: 'space-between', fontSize: 1, fontWeight: 'medium', color: vizColors.gray50 }}>
         <Box>{t('Tidepool Summary: Changes Since Last Time Period')}</Box>
         <Box sx={{ fontWeight: 'normal' }} data-testid="cgm-delta-summary-time-range">
-          {t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange: values.dateRange, bgDaysWorn: values.roundedBgDaysWorn })}
+          {t('{{dateRange}} ({{bg24hPeriodsWorn}} days)', { dateRange: values.dateRange, bg24hPeriodsWorn: values.roundedBgDaysWorn })}
         </Box>
       </Flex>
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>

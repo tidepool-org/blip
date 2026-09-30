@@ -48,7 +48,7 @@ const CGMStatistics = ({ agpCGM }) => {
     data: {
       current: {
         stats: {
-          bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
+          bgExtents: { newestDatum, oldestDatum, bg24hPeriodsWorn },
           sensorUsage: { sensorUsageAGP },
           averageGlucose: { averageGlucose },
           glucoseManagementIndicator: { glucoseManagementIndicatorAGP },
@@ -64,13 +64,13 @@ const CGMStatistics = ({ agpCGM }) => {
 
   const avgGlucoseTarget = bgUnits === MGDL_UNITS ? '154' : '8.6';
 
-  const dateRange  = getReportDaysText({ newestDatum, oldestDatum, bgDaysWorn, timezone });
+  const dateRange  = getReportDaysText({ newestDatum, oldestDatum, bg24hPeriodsWorn, timezone });
   const cgmActive  = bankersRound(sensorUsageAGP, 1);
   const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true });
   const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', { bgPrefs, useAGPFormat: true });
   const cov        = formatDatum({ value: coefficientOfVariation }, 'cv', { bgPrefs, useAGPFormat: true });
 
-  const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
+  const roundedBgDaysWorn = bankersRound(bg24hPeriodsWorn, 0);
 
   return (
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
