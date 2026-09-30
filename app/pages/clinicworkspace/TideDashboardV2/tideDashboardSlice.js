@@ -12,7 +12,7 @@ export const CATEGORY = {
 };
 
 const getInitialState = () => ({
-  category: CATEGORY.DEFAULT,
+  category: CATEGORY.VERY_LOW,
   offset: 0,
   editPatientDialog: {
     patientId: null,
