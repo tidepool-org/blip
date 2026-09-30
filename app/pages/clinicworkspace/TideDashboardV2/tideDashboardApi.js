@@ -4,26 +4,28 @@ import CGMExclusionQuery from './CGMExclusionQuery';
 
 // Each rule matches a category and automatically negates all preceding
 // rules, ensuring patients appear in at most one category.
-//
-export const tideDashboardExclusionQuery = new CGMExclusionQuery()
-  .addRule(CATEGORY.VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.01)         // queries >=0.005
-  .addRule(CATEGORY.ANY_LOW, 'cgm.timeInAnyLowPercent', '>=', 0.04)           // queries >=0.035
-  .addRule(CATEGORY.DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=', -0.15) // queries <=-0.145
-  .addRule(CATEGORY.ANY_HIGH, 'cgm.timeInAnyHighPercent', '>=', 0.25)         // queries >=0.245
-  .addRule(CATEGORY.VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=', 0.05)       // queries >=0.045
-  .addRule(CATEGORY.LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<', 0.70)         // queries <0.695
-  .addRule(CATEGORY.TARGET, 'cgm.timeCGMUsePercent', '>=', 0.70);             // queries >=0.695 and overwrites previous
 
-const getSortParam = (category) => {
+const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+
+export const tideDashboardExclusionQuery = new CGMExclusionQuery()
+  .addRule(VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.01)         // queries >=0.005
+  .addRule(ANY_LOW, 'cgm.timeInAnyLowPercent', '>=', 0.04)           // queries >=0.035
+  .addRule(DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=', -0.15) // queries <=-0.145
+  .addRule(ANY_HIGH, 'cgm.timeInAnyHighPercent', '>=', 0.25)         // queries >=0.245
+  .addRule(VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=', 0.05)       // queries >=0.045
+  .addRule(LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<', 0.70)         // queries <0.695
+  .addRule(TARGET, 'cgm.timeCGMUsePercent', '>=', 0.70);             // queries >=0.695 and overwrites previous
+
+const getSortArg = (category) => {
   switch(category) {
-    case CATEGORY.VERY_LOW: return '-timeInVeryLowPercent';
-    case CATEGORY.ANY_LOW: return '-timeInAnyLowPercent';
-    case CATEGORY.DROP_IN_TIR: return '+timeInTargetPercentDelta';
-    case CATEGORY.ANY_HIGH: return '-timeInAnyHighPercent';
-    case CATEGORY.VERY_HIGH: return '-timeInVeryHighPercent';
-    case CATEGORY.LOW_CGM_WEAR: return '+timeCGMUsePercent';
-    case CATEGORY.TARGET: return '-timeInTargetPercent';
-    case CATEGORY.DEFAULT:
+    case VERY_LOW: return '-timeInVeryLowPercent';
+    case ANY_LOW: return '-timeInAnyLowPercent';
+    case DROP_IN_TIR: return '+timeInTargetPercentDelta';
+    case ANY_HIGH: return '-timeInAnyHighPercent';
+    case VERY_HIGH: return '-timeInVeryHighPercent';
+    case LOW_CGM_WEAR: return '+timeCGMUsePercent';
+    case TARGET: return '-timeInTargetPercent';
+    case DEFAULT:
     default: return '+fullName';
   }
 };
@@ -32,7 +34,7 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, sum
   const formattedTags = tags?.length > 0 ? tags.join(',') : undefined;
   const formattedSites = sites?.length > 0 ? sites.join(',') : undefined;
 
-  const sort = getSortParam(category);
+  const sort = getSortArg(category);
   const cgmQueryParams = tideDashboardExclusionQuery.getQueryParams(category);
 
   return {
