@@ -23,7 +23,7 @@ const agpCGM = {
           total: 3914,
         },
         bgExtents: {
-          bgDaysWorn: 14,
+          bg24hPeriodsWorn: 14,
           newestDatum: {
             time: 1750446603111,
             timezoneOffset: -420,
@@ -85,7 +85,7 @@ const offsetAgpCGM = {
           total: 3975,
         },
         bgExtents: {
-          bgDaysWorn: 14,
+          bg24hPeriodsWorn: 14,
           newestDatum: {
             time: 1749279483453,
             timezoneOffset: -420,

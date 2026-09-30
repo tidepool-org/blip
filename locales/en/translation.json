@@ -11,6 +11,8 @@
   "(from '{{source}}')": "",
   "(Hyper event description)": "",
   "(Hypo event description)": "",
+  "{{ count }} Days: {{dateRange}}_one": "{{ count }} Day: {{dateRange}}",
+  "{{ count }} Days: {{dateRange}}_other": "{{ count }} Days: {{dateRange}}",
   "{{automatedLabel}} Exited": "",
   "{{clinicianName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?": "",
   "{{days}} days ago": "",

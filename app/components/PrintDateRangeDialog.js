@@ -26,6 +26,7 @@ import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
+import { getLastN24HourPeriods } from '../core/datetime';
 import PartialDaysTooltip from './PartialDaysTooltip';
 
 import { utils as vizUtils } from '@tidepool/viz';
@@ -67,30 +68,13 @@ export const MainContent = (props) => {
     endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
-  // Returns the bounds for the last N 24-hour periods based on the most recent datum. This method
-  // will shift the window to end at the start of the hour after the last datum. For example, if the
-  // latest datum was Oct 20 @ 15:23, the 14-day window will be Oct 6 @ 16:00 - Oct 20 @ 16:00
-  const getLastN24HourPeriods = (numOfPeriods, chartType) => {
-    const endDate = get(mostRecentDatumDates, chartType)
-      ? moment.utc(mostRecentDatumDates[chartType])
-      : endOfToday;
-
-    const endHourCeiling = getLocalizedCeiling(endDate.valueOf(), timePrefs, 'hour');
-
-    const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
-    const startHourCeiling = getLocalizedCeiling(startDate.valueOf(), timePrefs, 'hour');
-
-    return ({
-      startDate: moment.utc(startHourCeiling).tz(timezoneName),
-      endDate: moment.utc(endHourCeiling).tz(timezoneName),
-    });
+  const isSplitDateChartType = (chartType) => {
+    return ['agpBGM', 'agpCGM', 'basics'].includes(chartType);
   };
 
   const getLastNDays = (days, chartType) => {
-    // Basics chart can have a window that is offset from midnight.
-    // The window cannot end beyond the time of the last datum.
-    if (chartType === 'basics') {
-      return getLastN24HourPeriods(days, chartType);
+    if (isSplitDateChartType(chartType)) {
+      return getLastN24HourPeriods(days, timePrefs, get(mostRecentDatumDates, chartType));
     }
 
     const endDate = get(mostRecentDatumDates, chartType)
@@ -239,8 +223,7 @@ export const MainContent = (props) => {
     moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
   ] : []);
 
-  // Basics is a special because it allows split dates
-  const formatBasicsDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
+  const formatSplitDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     moment.utc(startDate).tz(timezoneName).valueOf(),
     moment.utc(endDate).tz(timezoneName).valueOf(),
   ] : []);
@@ -251,7 +234,7 @@ export const MainContent = (props) => {
     setRangePresets({ ...rangePresets, [key]: presetIndex })
   };
 
-  const handleSplitDatesChange = (newDates, chartType = 'basics') => {
+  const handleSplitDatesChange = (newDates, chartType) => {
     const mostRecentDatumMoment = moment.utc(mostRecentDatumDates[chartType]).tz(timezoneName);
     const midnightAlignedDates = setDateRangeToExtents(newDates);
 
@@ -277,7 +260,7 @@ export const MainContent = (props) => {
   };
 
   const handleDatesChange = (newDates, chartType) => {
-    if (chartType === 'basics') {
+    if (isSplitDateChartType(chartType)) {
       return handleSplitDatesChange(newDates, chartType);
     }
 
@@ -297,9 +280,9 @@ export const MainContent = (props) => {
     if (!isEqual(validationErrors, defaults.errors)) return;
 
     const printOpts = {
-      agpBGM: { endpoints: formatDateEndpoints(dates.agpBGM), disabled: !enabled.agpBGM },
-      agpCGM: { endpoints: formatDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
-      basics: { endpoints: formatBasicsDateEndpoints(dates.basics), disabled: !enabled.basics },
+      agpBGM: { endpoints: formatSplitDateEndpoints(dates.agpBGM), disabled: !enabled.agpBGM },
+      agpCGM: { endpoints: formatSplitDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
+      basics: { endpoints: formatSplitDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
       daily: {
         endpoints: formatDateEndpoints(dates.daily),
