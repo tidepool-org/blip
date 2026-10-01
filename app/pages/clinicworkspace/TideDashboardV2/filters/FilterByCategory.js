@@ -6,7 +6,7 @@ import { setCategory, setOffset, CATEGORY } from '../tideDashboardSlice';
 import { colors as vizColors } from '@tidepool/viz';
 import { Box } from 'theme-ui';
 
-const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
 const Indicator = ({ color }) => (
   <Box
@@ -28,9 +28,6 @@ const FilterByCategory = () => {
 
   return (
     <SegmentedControl>
-      <Segment selected={category === DEFAULT} onClick={() => handleChange(DEFAULT)}>
-        {t('All Patients')}
-      </Segment>
       <Segment selected={category === VERY_LOW} onClick={() => handleChange(VERY_LOW)}>
         <Indicator color={vizColors.veryLow}/>{t('Very Low')}
       </Segment>
