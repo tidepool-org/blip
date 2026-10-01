@@ -5,7 +5,7 @@ import CGMExclusionQuery from './CGMExclusionQuery';
 // Each rule matches a category and automatically negates all preceding
 // rules, ensuring patients appear in at most one category.
 
-const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
 export const tideDashboardExclusionQuery = new CGMExclusionQuery()
   .addRule(VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.01)         // queries >=0.005
@@ -25,7 +25,6 @@ const getSortArg = (category) => {
     case VERY_HIGH: return '-timeInVeryHighPercent';
     case LOW_CGM_WEAR: return '+timeCGMUsePercent';
     case TARGET: return '-timeInTargetPercent';
-    case DEFAULT:
     default: return '+fullName';
   }
 };

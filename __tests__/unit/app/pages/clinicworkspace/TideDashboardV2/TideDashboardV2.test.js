@@ -37,20 +37,11 @@ jest.mock('@app/providers/ToastProvider', () => ({
   }),
 }));
 
-const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
 const TEST_TIMEOUT_MS = 30_000;
 
 const anticipatedQueries = {
-  [DEFAULT]: {
-    offset: '0',
-    limit: '12',
-    period: '14d',
-    'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
-    'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
-    sort: '+fullName',
-    sortType: 'cgm',
-  },
   [VERY_LOW]: {
     offset: '0',
     limit: '12',
@@ -141,24 +132,21 @@ const anticipatedQueries = {
     sort: '-timeInTargetPercent',
     sortType: 'cgm',
   },
-  'DEFAULT_WITH_FILTERS': {
+  'VERY_LOW_WITH_FILTERS': {
     offset: '0',
     limit: '12',
     period: '30d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    'cgm.timeInVeryLowPercent': '>=0.005',
     tags: 'tag8',
     sites: 'site9',
-    sort: '+fullName',
+    sort: '-timeInVeryLowPercent',
     sortType: 'cgm',
   },
 };
 
 const datasets = {
-  [DEFAULT]: [
-    { id: 'default-1', fullName: 'Default Patient 1', birthDate: '2001-01-01' },
-    { id: 'default-2', fullName: 'Default Patient 2', birthDate: '2002-02-02' },
-  ],
   [VERY_LOW]: [
     { id: 'very-low-1', fullName: 'Very Low Patient 1', birthDate: '2003-03-03' },
     { id: 'very-low-2', fullName: 'Very Low Patient 2', birthDate: '2004-04-04' },
@@ -187,7 +175,7 @@ const datasets = {
     { id: 'target-1', fullName: 'Meeting Targets Patient 1', birthDate: '2015-03-15' },
     { id: 'target-2', fullName: 'Meeting Targets Patient 2', birthDate: '2016-04-16' },
   ],
-  'DEFAULT_WITH_FILTERS': [
+  'VERY_LOW_WITH_FILTERS': [
     { id: 'filtered-3', fullName: 'Filtered Patient 3', birthDate: '2001-01-01' },
   ],
 };
@@ -250,28 +238,9 @@ describe('TideDashboardV2', () => {
 
     const table = await screen.findByTestId('tideDashboardPatientsTable');
 
-    // All Patients is the pre-selected category
-    expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
-
-    expect(screen.getByRole('radio', { name: /All Patients/ })).toBeChecked();
-    expect(screen.getByText('Default Patient 2')).toBeInTheDocument();
-    expect(screen.getByText('DOB: 2001-01-01')).toBeInTheDocument();
-
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
-    expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Flag/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
-
-    // Selecting Very Low fetches and shows the Very Low cohort
-    await userEvent.click(screen.getByRole('radio', { name: /Very Low/ }));
+    // Very Low is the pre-selected category
     expect(await screen.findByText('Very Low Patient 1')).toBeInTheDocument();
+
     expect(screen.getByRole('radio', { name: /Very Low/ })).toBeChecked();
     expect(screen.getByText('Very Low Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Default Patient 1')).not.toBeInTheDocument();
