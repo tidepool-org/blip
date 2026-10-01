@@ -16,24 +16,20 @@ export const tideDashboardExclusionQuery = new CGMExclusionQuery()
   .addRule(LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<', 0.70)         // queries <0.695
   .addRule(TARGET, 'cgm.timeCGMUsePercent', '>=', 0.70);             // queries >=0.695 and overwrites previous
 
-const getSortArg = (category) => {
-  switch(category) {
-    case VERY_LOW: return '-timeInVeryLowPercent';
-    case ANY_LOW: return '-timeInAnyLowPercent';
-    case DROP_IN_TIR: return '+timeInTargetPercentDelta';
-    case ANY_HIGH: return '-timeInAnyHighPercent';
-    case VERY_HIGH: return '-timeInVeryHighPercent';
-    case LOW_CGM_WEAR: return '+timeCGMUsePercent';
-    case TARGET: return '-timeInTargetPercent';
-    default: return '+fullName';
-  }
-};
-
-export const buildGetTideDashboardPatientsParams = (offset, limit, category, summaryPeriod, lastDataFrom, lastDataTo, tags = [], sites = []) => {
+export const buildGetTideDashboardPatientsParams = (
+  offset,
+  limit,
+  category,
+  sort,
+  summaryPeriod,
+  lastDataFrom,
+  lastDataTo,
+  tags = [],
+  sites = []
+) => {
   const formattedTags = tags?.length > 0 ? tags.join(',') : undefined;
   const formattedSites = sites?.length > 0 ? sites.join(',') : undefined;
 
-  const sort = getSortArg(category);
   const cgmQueryParams = tideDashboardExclusionQuery.getQueryParams(category);
 
   return {
@@ -63,8 +59,8 @@ RTKQueryApi.enhanceEndpoints({
 const tideDashboardApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getTideDashboardPatients: builder.query({
-      query: ({ clinicId, offset, limit, category, summaryPeriod, lastDataFrom, lastDataTo, tags, sites }) => {
-        const params = buildGetTideDashboardPatientsParams(offset, limit, category, summaryPeriod, lastDataFrom, lastDataTo, tags, sites);
+      query: ({ clinicId, offset, limit, category, sort, summaryPeriod, lastDataFrom, lastDataTo, tags, sites }) => {
+        const params = buildGetTideDashboardPatientsParams(offset, limit, category, sort, summaryPeriod, lastDataFrom, lastDataTo, tags, sites);
 
         return {
           url: `/clinics/${clinicId}/patients`,
