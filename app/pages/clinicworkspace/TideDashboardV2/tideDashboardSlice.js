@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 export const CATEGORY = {
-  DEFAULT: 'DEFAULT',
   VERY_LOW: 'VERY_LOW',
   ANY_LOW: 'ANY_LOW',
   DROP_IN_TIR: 'DROP_IN_TIR',
@@ -12,7 +11,7 @@ export const CATEGORY = {
 };
 
 const getInitialState = () => ({
-  category: CATEGORY.DEFAULT,
+  category: CATEGORY.VERY_LOW,
   offset: 0,
   editPatientDialog: {
     patientId: null,
