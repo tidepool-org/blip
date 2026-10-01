@@ -78,6 +78,7 @@ describe ('tideDashboardApi', () => {
         50,                      // offset
         10,                      // limit
         CATEGORY.ANY_LOW,        // category
+        '-timeInAnyLowPercent',  // sort
         '14d',                   // summaryPeriod
         '2025-05-15T00:00:00Z',  // lastDataFrom
         '2025-05-29T00:00:00Z',  // lastDataTo
@@ -103,6 +104,7 @@ describe ('tideDashboardApi', () => {
         0,                       // offset
         10,                      // limit
         CATEGORY.ANY_LOW,        // category
+        '-timeInAnyLowPercent',  // sort
         '14d',                   // summaryPeriod
         '2025-05-15T00:00:00Z',  // lastDataFrom
         '2025-05-29T00:00:00Z',  // lastDataTo

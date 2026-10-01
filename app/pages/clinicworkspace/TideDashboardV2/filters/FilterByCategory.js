@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { SegmentedControl, Segment } from '../../components/SegmentedControl';
-import { setCategory, setOffset, CATEGORY } from '../tideDashboardSlice';
+import { setCategory, setSort, setOffset, getDefaultSort, CATEGORY } from '../tideDashboardSlice';
 import { colors as vizColors } from '@tidepool/viz';
 import { Box } from 'theme-ui';
 
@@ -23,6 +23,7 @@ const FilterByCategory = () => {
 
   const handleChange = (category) => {
     dispatch(setCategory(category));
+    dispatch(setSort(getDefaultSort(category)));
     dispatch(setOffset(0));
   };
 
