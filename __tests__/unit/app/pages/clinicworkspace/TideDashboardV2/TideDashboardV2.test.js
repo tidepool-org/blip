@@ -132,26 +132,6 @@ const anticipatedQueries = {
     sort: '-timeInTargetPercent',
     sortType: 'cgm',
   },
-  'VERY_LOW_ASCENDING': {
-    offset: '0',
-    limit: '12',
-    period: '14d',
-    'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
-    'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
-    'cgm.timeInVeryLowPercent': '>=0.005',
-    sort: '+timeInVeryLowPercent',
-    sortType: 'cgm',
-  },
-  'VERY_LOW_BY_AVG_GLUCOSE': {
-    offset: '0',
-    limit: '12',
-    period: '14d',
-    'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
-    'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
-    'cgm.timeInVeryLowPercent': '>=0.005',
-    sort: '+averageGlucoseMmol',
-    sortType: 'cgm',
-  },
   'VERY_LOW_WITH_FILTERS': {
     offset: '0',
     limit: '12',
@@ -194,12 +174,6 @@ const datasets = {
   [TARGET]: [
     { id: 'target-1', fullName: 'Meeting Targets Patient 1', birthDate: '2015-03-15' },
     { id: 'target-2', fullName: 'Meeting Targets Patient 2', birthDate: '2016-04-16' },
-  ],
-  'VERY_LOW_ASCENDING': [
-    { id: 'very-low-asc-1', fullName: 'Very Low Ascending Patient 1', birthDate: '2001-01-01' },
-  ],
-  'VERY_LOW_BY_AVG_GLUCOSE': [
-    { id: 'very-low-avg-1', fullName: 'Very Low By Avg Glucose Patient 1', birthDate: '2001-01-01' },
   ],
   'VERY_LOW_WITH_FILTERS': [
     { id: 'filtered-3', fullName: 'Filtered Patient 3', birthDate: '2001-01-01' },
@@ -397,38 +371,23 @@ describe('TideDashboardV2', () => {
     expect(within(table).getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
   }, TEST_TIMEOUT_MS);
 
-  it('sorts by any metric column, flipping direction on repeat clicks', async () => {
+  it('shows a fixed sort indicator on the category metric column', async () => {
     renderComponent();
 
     const table = await screen.findByTestId('tideDashboardPatientsTable');
     expect(await screen.findByText('Very Low Patient 1')).toBeInTheDocument();
 
-    // Every metric column is sortable; the category metric starts active and descending
-    const headers = within(table).getAllByRole('columnheader');
-    const sortableHeaders = headers.filter(header => within(header).queryByRole('button'));
-    expect(sortableHeaders).toHaveLength(5);
-    expect(sortableHeaders[0]).toHaveTextContent(/Avg Glucose/);
-    expect(sortableHeaders[1]).toHaveTextContent(/% Time < 54/);
-    expect(sortableHeaders[2]).toHaveTextContent(/% Time < 70/);
-    expect(sortableHeaders[3]).toHaveTextContent(/% TIR 70-180/);
-    expect(sortableHeaders[4]).toHaveTextContent(/% Change in TIR/);
+    // Very Low sorts by its own metric, descending
     expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toHaveAttribute('aria-sort', 'descending');
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).not.toHaveAttribute('aria-sort');
 
-    // Clicking the active column flips it to ascending and refetches
-    await userEvent.click(within(table).getByRole('button', { name: /% Time < 54/ }));
-    expect(await screen.findByText('Very Low Ascending Patient 1')).toBeInTheDocument();
-    expect(screen.queryByText('Very Low Patient 1')).not.toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toHaveAttribute('aria-sort', 'ascending');
-
-    // Clicking a different column sorts by it, starting ascending
+    // Clicking a header leaves the sort and the data unchanged
     await userEvent.click(within(table).getByRole('button', { name: /Avg Glucose/ }));
-    expect(await screen.findByText('Very Low By Avg Glucose Patient 1')).toBeInTheDocument();
-    expect(screen.queryByText('Very Low Ascending Patient 1')).not.toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toHaveAttribute('aria-sort', 'ascending');
-    expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).not.toHaveAttribute('aria-sort');
+    expect(screen.getByText('Very Low Patient 1')).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toHaveAttribute('aria-sort', 'descending');
+    expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).not.toHaveAttribute('aria-sort');
 
-    // Changing category resets to that category's default sort
+    // Changing category moves the indicator to that category's metric, with its own direction
     await userEvent.click(screen.getByRole('radio', { name: /Low CGM Wear/ }));
     expect(await screen.findByText('Low CGM Wear Patient 1')).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toHaveAttribute('aria-sort', 'ascending');
