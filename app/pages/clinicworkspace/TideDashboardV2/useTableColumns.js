@@ -189,6 +189,7 @@ const getColumnSet = (columnTypes) => ({
     columnTypes.patientDetails,
     columnTypes.avgGlucose,
     columnTypes.timeInRangeBarChart,
+    columnTypes.timeInTarget,
     columnTypes.changeInTIR,
     columnTypes.gmi,
     columnTypes.cgmUse,
