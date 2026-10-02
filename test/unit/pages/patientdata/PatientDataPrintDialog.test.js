@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import { thunk } from 'redux-thunk';
 
 import PatientDataPrintDialog from '@app/pages/patientdata/PatientDataPrintDialog';
@@ -16,9 +17,13 @@ describe('PatientDataPrintDialog', () => {
   const api = {};
   const patientId = 'patient123';
 
+  const selectedClinicId = 'clinic123';
+
   const defaultStoreState = {
     blip: {
       loggedInUserId: 'clinician123',
+      selectedClinicId,
+      clinics: { [selectedClinicId]: { id: selectedClinicId, patientTags: [], sites: [] } },
     },
   };
 
@@ -36,7 +41,9 @@ describe('PatientDataPrintDialog', () => {
   const renderComponent = (props = {}) => {
     return render(
       <Provider store={store}>
-        <PatientDataPrintDialog {...defaultProps} {...props} />
+        <MemoryRouter>
+          <PatientDataPrintDialog {...defaultProps} {...props} />
+        </MemoryRouter>
       </Provider>
     );
   };
@@ -130,6 +137,27 @@ describe('PatientDataPrintDialog', () => {
           })
         );
       });
+    });
+  });
+
+  describe('when the patient has tags and sites', () => {
+    it('forwards them from modalData to the PrintDateRangeDialog panels', () => {
+      usePrintPDF.mockReturnValue({
+        status: STATUS.AWAITING_INPUT,
+        canPrint: true,
+        print: jest.fn(),
+        modalData: {
+          latestDatumByType,
+          timePrefs: { timezoneName: 'UTC' },
+          patientTags: [{ id: 'tag-a', name: 'A tag' }],
+          sites: [{ id: 'site-a', name: 'A site' }],
+        },
+      });
+
+      wrapper = renderComponent();
+
+      expect(document.body.querySelector('.PatientFormSelectTags__multi-value__label')).toHaveTextContent('A tag');
+      expect(document.body.querySelector('.PatientFormSelectSites__multi-value__label')).toHaveTextContent('A site');
     });
   });
 

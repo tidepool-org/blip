@@ -564,4 +564,8 @@ utils.downloadCsv = (csv, filename) => {
   setTimeout(() => URL.revokeObjectURL(url), 0);
 };
 
+// Alphabetical sort for label-bearing objects; `key` names the label field
+// ('name' for catalogue objects, 'label' for react-select options).
+utils.sortByLabel = (items, key = 'name') => (items || []).toSorted((a, b) => utils.compareLabels(a?.[key], b?.[key]));
+
 export default utils;

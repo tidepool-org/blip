@@ -125,7 +125,7 @@ export const ExportDialog = ({
       <DialogTitle onClose={handleClose}>
         <MediumTitle id="dialog-title">{t('Export Patient Data')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} minWidth={648} pt={3} px={3}>
+      <DialogContent minWidth={648} pt={3} px={3}>
         <Box p={3}>
           <Text as={Box} sx={{ color: 'text.primary', fontSize: 1, fontWeight: 'bold' }} mb={3}>
             {t('Export data from the last')}

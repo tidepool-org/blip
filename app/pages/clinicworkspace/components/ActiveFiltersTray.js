@@ -78,14 +78,13 @@ const useTagChips = (patientTags = []) => {
     }];
   }
 
-  return patientTags
+  return utils.sortByLabel(patientTags
     .map(id => ({
       type: 'patientTags',
       value: id,
       label: find(clinic?.patientTags, { id })?.name,
     }))
-    .filter(chip => chip.label)
-    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+    .filter(chip => chip.label), 'label');
 };
 
 const useSiteChips = (clinicSites = []) => {
@@ -101,14 +100,13 @@ const useSiteChips = (clinicSites = []) => {
     }];
   }
 
-  return clinicSites
+  return utils.sortByLabel(clinicSites
     .map(id => ({
       type: 'clinicSites',
       value: id,
       label: find(clinic?.sites, { id })?.name,
     }))
-    .filter(chip => chip.label)
-    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+    .filter(chip => chip.label), 'label');
 };
 
 const Chip = ({ label, onRemove }) => {
@@ -221,7 +219,7 @@ const ActiveFiltersTray = ({
           minWidth: 0,
           alignItems: 'center',
           columnGap: '4px',
-          rowGap: '8px',
+          rowGap: '4px',
           flexWrap: 'wrap',
         }}
       >

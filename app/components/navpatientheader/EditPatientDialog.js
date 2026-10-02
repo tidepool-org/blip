@@ -141,7 +141,7 @@ const EditPatientDialog = ({
       </DialogContent>
 
       <DialogActions>
-        <Button id="editPatientCancel" variant="secondary" onClick={() => {
+        <Button id="editPatientCancel" variant="textSecondary" onClick={() => {
           trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'Patients list' });
           onClose();
         }}>

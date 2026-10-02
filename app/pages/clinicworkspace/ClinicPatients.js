@@ -103,6 +103,7 @@ import {
   rpmReportConfigSchema,
   maxClinicPatientTags,
   maxWorkspaceClinicSites,
+  getPatientTags,
   timeInRangeFilterThresholds,
 } from '../../core/clinicUtils';
 
@@ -362,7 +363,7 @@ const PatientTags = ({
     horizontal: 'center',
   }), []);
 
-  const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
+  const resolvedPatientTags = getPatientTags(clinic, patient);
 
   const handleEditPatient = useCallback(() => {
     editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'tag list');
@@ -372,14 +373,14 @@ const PatientTags = ({
   const hasMrnError = !patient.mrn && clinic?.mrnSettings?.required;
   const addTagsBindTrigger = hasMrnError ? {} : bindTrigger(addPatientTagsPopupState); // if MRN error, do not pass bindTrigger
 
-  return !!filteredPatientTags.length ? (
+  return !!resolvedPatientTags.length ? (
     <TagList
       maxTagsVisible={4}
       maxCharactersVisible={12}
       popupId={`tags-overflow-${patient?.id}`}
       onClickEdit={handleEditPatient}
       tagProps={{ variant: 'compact' }}
-      tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
+      tags={resolvedPatientTags}
     />
   ) : (
     <Box onClick={event => event.stopPropagation()}>
@@ -1667,7 +1668,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="patientRemoveCancel" variant="secondary" onClick={handleCloseOverlays}>
+          <Button id="patientRemoveCancel" variant="textSecondary" onClick={handleCloseOverlays}>
             {t('Cancel')}
           </Button>
 
@@ -1731,7 +1732,7 @@ export const ClinicPatients = (props) => {
               </DialogContent>
 
               <DialogActions>
-                <Button id="clinicSiteUpdateCancel" variant="secondary" onClick={handleCloseClinicSiteUpdateDialog.bind(null, 'Edit clinic sites cancel update site')}>
+                <Button id="clinicSiteUpdateCancel" variant="textSecondary" onClick={handleCloseClinicSiteUpdateDialog.bind(null, 'Edit clinic sites cancel update site')}>
                   {t('Cancel')}
                 </Button>
 
@@ -1798,7 +1799,7 @@ export const ClinicPatients = (props) => {
               </DialogContent>
 
               <DialogActions>
-                <Button id="patientTagUpdateCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog.bind(null, 'Edit clinic tags cancel update tag')}>
+                <Button id="patientTagUpdateCancel" variant="textSecondary" onClick={handleCloseClinicPatientTagUpdateDialog.bind(null, 'Edit clinic tags cancel update tag')}>
                   {t('Cancel')}
                 </Button>
 
@@ -1854,7 +1855,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="clinicSiteRemoveCancel" variant="secondary" onClick={handleCloseClinicSiteUpdateDialog.bind(null, 'Edit clinic sites cancel delete site')}>
+          <Button id="clinicSiteRemoveCancel" variant="textSecondary" onClick={handleCloseClinicSiteUpdateDialog.bind(null, 'Edit clinic sites cancel delete site')}>
             {t('Cancel')}
           </Button>
 
@@ -1906,7 +1907,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="patientTagRemoveCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog.bind(null, 'Edit clinic tags cancel delete tag')}>
+          <Button id="patientTagRemoveCancel" variant="textSecondary" onClick={handleCloseClinicPatientTagUpdateDialog.bind(null, 'Edit clinic tags cancel delete tag')}>
             {t('Cancel')}
           </Button>
 
@@ -1939,7 +1940,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="addPatientCancel" variant="secondary" onClick={handleCloseOverlays}>
+          <Button id="addPatientCancel" variant="textSecondary" onClick={handleCloseOverlays}>
             {t('Cancel')}
           </Button>
           <Button
@@ -1993,7 +1994,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="editPatientCancel" variant="secondary" onClick={() => {
+          <Button id="editPatientCancel" variant="textSecondary" onClick={() => {
             trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'Patients list' });
             handleCloseOverlays()
           }}>
@@ -2069,7 +2070,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicSitesDialog = useCallback(() => {
-    const orderedSites = clinic?.sites?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedSites = utils.sortByLabel(clinic?.sites);
 
     return (
       <Dialog
@@ -2090,7 +2091,7 @@ export const ClinicPatients = (props) => {
             <MediumTitle id="dialog-title">{t('Edit Sites')}</MediumTitle>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} minWidth={512} sx={{ maxHeight: '70vh' }}>
+          <DialogContent pt={0} sx={{ maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(clinicSite, context) => {
@@ -2248,7 +2249,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
-    const orderedTags = clinic?.patientTags?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedTags = utils.sortByLabel(clinic?.patientTags);
 
     return (
       <Dialog
@@ -2269,7 +2270,7 @@ export const ClinicPatients = (props) => {
             <MediumTitle id="dialog-title">{t('Edit Tags')}</MediumTitle>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} minWidth={512} sx={{ maxHeight: '70vh' }}>
+          <DialogContent pt={0} sx={{ maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(tag, context) => {
@@ -2456,7 +2457,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
         <DialogActions>
           <Button
-            variant="secondary"
+            variant="textSecondary"
             onClick={() => {
               trackMetric(prefixPopHealthMetric('Send upload reminder declined'), { clinicId: selectedClinicId });
               handleCloseOverlays();
@@ -2514,7 +2515,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="configureRpmReportCancel" variant="secondary" onClick={handleCloseOverlays}>
+          <Button id="configureRpmReportCancel" variant="textSecondary" onClick={handleCloseOverlays}>
             {t('Cancel')}
           </Button>
           <Button
@@ -2584,7 +2585,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="rpmReportLimitClose" variant="secondary" onClick={handleCloseOverlays}>
+          <Button id="rpmReportLimitClose" variant="textSecondary" onClick={handleCloseOverlays}>
             {t('Close')}
           </Button>
         </DialogActions>
