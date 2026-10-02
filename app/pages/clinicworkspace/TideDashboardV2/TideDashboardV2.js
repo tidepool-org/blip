@@ -61,9 +61,7 @@ const TideDashboardV2 = ({ api }) => {
   const resolvedCategory = data?.category || category;
   const resolvedOffset = data?.offset ?? offset;
 
-  // Sort is fixed per category; derive it so the header indicator matches the fetched data
   const sort = getDefaultSort(resolvedCategory);
-
   const tableColumns = useTableColumns(resolvedCategory);
   const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
 

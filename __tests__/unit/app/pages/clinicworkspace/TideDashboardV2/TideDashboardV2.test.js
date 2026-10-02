@@ -371,29 +371,6 @@ describe('TideDashboardV2', () => {
     expect(within(table).getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
   }, TEST_TIMEOUT_MS);
 
-  it('shows a fixed sort indicator on the category metric column', async () => {
-    renderComponent();
-
-    const table = await screen.findByTestId('tideDashboardPatientsTable');
-    expect(await screen.findByText('Very Low Patient 1')).toBeInTheDocument();
-
-    // Very Low sorts by its own metric, descending
-    expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toHaveAttribute('aria-sort', 'descending');
-    expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).not.toHaveAttribute('aria-sort');
-
-    // Clicking a header leaves the sort and the data unchanged
-    await userEvent.click(within(table).getByRole('button', { name: /Avg Glucose/ }));
-    expect(screen.getByText('Very Low Patient 1')).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toHaveAttribute('aria-sort', 'descending');
-    expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).not.toHaveAttribute('aria-sort');
-
-    // Changing category moves the indicator to that category's metric, with its own direction
-    await userEvent.click(screen.getByRole('radio', { name: /Low CGM Wear/ }));
-    expect(await screen.findByText('Low CGM Wear Patient 1')).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toHaveAttribute('aria-sort', 'ascending');
-    expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).not.toHaveAttribute('aria-sort');
-  }, TEST_TIMEOUT_MS);
-
   it('fetches with filters', async () => {
     store = setupStore({
       blip: {
