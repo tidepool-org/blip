@@ -2191,7 +2191,24 @@ describe('PatientData', function () {
         processBasicsAggregationsStub,
         'stubbed aggregations definitions',
         'my aggregations',
-        defaultProps.patient,
+        { ...defaultProps.patient, settings: { siteChangeSource: undefined } },
+        'animas',
+      );
+    });
+
+    it('should aggregate with an unsaved Basics site change pick over the saved patient settings', () => {
+      wrapper.setProps({ data: {
+        data: { aggregationsByDate: 'my aggregations' },
+        metaData: { latestPumpUpload: { manufacturer: 'animas' } },
+      } });
+      wrapper.setState({ updatedSiteChangeSource: 'tubingPrime' });
+
+      instance.getBasicsAggregations();
+      sinon.assert.calledWithMatch(
+        processBasicsAggregationsStub,
+        'stubbed aggregations definitions',
+        'my aggregations',
+        { settings: { siteChangeSource: 'tubingPrime' } },
         'animas',
       );
     });

@@ -610,14 +610,7 @@ export const PatientDataClass = createReactClass({
           );
       case 'daily': {
         const manufacturer = this.getMetaData('latestPumpUpload.manufacturer', '');
-        // Honor an unsaved Basics pick (care-team members can't persist it), matching the PDF
-        const siteChangeSource = vizUtils.aggregation.getSiteChangeSource({
-          ...this.props.patient,
-          settings: {
-            ...this.props.patient?.settings,
-            siteChangeSource: this.state.updatedSiteChangeSource || this.props.patient?.settings?.siteChangeSource,
-          },
-        }, manufacturer);
+        const siteChangeSource = vizUtils.aggregation.getSiteChangeSource(this.getSiteChangePatient(), manufacturer);
         const siteChangeSourceLabel = vizUtils.aggregation.getSiteChangeSourceLabel(siteChangeSource, manufacturer);
 
         return (
@@ -1484,9 +1477,20 @@ export const PatientDataClass = createReactClass({
         latestPumpUpload,
       ),
       aggregationsByDate,
-      this.props.patient,
+      this.getSiteChangePatient(),
       manufacturer
     );
+  },
+
+  // Patient with an unsaved Basics site-change pick applied (care-team members can't persist it)
+  getSiteChangePatient: function() {
+    return {
+      ...this.props.patient,
+      settings: {
+        ...this.props.patient?.settings,
+        siteChangeSource: this.state.updatedSiteChangeSource || this.props.patient?.settings?.siteChangeSource,
+      },
+    };
   },
 
   getAggregationsByChartType: function(chartType = this.state.chartType) {
