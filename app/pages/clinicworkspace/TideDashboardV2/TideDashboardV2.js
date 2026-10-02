@@ -58,9 +58,7 @@ const TideDashboardV2 = ({ api }) => {
   // category updating view before the API call resolves and updates it again
   const resolvedCategory = data?.category || category;
 
-  // Sort is fixed per category; derive it so the header indicator matches the fetched data
   const sort = getDefaultSort(resolvedCategory);
-
   const tableColumns = useTableColumns(resolvedCategory);
   const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
 
