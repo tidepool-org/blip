@@ -7,7 +7,6 @@ const LIMIT = 12;
 const useTideDashboardPatients = () => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
-  const sort = useSelector(state => state.blip.tideDashboard.sort);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
   const patientTags = useSelector(state => state.blip.tideDashboardFilters.patientTags);
   const clinicSites = useSelector(state => state.blip.tideDashboardFilters.clinicSites);
@@ -19,7 +18,6 @@ const useTideDashboardPatients = () => {
       clinicId: selectedClinicId,
       offset,
       category,
-      sort,
       summaryPeriod,
       lastDataTo,
       lastDataFrom,
