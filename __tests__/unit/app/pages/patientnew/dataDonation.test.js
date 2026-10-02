@@ -90,7 +90,7 @@ describe('DataDonation page', ()  => {
         </MockedProviderWrappers>
       );
 
-      expect(screen.getByRole('heading', { name: 'Consider Donating Your Anonymized Data!' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Consider Donating Your Data!' })).toBeInTheDocument();
       expect(screen.getByLabelText('Data donation slideshow')).toBeInTheDocument();
 
       const donationLink = screen.getByLabelText('Data donation details link');

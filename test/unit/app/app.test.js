@@ -12,6 +12,9 @@ var _ = require('lodash');
 
 import { cleanup, render } from '@testing-library/react';
 import mutationTracker from 'object-invariant-test-helper';
+
+jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
+jest.mock('../../../app/redux/features/clinicians/cliniciansApi');
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';

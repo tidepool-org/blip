@@ -73,6 +73,7 @@ describe('PDFWorker', () => {
   };
 
   const opts = () => ({
+    requestId: '1234-abcd',
     agpBGM: {},
     agpCGM: {},
     basics: {},
@@ -134,7 +135,15 @@ describe('PDFWorker', () => {
       sinon.assert.calledOnce(postMessage);
       sinon.assert.calledWithExactly(
         postMessage,
-        actions.generatePDFSuccess({ [type]: result })
+        actions.generatePDFSuccess({ [type]: result, opts: {
+          ...opts(),
+          agpBGM: { disabled: true },
+          agpCGM: { disabled: false },
+          basics: { disabled: true },
+          daily: { disabled: false },
+          bgLog: { disabled: true },
+          settings: { disabled: false },
+        }})
       );
       done()
     });
@@ -217,6 +226,7 @@ describe('PDFWorker', () => {
             agpCGM: { data: { current: { data: ['foo'] } } }
           },
           opts: {
+            requestId: '1234-abcd',
             agpBGM: { disabled: true },
             agpCGM: { disabled: false },
             basics: {  },

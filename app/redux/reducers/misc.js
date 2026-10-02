@@ -44,7 +44,6 @@ export const notification = (state = initialState.notification, action) => {
     case types.ACCEPT_RECEIVED_INVITE_FAILURE:
     case types.REJECT_RECEIVED_INVITE_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
-    case types.UPDATE_USER_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
     case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:

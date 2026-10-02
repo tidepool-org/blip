@@ -651,32 +651,12 @@ export function updatePatientBgUnitsFailure(error, apiError) {
   };
 }
 
-export function updateUserRequest(userId, user) {
-  return {
-    type: ActionTypes.UPDATE_USER_REQUEST,
-    payload: {
-      userId: userId,
-      updatingUser: user,
-    },
-  };
-}
-
 export function updateUserSuccess(userId, user) {
   return {
     type: ActionTypes.UPDATE_USER_SUCCESS,
     payload: {
       userId: userId,
       updatedUser: user,
-    },
-  };
-}
-
-export function updateUserFailure(error, apiError) {
-  return {
-    type: ActionTypes.UPDATE_USER_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
     },
   };
 }
@@ -2663,10 +2643,10 @@ export function generateAGPImagesRequest(data, opts, queries) {
   };
 }
 
-export function generateAGPImagesSuccess(images) {
+export function generateAGPImagesSuccess(images, opts) {
   return {
     type: ActionTypes.GENERATE_AGP_IMAGES_SUCCESS,
-    payload: { images },
+    payload: { images, opts },
   };
 }
 

@@ -150,7 +150,7 @@ describe('DataDonationForm', () => {
 
     it('should show consent step when no current consent exists', () => {
       renderWithProviders();
-      expect(screen.getByText(/Would you like to donate your anonymized data\?/)).toBeInTheDocument();
+      expect(screen.getByText(/Would you like to donate your data\?/)).toBeInTheDocument();
       expect(screen.queryByTestId('success-pill')).not.toBeInTheDocument();
     });
 
@@ -200,13 +200,13 @@ describe('DataDonationForm', () => {
     it('should calculate accountType correctly for personal account', () => {
       mockPersonUtils.patientIsOtherPerson.mockReturnValue(false);
       renderWithProviders();
-      expect(screen.getByText(/Would you like to donate your anonymized data\?/)).toBeInTheDocument();
+      expect(screen.getByText(/Would you like to donate your data\?/)).toBeInTheDocument();
     });
 
     it('should calculate accountType correctly for caregiver account', () => {
       mockPersonUtils.patientIsOtherPerson.mockReturnValue(true);
       renderWithProviders();
-      expect(screen.getByText(/Would they like to donate their anonymized data\?/)).toBeInTheDocument();
+      expect(screen.getByText(/Would they like to donate their data\?/)).toBeInTheDocument();
     });
   });
 

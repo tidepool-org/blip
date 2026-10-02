@@ -194,6 +194,38 @@ describe('personutils', () => {
     });
   });
 
+  describe('isSSOAccount', () => {
+    it('should return true when roles contains "brokered"', () => {
+      var result = personUtils.isSSOAccount({ roles: ['brokered'] });
+      expect(result).to.be.true;
+    });
+
+    it('should return true when roles contains "brokered" alongside other roles', () => {
+      var result = personUtils.isSSOAccount({ roles: ['clinician', 'brokered'] });
+      expect(result).to.be.true;
+    });
+
+    it('should return false when roles does not contain "brokered"', () => {
+      var result = personUtils.isSSOAccount({ roles: ['clinician'] });
+      expect(result).to.be.false;
+    });
+
+    it('should return false when roles is empty', () => {
+      var result = personUtils.isSSOAccount({ roles: [] });
+      expect(result).to.be.false;
+    });
+
+    it('should return false when user is undefined', () => {
+      var result = personUtils.isSSOAccount(undefined);
+      expect(result).to.be.false;
+    });
+
+    it('should return false when user.roles is missing', () => {
+      var result = personUtils.isSSOAccount({ profile: { fullName: 'Mary Smith' } });
+      expect(result).to.be.false;
+    });
+  });
+
   describe('hasClinicRole', () => {
     it('should return true if user has clinic role', () => {
       const user = {

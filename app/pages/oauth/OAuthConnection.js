@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
-import { useParams, useLocation } from 'react-router-dom';
-import capitalize from 'lodash/capitalize';
+import { useParams, useLocation, useHistory } from 'react-router-dom';
 import includes from 'lodash/includes';
-import { Box, Flex } from 'theme-ui';
+import map from 'lodash/map';
+import { Box, Flex, Divider, Image, Link } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
 import utils from '../../core/utils';
 
@@ -14,6 +14,10 @@ import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
 import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
 import { availableProviders, providers } from '../../components/datasources/DataConnections';
+import useRedirectOnCustodialMobileC2CSuccess from './useRedirectOnCustodialMobileC2CSuccess';
+import { URL_PRIVACY_POLICY } from '../../core/constants';
+import consentDataImage from './images/consent_data.png';
+import logoSrc from '../../components/navbar/images/tidepool-logo-408x46.png';
 
 const { Loader } = vizComponents;
 
@@ -24,14 +28,30 @@ export const OAuthConnection = (props) => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const dispatch = useDispatch();
-  const [isCustodial, setIsCustodial] = useState();
-  const [authStatus, setAuthStatus] = useState();
+  const history = useHistory();
+  const [acceptProcessing, setAcceptProcessing] = useState(false);
 
   const statusContent = {
+    accept: {
+      status: 'accept',
+      title: t('Your Body, Your Data'),
+      subheading: t('Your {{displayName}} data may contain information about your reproductive health', { displayName }),
+      message: [
+        <Trans i18nKey="html.oauth-accept-privacy-message">
+          <Body1 mb={3}>
+            As part of using Tidepool Apps and Services or as part of certain initiatives, we may collect reproductive health data that you provide to us or that you authorize a 3rd Party to provide to us on your behalf. This data may be used and disclosed in accordance with <Link href={URL_PRIVACY_POLICY} target="_blank" rel="noreferrer noopener">Tidepool's Privacy Policy</Link> and applicable law. You can stop sharing reproductive health data at any point by accessing your Devices page and disconnecting 3rd Party devices, which share these data to Tidepool. You may also request your data be deleted at any time. Please see 1.2.4 Export, Delete, or Change Your Information and 1.2.5 Cancel Your Account in our Privacy Policy.
+          </Body1>
+        </Trans>,
+        t('By linking your {{ displayName }} account, you acknowledge that Tidepool may collect, use, and disclose data derived from your device, including reproductive health data. Please consider the laws governing reproductive health in your jurisdiction before providing Tidepool with such data.', { displayName }),
+        <Body1 sx={{ fontStyle: 'italic', textAlign: 'center' }}>{t('After tapping “I understand” you will be redirected to Oura to connect your account.')}</Body1>
+      ],
+      image: consentDataImage,
+    },
     authorized: {
       status: 'authorized',
+      title: t('Connection Authorized'),
       subheading: t('Thank you for connecting with Tidepool!'),
-      message: t('We hope you enjoy your Tidepool experience.'),
+      message: [t('We hope you enjoy your Tidepool experience.')],
       banner: {
         message: t('You have successfully connected your {{displayName}} data to Tidepool.', { displayName }),
         variant: 'success',
@@ -39,8 +59,9 @@ export const OAuthConnection = (props) => {
     },
     declined: {
       status: 'declined',
+      title: t('Connection Declined'),
       subheading: t('You can always decide to connect at a later time.'),
-      message: t('We hope you enjoy your Tidepool experience.'),
+      message: [t('We hope you enjoy your Tidepool experience.')],
       banner: {
         message: t('You have declined connecting your {{displayName}} data to Tidepool.', { displayName }),
         variant: 'info',
@@ -48,6 +69,7 @@ export const OAuthConnection = (props) => {
     },
     error: {
       status: 'error',
+      title: t('Connection Error'),
       subheading: t('Hmm... That didn\'t work. Please try again.'),
       banner: {
         message: t('We were unable to determine your {{displayName}} connection status.', { displayName }),
@@ -56,23 +78,70 @@ export const OAuthConnection = (props) => {
     },
   };
 
-  useEffect(() => {
-    const custodialSignup = queryParams.has('signupEmail') && queryParams.has('signupKey');
-    setIsCustodial(custodialSignup);
+  const isCustodial = queryParams.has('signupEmail') && queryParams.has('signupKey');
 
-    if (includes(availableProviders, providerName) && statusContent[status]) {
-      setAuthStatus(statusContent[status]);
-    } else {
-      setAuthStatus(statusContent.error)
+  const authStatus = (
+    includes(availableProviders, providerName) && statusContent[status]
+      ? statusContent[status]
+      : statusContent.error
+  );
+
+  const isAcceptStatus = authStatus?.status === 'accept';
+  const isErrorStatus = authStatus?.status === 'error';
+
+  const handleRedirectToClaimAccount = (params) => {
+    trackMetric('Oauth - Connection - Claim Account', { providerName, status });
+    history.push({ pathname: '/verification-with-password', search: params?.toString() });
+  };
+
+  const isSafeReturnUrl = (url) => {
+    if (!url) return false;
+
+    try {
+      const returnUrl = new URL(url, window.location.origin);
+
+      // Enforce same-origin and restrict to http/https protocols and absolute paths
+      const isSameOrigin = returnUrl.origin === window.location.origin;
+      const isHttpProtocol = returnUrl.protocol === 'http:' || returnUrl.protocol === 'https:';
+      const isAbsolutePath = returnUrl.pathname.startsWith('/');
+
+      return isSameOrigin && isHttpProtocol && isAbsolutePath;
+    } catch (e) {
+      return false;
     }
+  };
 
-    trackMetric('Oauth - Connection', { providerName, status, custodialSignup });
-  }, []);
+  const handleAccept = () => {
+    // Return to the authorization flow after accepting. The backend may enforce (or not) any
+    // actual acceptance requirements for the connection (e.g. formal consent) and, if not met,
+    // reroute back to this accept step until resolved. In the basic case, the backend does not
+    // impose actual acceptance requirements other than just adding the accepted query param.
+    trackMetric('Oauth - Connection - Accept', { providerName, status });
+    setAcceptProcessing(true);
+    const returnUrl = queryParams.get('return_url');
+
+    // Validate return_url is a safe relative path to prevent open redirect attacks
+    if (isSafeReturnUrl(returnUrl)) {
+      window.location.href = returnUrl;
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('OAuthConnection: invalid or missing return_url query parameter on accept.');
+    }
+  };
 
   const handleClickClaimAccount = () => {
-    trackMetric('Oauth - Connection - Claim Account', { providerName, status });
-    dispatch(push(`/login?${queryParams.toString()}`));
+    // If user clicks Claim My Account button, we redirect and forward all GET params to next page
+    handleRedirectToClaimAccount(queryParams);
   };
+
+  useEffect(() => {
+    trackMetric('Oauth - Connection', { providerName, status, custodialSignup: isCustodial });
+  }, []);
+
+  // In Two-Step C2C flow, user will complete C2C before they have an account created. We redirect
+  // to Claim My Account automatically after landing on this page.
+  const isAuthorized = authStatus.status === 'authorized';
+  useRedirectOnCustodialMobileC2CSuccess({ isAuthorized, onRedirect: handleRedirectToClaimAccount });
 
   const handleRedirectToTidepool = () => {
     // After the connection, we want to get back to the /data view but we don't have access to the
@@ -80,52 +149,112 @@ export const OAuthConnection = (props) => {
     // access to the patientId, with a flag to open the DataConnections modal back up on load.
     trackMetric('Oauth - Connection - Redirect back to Tidepool App', { providerName, status });
 
-    let path = '/patients?justLoggedIn=true'
+    let path = 'justLoggedIn=true'
              + `&dataConnectionStatus=${status}`
              + `&dataConnectionProviderName=${providerName}`;
 
-    dispatch(push(path));
+    history.push({ pathname: '/patients', search: path });
 
     return;
   };
 
   return authStatus ? (
     <>
-      <Banner id={`banner-oauth-${authStatus.status}`} {...authStatus.banner} dismissable={false} />
+      {authStatus.banner &&
+        <Banner id={`banner-oauth-${authStatus.status}`} {...authStatus.banner} dismissable={false} />
+      }
 
       <Box
         variant="containers.smallBordered"
         bg="white"
         mt={[0,4,5,6]}
-        p={4}
+        py={4}
         sx={{
           textAlign: 'center'
         }}
       >
-        <Title id="oauth-heading" mb={2}>
-          {t('Connection {{status}}', {status: capitalize(authStatus.status)})}
-        </Title>
-
-        <Subheading id="oauth-subheading" mb={3}>
-          {authStatus.subheading}
-        </Subheading>
-
-        {authStatus.message && (
-          <Body1 id="oauth-message" mb={3}>
-            {authStatus.message}
-          </Body1>
+        {/* Logo */}
+        {isAcceptStatus && (
+          <Flex sx={{ flexDirection: 'row', justifyContent: 'center' }} mb={5}>
+            <img src={logoSrc} width={190} />
+          </Flex>
         )}
 
-        {authStatus.status === 'error' && (
-          <Trans i18nKey="html.oauth-support-message">
-            <Body1 mb={3}>
-              If this problem persists, please contact our support team at <a href="mailto:support@tidepool.org?Subject=Tidepool%20connection%20error" target="_blank" rel="noreferrer noopener">support@tidepool.org</a>.
-            </Body1>
-          </Trans>
+        {/* Header */}
+        <Box px={4}>
+          <Title id="oauth-heading" mb={2} sx={{ fontWeight: 'medium' }}>
+            {authStatus.title}
+          </Title>
+        </Box>
+
+        {isAcceptStatus && <Divider my={4} variant='styles.dividerDark' />}
+
+        {/* Content */}
+        {isAcceptStatus ? (
+          <Box px={4} sx={{ textAlign: 'left' }}>
+            <Flex sx={{
+              flexDirection: ['column', 'row'],
+              alignItems: 'center',
+              gap: 3,
+              textAlign: ['center', 'left'],
+              mb: 4
+            }}>
+              <Image
+                src={authStatus.image}
+                alt=""
+                sx={{ maxWidth: '120px', flexShrink: 0 }}
+              />
+              <Flex sx={{ alignItems: 'center', flex: 1 }}>
+                <Subheading id="oauth-subheading">
+                  {authStatus.subheading}
+                </Subheading>
+              </Flex>
+            </Flex>
+            {map(authStatus.message, (message, index) => (
+              typeof message === 'string'
+                ? <Body1 id="oauth-message" key={index} mb={3}>{message}</Body1>
+                : <React.Fragment key={index}>{message}</React.Fragment>
+            ))}
+          </Box>
+        ) : (
+          <Box px={4}>
+            <Subheading id="oauth-subheading" mb={4}>
+              {authStatus.subheading}
+            </Subheading>
+            {map(authStatus.message, (message, index) => (
+              <Body1 id="oauth-message" key={index} mb={3}>{message}</Body1>
+            ))}
+          </Box>
         )}
 
-        {isCustodial && authStatus.status !== 'error' && (
-          <Box>
+        {isAcceptStatus && <Divider my={4} variant='styles.dividerDark' />}
+
+        {/* Footer */}
+        {isAcceptStatus && (
+          <Flex px={4} sx={{ justifyContent: 'flex-end' }}>
+            <Button
+              id="oauth-redirect-home-button"
+              variant="primary"
+              onClick={handleAccept}
+              processing={acceptProcessing}
+            >
+              {t('I understand')}
+            </Button>
+          </Flex>
+        )}
+
+        {isErrorStatus && (
+          <Box px={4}>
+            <Trans i18nKey="html.oauth-support-message">
+              <Body1 mb={3}>
+                If this problem persists, please contact our support team at <a href="mailto:support@tidepool.org?Subject=Tidepool%20connection%20error" target="_blank" rel="noreferrer noopener">support@tidepool.org</a>.
+              </Body1>
+            </Trans>
+          </Box>
+        )}
+
+        {isCustodial && !isAcceptStatus && !isErrorStatus && (
+          <Box px={4}>
             <Body1 mb={3}>
               {t('If you\'d like to take ownership of your free account to view and upload data from home, please click the button below.')}
             </Body1>
@@ -146,16 +275,18 @@ export const OAuthConnection = (props) => {
           </Box>
         )}
 
-        {!isCustodial && utils.isMobile() && // on desktop, non-custodial users can just close the pop-up
-          <Button
-            id="oauth-redirect-home-button"
-            variant="primary"
-            onClick={handleRedirectToTidepool}
-            mx="auto"
-            mt={4}
-          >
-            {t('Back to Tidepool')}
-          </Button>
+        {!isCustodial && !isAcceptStatus && utils.isMobile() && // on desktop, non-custodial users can just close the pop-up
+          <Box px={4}>
+            <Button
+              id="oauth-redirect-home-button"
+              variant="primary"
+              onClick={handleRedirectToTidepool}
+              mx="auto"
+              mt={4}
+            >
+              {t('Back to Tidepool')}
+            </Button>
+          </Box>
         }
       </Box>
     </>

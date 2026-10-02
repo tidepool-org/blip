@@ -363,10 +363,12 @@ describe('SmartOnFhir', () => {
     expect(fetchPatientsAction).toBeDefined();
   });
 
-  it('should hide Zendesk widget in Smart-on-FHIR mode', async () => {
+  it('should hide the Messaging widget when the Classic API is unavailable', async () => {
     const mockWindow = {
       sessionStorage: mockSessionStorage,
-      zE: jest.fn()
+      zE: jest.fn((api) => {
+        if (api === 'webWidget') throw new Error(`Unsupported API: ${api}`);
+      })
     };
 
     render(
@@ -382,8 +384,37 @@ describe('SmartOnFhir', () => {
     );
 
     await waitFor(() => {
-      expect(mockWindow.zE).toHaveBeenCalledWith('webWidget', 'hide');
+      expect(mockWindow.zE).toHaveBeenCalledTimes(2);
     });
+    expect(mockWindow.zE).toHaveBeenNthCalledWith(1, 'messenger', 'hide');
+    expect(mockWindow.zE).toHaveBeenNthCalledWith(2, 'webWidget', 'hide');
+  });
+
+  it('should hide the Classic widget when the Messaging API is unavailable', async () => {
+    const mockWindow = {
+      sessionStorage: mockSessionStorage,
+      zE: jest.fn((api) => {
+        if (api === 'messenger') throw new Error(`Unsupported API: ${api}`);
+      })
+    };
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={mockWindow}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockWindow.zE).toHaveBeenCalledTimes(2);
+    });
+    expect(mockWindow.zE).toHaveBeenNthCalledWith(1, 'messenger', 'hide');
+    expect(mockWindow.zE).toHaveBeenNthCalledWith(2, 'webWidget', 'hide');
   });
 
   it('should track "Direct Connect Patient Lookup Failure" when fetchPatients returns an error', async () => {
@@ -736,6 +767,225 @@ describe('SmartOnFhir', () => {
     await waitFor(() => {
       expect(mockTrackMetric).toHaveBeenCalledWith('Direct Connect Patient Lookup Success');
     });
+  });
+
+  it('should select the context clinic when the clinician has access to it', async () => {
+    mockApi = {
+      clinics: {
+        getClinicsForClinician: jest.fn().mockImplementation((clinicianId, options, callback) => {
+          callback(null, [{ clinic: { id: 'clinic1' } }]);
+        }),
+        getEHRSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+        getMRNSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+      },
+      patient: {
+        getAll: jest.fn().mockImplementation((params, callback) => {
+          callback(null, [{ patient: { id: 'user1' }, clinic: { id: 'clinic1' } }]);
+        }),
+      },
+    };
+
+    const contextStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+          context: {
+            clinicId: 'clinic1',
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        loggedInUserId: 'clinician-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    render(
+      <Provider store={contextStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      const selectClinicAction = contextStore.getActions().find(action =>
+        action.type === 'SELECT_CLINIC_SUCCESS'
+      );
+      expect(selectClinicAction).toBeDefined();
+    });
+
+    const selectClinicAction = contextStore.getActions().find(action =>
+      action.type === 'SELECT_CLINIC_SUCCESS'
+    );
+    expect(selectClinicAction.payload.clinicId).toBe('clinic1');
+  });
+
+  it('should NOT select a clinic when the clinician lacks access to the context clinic', async () => {
+    mockApi = {
+      clinics: {
+        getClinicsForClinician: jest.fn().mockImplementation((clinicianId, options, callback) => {
+          callback(null, [{ clinic: { id: 'clinic1' } }]);
+        }),
+        getEHRSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+        getMRNSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+      },
+      patient: {
+        getAll: jest.fn(),
+      },
+    };
+
+    const contextStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+          context: {
+            clinicId: 'clinic2',
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        loggedInUserId: 'clinician-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    render(
+      <Provider store={contextStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockTrackMetric).toHaveBeenCalledWith('Direct Connect Clinician Not In Clinic');
+    });
+
+    const selectClinicAction = contextStore.getActions().find(action =>
+      action.type === 'SELECT_CLINIC_SUCCESS'
+    );
+    expect(selectClinicAction).toBeUndefined();
+  });
+
+  it('should NOT select a clinic when no context clinicId is provided', async () => {
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockTrackMetric).toHaveBeenCalledWith('Direct Connect Patient Lookup Success');
+    });
+
+    const selectClinicAction = store.getActions().find(action =>
+      action.type === 'SELECT_CLINIC_SUCCESS'
+    );
+    expect(selectClinicAction).toBeUndefined();
+  });
+
+  it('should NOT select the context clinic when the patient lookup fails', async () => {
+    mockApi = {
+      clinics: {
+        getClinicsForClinician: jest.fn().mockImplementation((clinicianId, options, callback) => {
+          callback(null, [{ clinic: { id: 'clinic1' } }]);
+        }),
+        getEHRSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+        getMRNSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+      },
+      patient: {
+        getAll: jest.fn().mockImplementation((params, callback) => {
+          callback(null, []);
+        }),
+      },
+    };
+
+    const contextStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+          context: {
+            clinicId: 'clinic1',
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        loggedInUserId: 'clinician-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    render(
+      <Provider store={contextStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockTrackMetric).toHaveBeenCalledWith('Direct Connect Patient Not Found');
+    });
+
+    const selectClinicAction = contextStore.getActions().find(action =>
+      action.type === 'SELECT_CLINIC_SUCCESS'
+    );
+    expect(selectClinicAction).toBeUndefined();
   });
 
   it('should proceed with patient lookup when clinician has clinics', async () => {

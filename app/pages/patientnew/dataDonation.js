@@ -28,7 +28,7 @@ export const PatientNewDataDonation = (props) => {
 
   const formStepsText = {
     dataDonationConsent: {
-      title: t('Consider Donating Your Anonymized Data!'),
+      title: t('Consider Donating Your Data!'),
       submitText: t('Yes, I\'m Interested'),
     },
     supportedOrganizations: {

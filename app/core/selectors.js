@@ -159,3 +159,4 @@ export const selectIsSmartOnFhirMode = createSelector(
     return !!smartCorrelationId;
   }
 );
+

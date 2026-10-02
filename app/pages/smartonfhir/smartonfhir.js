@@ -55,6 +55,10 @@ export const SmartOnFhir = (props) => {
     dispatch(getClinicsForClinician(api, clinicianId, {}, callback)),
     [dispatch]
   );
+  const selectClinic = useCallback((api, clinicId) =>
+    dispatch(async.selectClinic(api, clinicId)),
+    [dispatch]
+  );
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
@@ -75,7 +79,10 @@ export const SmartOnFhir = (props) => {
 
     const checkZendesk = () => {
       if (windowObj.zE) {
-        windowObj.zE('webWidget', 'hide');
+        // Classic and messaging expose different APIs, and the inactive one
+        // throws on an unknown API name. Try both until Classic is retired.
+        try { windowObj.zE('messenger', 'hide'); } catch (e) { /* not messaging */ }
+        try { windowObj.zE('webWidget', 'hide'); } catch (e) { /* not classic */ }
         return;
       }
 
@@ -163,12 +170,19 @@ export const SmartOnFhir = (props) => {
             return;
           }
 
+          // Only switch the clinician's selected clinic to the SMART context clinic once the
+          // patient lookup has succeeded, so a failed launch doesn't strand the clinician in a
+          // different clinic's workspace.
+          if (contextClinicId) {
+            selectClinic(api, contextClinicId);
+          }
+
           trackMetric('Direct Connect Patient Lookup Success');
           navigateTo(`/patients/${patient.id}/data`);
         });
       });
     }
-  }, [smartOnFhirData, isProcessing, working.fetchingPatients.inProgress, api, fetchPatients, navigateTo, error, smartCorrelationId, setSmartCorrelationId, windowObj, trackMetric, loggedInUserId, getClinics, handleError]);
+  }, [smartOnFhirData, isProcessing, working.fetchingPatients.inProgress, api, fetchPatients, navigateTo, error, smartCorrelationId, setSmartCorrelationId, windowObj, trackMetric, loggedInUserId, getClinics, selectClinic, handleError]);
 
   if (isProcessing || working.fetchingPatients.inProgress) {
     return (

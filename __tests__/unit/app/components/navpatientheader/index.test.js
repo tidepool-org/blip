@@ -295,10 +295,14 @@ describe('NavPatientHeader', () => {
       await userEvent.click(screen.getByRole('button', { name: /View Data/ }));
       expect(useNavigation().handleViewData).toHaveBeenCalledTimes(1);
 
+      // Upload Data launches the uploader and opens the uploader launch dialog
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       await userEvent.click(screen.getByRole('button', { name: /Upload Data/ }));
       expect(useNavigation().handleLaunchUploader).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
 
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      // Dismiss the uploader dialog, then Edit Patient Details opens its own dialog
+      await userEvent.click(screen.getByRole('button', { name: /close dialog/i }));
       await userEvent.click(screen.getByRole('button', { name: /Edit Patient Details/ }));
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });

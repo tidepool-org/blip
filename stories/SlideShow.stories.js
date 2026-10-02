@@ -25,7 +25,7 @@ const items = [
   {
     id: 'fuelingInnovation',
     title: 'Fueling the Next Generation of Diabetes Innovation',
-    content: 'The Tidepool Big Data Donation Project enables students, academics, and industry to innovate faster. By donating your anonymized data, you can help transform the landscape of diabetes management.',
+    content: 'The Tidepool Big Data Donation Project enables students, academics, and industry to innovate faster. By donating your data, you can help transform the landscape of diabetes management.',
     image: FuelingNextGenImage,
     imageAlt: 'Illustration: fueling diabetes innovation',
   },
