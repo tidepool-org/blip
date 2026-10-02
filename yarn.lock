@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.60.0-web-4227-pdf-tags-sites.4":
-  version: 1.60.0-web-4227-pdf-tags-sites.4
-  resolution: "@tidepool/viz@npm:1.60.0-web-4227-pdf-tags-sites.4"
+"@tidepool/viz@npm:1.60.0-web-4227-pdf-tags-sites.5":
+  version: 1.60.0-web-4227-pdf-tags-sites.5
+  resolution: "@tidepool/viz@npm:1.60.0-web-4227-pdf-tags-sites.5"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 7b20eec7a5dee86ef1068f38717206094137a6eb3ab71e399514e221a28fd08e4103180ccc3940cd767b8b1489f5b55b637fa1908c493d4de86f0b38a2c05459
+  checksum: 526b57122c03b7b3ccb88609060b7d02a6a1028b54d61a67c509e92e2af50d589530cefef4e56dcb574c67b8128a9468e91b2b91930e9436cb7cc3aa9b7297e9
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.60.0-web-4227-pdf-tags-sites.4
+    "@tidepool/viz": 1.60.0-web-4227-pdf-tags-sites.5
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
