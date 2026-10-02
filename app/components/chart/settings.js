@@ -41,10 +41,10 @@ import Icon from '../elements/Icon';
 import { useSelector } from 'react-redux';
 import DataConnections from '../../components/datasources/DataConnections';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
-import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../components/datasources/DataConnectionsDialog';
 import Card from '../elements/Card';
 import { Body1, MediumTitle } from '../elements/FontStyles';
-import Uploadlaunchoverlay from '../uploadlaunchoverlay';
+import UploadLaunchDialog from '../UploadLaunchDialog';
 import api from '../../core/api';
 import styled from '@emotion/styled';
 
@@ -130,7 +130,7 @@ const Settings = ({
   const { location } = useHistory();
   const isJustConnected = !!location?.query?.dataConnectionStatus;
 
-  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
+  const [showDataConnectionsDialog, setShowDataConnectionsDialog] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);
   const [inTransition, setInTransition] = useState(false);
   const [title, setTitle] = useState('');
@@ -144,7 +144,7 @@ const Settings = ({
   const previousSelectedDevice = usePrevious(selectedDevice);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const isClinicContext = !!selectedClinicId;
-  const [showUploadOverlay, setShowUploadOverlay] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
   const metaDataDevices = useSelector(state => state.blip.data?.metaData?.devices || []);
 
@@ -382,7 +382,7 @@ const Settings = ({
     const properties = { patientID: currentPatientInViewId, source };
     if (selectedClinicId) properties.clinicId = selectedClinicId;
     trackMetric('Clicked Settings Add Data Connections', properties);
-    setShowDataConnectionsModal(true);
+    setShowDataConnectionsDialog(true);
   };
 
   const toggleSettingsSection = useCallback((deviceKey, scheduleOrProfileKey) => {
@@ -447,7 +447,7 @@ const Settings = ({
           deviceSelectionPopupState.close();
         }}
       >
-        <DialogContent px={2} py={3} dividers>
+        <DialogContent px={2} py={3}>
           <RadioGroup
             id="device"
             name="device"
@@ -677,7 +677,7 @@ const Settings = ({
       const properties = { patientID: currentPatientInViewId };
       if (selectedClinicId) properties.clinicId = selectedClinicId;
       trackMetric('Clicked Partial Data Upload, No Settings', properties);
-      setShowUploadOverlay(true);
+      setShowUploadDialog(true);
       launchCustomProtocol('tidepoolupload://open');
     };
 
@@ -712,11 +712,11 @@ const Settings = ({
     );
   };
 
-  const renderDataConnectionsModal = () => (
-    <DataConnectionsModal
+  const renderDataConnectionsDialog = () => (
+    <DataConnectionsDialog
       open
       patient={clinicPatient || patient}
-      onClose={() => setShowDataConnectionsModal(false)}
+      onClose={() => setShowDataConnectionsDialog(false)}
     />
   );
 
@@ -747,8 +747,8 @@ const Settings = ({
     );
   };
 
-  const renderUploadOverlay = () => (
-    <Uploadlaunchoverlay modalDismissHandler={() => setShowUploadOverlay(false)}/>
+  const renderUploadDialog = () => (
+    <UploadLaunchDialog open onClose={() => setShowUploadDialog(false)}/>
   );
 
   return (
@@ -814,8 +814,8 @@ const Settings = ({
           </Box>
         </Box>
 
-        {showDataConnectionsModal && renderDataConnectionsModal()}
-        {showUploadOverlay && renderUploadOverlay()}
+        {showDataConnectionsDialog && renderDataConnectionsDialog()}
+        {showUploadDialog && renderUploadDialog()}
       </Box>
     </div>
   );

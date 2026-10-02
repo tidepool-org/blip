@@ -553,4 +553,8 @@ utils.compareLabels = (string1, string2) => {
   return string1.localeCompare(string2, undefined, { caseFirst: 'upper', numeric: true });
 };
 
+// Alphabetical sort for label-bearing objects; `key` names the label field
+// ('name' for catalogue objects, 'label' for react-select options).
+utils.sortByLabel = (items, key = 'name') => (items || []).toSorted((a, b) => utils.compareLabels(a?.[key], b?.[key]));
+
 export default utils;

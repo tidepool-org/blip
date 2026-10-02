@@ -1,0 +1,168 @@
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { trackMetric } from '../../../core/metricUtils';
+import { colors as vizColors } from '@tidepool/viz';
+
+import { Box, Grid } from 'theme-ui';
+import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
+
+import noop from 'lodash/noop';
+
+import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state/hooks';
+
+import Button from '../../../components/elements/Button';
+import Popover from '../../../components/elements/Popover';
+import RadioGroup from '../../../components/elements/RadioGroup';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
+import { summaryPeriodOptions } from '../../../core/clinicUtils';
+
+const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
+  switch (activeSummaryPeriod) {
+    case '1d': return t('Summarizing 24 hours of data');
+    case '7d': return t('Summarizing 7 days of data');
+    case '14d': return t('Summarizing 14 days of data');
+    case '30d': return t('Summarizing 30 days of data');
+  }
+
+  return null;
+};
+
+const DropdownContent = ({
+  onClose,
+  onChange,
+  activeSummaryPeriod,
+}) => {
+  const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+
+  const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(activeSummaryPeriod);
+
+  const handleChange = (summaryPeriod) => onChange(summaryPeriod);
+
+  return (
+    <Box data-testid="summary-period-filter-dropdown" mt={5} mx={2} sx={{ width: 300 }}>
+      <Box>
+        <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }} mb={2}>
+          <Box sx={{ fontWeight: 'medium', fontSize: 1 }}>{t('Summarizing Data')}</Box>
+          <Box sx={{ fontSize: 0 }} mt={1}>{t('Tidepool will generate health summaries for the selected number of days.')}</Box>
+        </Box>
+
+        <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
+          <RadioGroup
+            id="summary-period-filters"
+            name="summary-period-filters"
+            options={summaryPeriodOptions}
+            variant="vertical"
+            sx={{ fontSize: 0 }}
+            value={pendingSummaryPeriod}
+            onChange={event => setPendingSummaryPeriod(event.target.value)}
+          />
+        </Box>
+      </Box>
+
+      <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3} mb={2}>
+        <Button
+          id="cancel-summary-period-filter"
+          sx={{ fontSize: 1 }}
+          variant="secondary"
+          onClick={() => {
+            trackMetric('Clinic - Summary period filter cancel', { clinicId: selectedClinicId, pageName });
+            setPendingSummaryPeriod(activeSummaryPeriod);
+            onClose();
+          }}
+        >
+          {t('Cancel')}
+        </Button>
+
+        <Button
+          id="apply-summary-period-filter"
+          disabled={pendingSummaryPeriod === activeSummaryPeriod}
+          sx={{ fontSize: 1 }}
+          variant="primary"
+          onClick={() => {
+            trackMetric('Clinic - Summary period apply filter', {
+              clinicId: selectedClinicId,
+              summaryPeriod: pendingSummaryPeriod,
+              pageName,
+            });
+
+            handleChange(pendingSummaryPeriod);
+            onClose();
+          }}
+        >
+          {t('Apply')}
+        </Button>
+      </Grid>
+    </Box>
+  );
+};
+
+const SummaryPeriodFilterDropdown = ({
+  onChange = noop,
+  activeSummaryPeriod,
+}) => {
+  const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
+
+  const summaryPeriodPopupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: 'summaryPeriodFilters',
+  });
+
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+
+  const handleCloseDropdown = () => summaryPeriodPopupFilterState.close();
+
+  return (
+    <>
+      <Box
+        onClick={() => {
+          if (!summaryPeriodPopupFilterState.isOpen) trackMetric('Clinic - Summary period filter open', { clinicId: selectedClinicId, pageName });
+        }}
+        sx={{ flexShrink: 0 }}
+      >
+        <Button
+          variant="filter"
+          selected
+          id="summary-period-filter-trigger"
+          {...bindTrigger(summaryPeriodPopupFilterState)}
+          icon={KeyboardArrowDownRoundedIcon}
+          iconLabel="Filter by summary period duration"
+          sx={{ fontSize: 0, lineHeight: 1.3 }}
+        >
+          {getSummaryPeriodSelectLabel(t, activeSummaryPeriod)}
+        </Button>
+      </Box>
+
+      <Popover
+        minWidth="11em"
+        closeIcon
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        {...bindPopover(summaryPeriodPopupFilterState)}
+        onClickCloseIcon={() => {
+          trackMetric('Clinic - Summary period filter close', { clinicId: selectedClinicId, pageName });
+        }}
+        onClose={handleCloseDropdown}
+      >
+        { summaryPeriodPopupFilterState.isOpen &&
+          <DropdownContent
+            activeSummaryPeriod={activeSummaryPeriod}
+            onClose={handleCloseDropdown}
+            onChange={onChange}
+          />
+        }
+      </Popover>
+    </>
+  );
+};
+
+SummaryPeriodFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  activeSummaryPeriod: PropTypes.oneOf(summaryPeriodOptions.map(opt => opt.value)).isRequired,
+};
+
+export default SummaryPeriodFilterDropdown;

@@ -499,7 +499,7 @@ export const Workspaces = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
+          <Button variant="textSecondary" onClick={() => setShowDeleteDialog(false)}>
             {deleteDialogContent?.cancelText}
           </Button>
           {deleteDialogContent?.submitText && (
