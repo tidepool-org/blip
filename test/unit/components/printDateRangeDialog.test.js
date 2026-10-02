@@ -319,7 +319,7 @@ describe('PrintDateRangeDialog', function () {
     // rather than re-rendering the suite's default (propless) instance.
     const renderWith = (extraProps = { patientTags, sites }) => {
       rendered.unmount();
-      rendered = render(<PrintDateRangeModal {...props} {...extraProps} />, { wrapper });
+      rendered = render(<PrintDateRangeDialog {...props} {...extraProps} />, { wrapper });
     };
 
     // The panels render the same react-select multi the Edit Patient Details form uses

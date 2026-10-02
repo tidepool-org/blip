@@ -115,7 +115,7 @@ describe('ClinicPatientsPrintDialog', () => {
   });
 
   describe('when the patient has tags and sites', () => {
-    it('forwards them from modalData to the PrintDateRangeModal panels', () => {
+    it('forwards them from modalData to the PrintDateRangeDialog panels', () => {
       usePrintPDF.mockReturnValue({
         status: STATUS.AWAITING_INPUT,
         canPrint: true,
