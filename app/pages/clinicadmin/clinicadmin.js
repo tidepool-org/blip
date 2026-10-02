@@ -361,18 +361,13 @@ export const ClinicAdmin = (props) => {
     });
 
     const csv = csvRows.map((row) => row.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
     const downloadFileName = `${clinic.name}-${sundial.formatInTimezone(
       new Date(),
       timeZone,
       'YYYY-MM-DD HH:mm:ss z'
     )}.csv`;
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = downloadFileName;
-    a.click();
+    utils.downloadCsv(csv, downloadFileName);
   };
 
   function closeDeleteDialog() {
