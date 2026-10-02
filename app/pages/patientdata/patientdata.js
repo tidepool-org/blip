@@ -563,7 +563,11 @@ export const PatientDataClass = createReactClass({
             isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
-      case 'daily':
+      case 'daily': {
+        const manufacturer = this.getMetaData('latestPumpUpload.manufacturer', '');
+        const siteChangeSource = vizUtils.aggregation.getSiteChangeSource(this.getSiteChangePatient(), manufacturer);
+        const siteChangeSourceLabel = vizUtils.aggregation.getSiteChangeSourceLabel(siteChangeSource, manufacturer);
+
         return (
           <Daily
             addingData={this.props.addingData}
@@ -580,6 +584,8 @@ export const PatientDataClass = createReactClass({
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
+            siteChangeSource={siteChangeSource}
+            siteChangeSourceLabel={siteChangeSourceLabel}
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -595,6 +601,7 @@ export const PatientDataClass = createReactClass({
             isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
+      }
       case 'trends':
         return (
           <Trends
@@ -1184,8 +1191,8 @@ export const PatientDataClass = createReactClass({
     // If the user makes a change to the site change source settings,
     // we should remove the currently generated PDF, which will trigger a rebuild of
     // the PDF with the updated settings.
-    const settingsSiteChangeSource = _.get(this.props, 'patient.settings.siteChangeSource');
-    if (settings.siteChangeSource && settings.siteChangeSource !== settingsSiteChangeSource) {
+    const currentSiteChangeSource = this.state.updatedSiteChangeSource || _.get(this.props, 'patient.settings.siteChangeSource');
+    if (settings.siteChangeSource && settings.siteChangeSource !== currentSiteChangeSource) {
       this.setState({ updatedSiteChangeSource: settings.siteChangeSource }, this.props.removeGeneratedPDFS);
     }
   },
@@ -1275,9 +1282,20 @@ export const PatientDataClass = createReactClass({
         latestPumpUpload,
       ),
       aggregationsByDate,
-      this.props.patient,
+      this.getSiteChangePatient(),
       manufacturer
     );
+  },
+
+  // Patient with an unsaved Basics site-change pick applied (care-team members can't persist it)
+  getSiteChangePatient: function() {
+    return {
+      ...this.props.patient,
+      settings: {
+        ...this.props.patient?.settings,
+        siteChangeSource: this.state.updatedSiteChangeSource || this.props.patient?.settings?.siteChangeSource,
+      },
+    };
   },
 
   getAggregationsByChartType: function(chartType = this.state.chartType) {
