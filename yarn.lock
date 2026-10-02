@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.58.0-web-55-daily-view-site-change-events.6":
-  version: 1.58.0-web-55-daily-view-site-change-events.6
-  resolution: "@tidepool/viz@npm:1.58.0-web-55-daily-view-site-change-events.6"
+"@tidepool/viz@npm:1.58.0-web-55-daily-view-site-change-events.7":
+  version: 1.58.0-web-55-daily-view-site-change-events.7
+  resolution: "@tidepool/viz@npm:1.58.0-web-55-daily-view-site-change-events.7"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 5c3a5ef42efdfa5fdd7a076894c3586f00a65a68e8d6ad221a009695621f2385b5dfaf6b525e69bddb05ec03bd762d8b7d7177900d190f8655dc01508c5acc0e
+  checksum: 218f15d0cabdda10e0fd820b49d8512ada21cb5e4619f6ca39399e38b12e084702891f408904cfa27b448a2a707c738606ec98c2b055bb9ef099bc8ff5629dff
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.58.0-web-55-daily-view-site-change-events.6
+    "@tidepool/viz": 1.58.0-web-55-daily-view-site-change-events.7
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
