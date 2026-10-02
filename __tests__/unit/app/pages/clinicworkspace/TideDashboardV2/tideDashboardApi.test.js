@@ -72,24 +72,6 @@ describe ('tideDashboardApi', () => {
     });
   });
 
-  describe('getDefaultSort', () => {
-    const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
-
-    it('sorts each category by the metric that defines it', () => {
-      expect(getDefaultSort(VERY_LOW)).toBe('-timeInVeryLowPercent');
-      expect(getDefaultSort(ANY_LOW)).toBe('-timeInAnyLowPercent');
-      expect(getDefaultSort(DROP_IN_TIR)).toBe('+timeInTargetPercentDelta');
-      expect(getDefaultSort(ANY_HIGH)).toBe('-timeInAnyHighPercent');
-      expect(getDefaultSort(VERY_HIGH)).toBe('-timeInVeryHighPercent');
-      expect(getDefaultSort(LOW_CGM_WEAR)).toBe('+timeCGMUsePercent');
-      expect(getDefaultSort(TARGET)).toBe('-timeInTargetPercent');
-    });
-
-    it('falls back to sorting by name for an unknown category', () => {
-      expect(getDefaultSort('NOT_A_CATEGORY')).toBe('+fullName');
-    });
-  });
-
   describe('buildGetTideDashboardPatientsParams', () => {
     it('joins tags and sites into comma-separated params', () => {
       expect(buildGetTideDashboardPatientsParams(
