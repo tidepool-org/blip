@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Redirect, useLocation, useHistory } from 'react-router-dom';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box } from 'theme-ui';
+import { colors as vizColors } from '@tidepool/viz';
 
 import FilterByCategory from './filters/FilterByCategory';
 import FilterByTags from './filters/FilterByTags';
@@ -16,6 +17,7 @@ import TableCategoryHeader from './TableCategoryHeader';
 import PaginationController from './PaginationController';
 
 import useTideDashboardPatients from './useTideDashboardPatients';
+import { getDefaultSort } from './tideDashboardApi';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
@@ -26,22 +28,28 @@ import EditPatientDialogController from './modals/EditPatientDialogController';
 import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
 import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar';
 import DataIssues from './DataIssues/DataIssues';
-import { setSort, setOffset } from './tideDashboardSlice';
+import noop from 'lodash/noop';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
-const tableContainerProps = { sx: { containerType: 'inline-size' } };
+const tableContainerProps = {
+  sx: {
+    containerType: 'inline-size',
+
+    // Sort is fixed per category, so the sort labels are not interactive
+    '.MuiTableSortLabel-root': { cursor: 'default' },
+    '.MuiTableSortLabel-root:not(.MuiTableSortLabel-active):hover .MuiTableSortLabel-icon': { opacity: 0 },
+  },
+};
 
 const TideDashboardV2 = ({ api }) => {
   const { t } = useTranslation();
   const { search, pathname } = useLocation();
   const history = useHistory();
-  const dispatch = useDispatch();
 
   usePruneInvalidFilters();
 
   const category = useSelector(state => state.blip.tideDashboard.category);
-  const sort = useSelector(state => state.blip.tideDashboard.sort);
 
   const { isAuthorized, isUnauthorized } = useAuthorizationGate();
   const { data } = useTideDashboardPatients();
@@ -49,6 +57,9 @@ const TideDashboardV2 = ({ api }) => {
   // Sync category to data fetching resolution; prevents visual glitch due to
   // category updating view before the API call resolves and updates it again
   const resolvedCategory = data?.category || category;
+
+  // Sort is fixed per category; derive it so the header indicator matches the fetched data
+  const sort = getDefaultSort(resolvedCategory);
 
   const tableColumns = useTableColumns(resolvedCategory);
   const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
@@ -66,25 +77,6 @@ const TideDashboardV2 = ({ api }) => {
     params.set('drawerPatientId', patient.id);
     params.set('drawerTab', OVERVIEW_TAB_INDEX);
     history.replace({ pathname, search: params.toString() });
-  };
-
-  const handleSort = (sortField) => {
-    const currentDirection = sort[0]; // '+' or '-'
-    const currentField = sort.substring(1);
-
-    let newSort;
-
-    // If already sorting by the selected field, flip the direction
-    if (sortField === currentField) {
-      newSort = `${currentDirection === '+' ? '-' : '+'}${sortField}`;
-
-    // If selecting a new field, default to ascending direction
-    } else {
-      newSort = `+${sortField}`;
-    }
-
-    dispatch(setSort(newSort));
-    dispatch(setOffset(0));
   };
 
   if (!data) return null;
@@ -119,7 +111,7 @@ const TideDashboardV2 = ({ api }) => {
         emptyContentNode={emptyContentNode}
         containerProps={tableContainerProps}
         onClickRow={handleClickRow}
-        onSort={handleSort}
+        onSort={noop} // disabled
         order={sort[0] === '+' ? 'asc' : 'desc'}
         orderBy={sort.substring(1)}
       />

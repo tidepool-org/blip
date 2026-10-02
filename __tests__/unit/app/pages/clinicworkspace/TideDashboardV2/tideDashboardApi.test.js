@@ -1,4 +1,4 @@
-import { buildGetTideDashboardPatientsParams, tideDashboardExclusionQuery } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardApi';
+import { buildGetTideDashboardPatientsParams, getDefaultSort, tideDashboardExclusionQuery } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardApi';
 import { CATEGORY } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
 describe ('tideDashboardApi', () => {
@@ -72,13 +72,30 @@ describe ('tideDashboardApi', () => {
     });
   });
 
+  describe('getDefaultSort', () => {
+    const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+
+    it('sorts each category by the metric that defines it', () => {
+      expect(getDefaultSort(VERY_LOW)).toBe('-timeInVeryLowPercent');
+      expect(getDefaultSort(ANY_LOW)).toBe('-timeInAnyLowPercent');
+      expect(getDefaultSort(DROP_IN_TIR)).toBe('+timeInTargetPercentDelta');
+      expect(getDefaultSort(ANY_HIGH)).toBe('-timeInAnyHighPercent');
+      expect(getDefaultSort(VERY_HIGH)).toBe('-timeInVeryHighPercent');
+      expect(getDefaultSort(LOW_CGM_WEAR)).toBe('+timeCGMUsePercent');
+      expect(getDefaultSort(TARGET)).toBe('-timeInTargetPercent');
+    });
+
+    it('falls back to sorting by name for an unknown category', () => {
+      expect(getDefaultSort('NOT_A_CATEGORY')).toBe('+fullName');
+    });
+  });
+
   describe('buildGetTideDashboardPatientsParams', () => {
     it('joins tags and sites into comma-separated params', () => {
       expect(buildGetTideDashboardPatientsParams(
         50,                      // offset
         10,                      // limit
         CATEGORY.ANY_LOW,        // category
-        '-timeInAnyLowPercent',  // sort
         '14d',                   // summaryPeriod
         '2025-05-15T00:00:00Z',  // lastDataFrom
         '2025-05-29T00:00:00Z',  // lastDataTo
@@ -104,7 +121,6 @@ describe ('tideDashboardApi', () => {
         0,                       // offset
         10,                      // limit
         CATEGORY.ANY_LOW,        // category
-        '-timeInAnyLowPercent',  // sort
         '14d',                   // summaryPeriod
         '2025-05-15T00:00:00Z',  // lastDataFrom
         '2025-05-29T00:00:00Z',  // lastDataTo
