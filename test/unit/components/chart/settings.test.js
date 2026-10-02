@@ -23,7 +23,7 @@ import { thunk } from 'redux-thunk';
 import moment from 'moment-timezone';
 
 import { ToastProvider } from '../../../../app/providers/ToastProvider.js';
-import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal.js';
+import DataConnectionsDialog from '../../../../app/components/datasources/DataConnectionsDialog.js';
 import DataConnections, { availableProviders, getActiveProviders } from '../../../../app/components/datasources/DataConnections.js';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -1260,7 +1260,7 @@ describe('Settings', () => {
     let dataConnections;
     let dataConnectionsAddButton;
     let dataConnectionsCard;
-    let dataConnectionsModal;
+    let dataConnectionsDialog;
     let dataConnectionsWrapper;
     let wrapper;
 
@@ -1318,7 +1318,7 @@ describe('Settings', () => {
       dataConnections = () => wrapper.find('.data-connection').hostNodes();
       dataConnectionsAddButton = () => wrapper.find('#add-data-connections').hostNodes();
       dataConnectionsCard = () => wrapper.find('#data-connections-card');
-      dataConnectionsModal = () => wrapper.find('Dialog#data-connections');
+      dataConnectionsDialog = () => wrapper.find('Dialog#data-connections');
       dataConnectionsWrapper = () => wrapper.find('#data-connections').hostNodes();
       if (!api.clinics) {
         api.clinics = {};
@@ -1352,7 +1352,7 @@ describe('Settings', () => {
 
           wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
-          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsDialog().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(1);
           expect(dataConnectionsCard().text()).to.include('Connect a Device Account');
           const callCount = props.trackMetric.callCount;
@@ -1360,7 +1360,7 @@ describe('Settings', () => {
 
           sinon.assert.callCount(props.trackMetric, callCount + 1);
           sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'card' }));
-          expect(dataConnectionsModal().length).to.equal(1);
+          expect(dataConnectionsDialog().length).to.equal(1);
         });
       });
 
@@ -1388,7 +1388,7 @@ describe('Settings', () => {
 
           wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
-          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsDialog().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsWrapper().length).to.equal(1);
           expect(dataConnectionsWrapper().find(`#data-connection-${availableProviders[0]}`).hostNodes().length).to.equal(1);
@@ -1399,7 +1399,7 @@ describe('Settings', () => {
 
           sinon.assert.callCount(props.trackMetric, callCount + 1);
           sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'button' }));
-          expect(dataConnectionsModal().length).to.equal(1);
+          expect(dataConnectionsDialog().length).to.equal(1);
         });
       });
 
@@ -1428,7 +1428,7 @@ describe('Settings', () => {
 
           wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
-          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsDialog().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsWrapper().length).to.equal(1);
           expect(dataConnectionsWrapper().find(`#data-connection-${availableProviders[0]}`).hostNodes().length).to.equal(1);
@@ -1460,7 +1460,7 @@ describe('Settings', () => {
 
 
           // No modal or card
-          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsDialog().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsAddButton().length).to.equal(1);
           expect(dataConnectionsWrapper().length).to.equal(1);
@@ -1486,7 +1486,7 @@ describe('Settings', () => {
           const store = mockStore(defaultState);
           wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
-          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsDialog().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(1);
           expect(dataConnectionsCard().text()).to.include('Connect a Device Account');
           const callCount = props.trackMetric.callCount;
@@ -1494,7 +1494,7 @@ describe('Settings', () => {
 
           sinon.assert.callCount(props.trackMetric, callCount + 1);
           sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'card' }));
-          expect(dataConnectionsModal().length).to.equal(1);
+          expect(dataConnectionsDialog().length).to.equal(1);
         });
       });
 
@@ -1518,7 +1518,7 @@ describe('Settings', () => {
           const store = mockStore(state);
           wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
-          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsDialog().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsWrapper().length).to.equal(1);
           expect(dataConnectionsWrapper().find(`#data-connection-${availableProviders[0]}`).hostNodes().length).to.equal(1);
@@ -1529,7 +1529,7 @@ describe('Settings', () => {
 
           sinon.assert.callCount(props.trackMetric, callCount + 1);
           sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'button' }));
-          expect(dataConnectionsModal().length).to.equal(1);
+          expect(dataConnectionsDialog().length).to.equal(1);
         });
       });
 
@@ -1553,7 +1553,7 @@ describe('Settings', () => {
           wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           // No modal or card
-          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsDialog().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsAddButton().length).to.equal(1);
           expect(dataConnectionsWrapper().length).to.equal(1);
