@@ -103,6 +103,7 @@ import {
   rpmReportConfigSchema,
   maxClinicPatientTags,
   maxWorkspaceClinicSites,
+  getPatientTags,
   timeInRangeFilterThresholds,
 } from '../../core/clinicUtils';
 
@@ -362,7 +363,7 @@ const PatientTags = ({
     horizontal: 'center',
   }), []);
 
-  const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
+  const resolvedPatientTags = getPatientTags(clinic, patient);
 
   const handleEditPatient = useCallback(() => {
     editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'tag list');
@@ -372,14 +373,14 @@ const PatientTags = ({
   const hasMrnError = !patient.mrn && clinic?.mrnSettings?.required;
   const addTagsBindTrigger = hasMrnError ? {} : bindTrigger(addPatientTagsPopupState); // if MRN error, do not pass bindTrigger
 
-  return !!filteredPatientTags.length ? (
+  return !!resolvedPatientTags.length ? (
     <TagList
       maxTagsVisible={4}
       maxCharactersVisible={12}
       popupId={`tags-overflow-${patient?.id}`}
       onClickEdit={handleEditPatient}
       tagProps={{ variant: 'compact' }}
-      tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
+      tags={resolvedPatientTags}
     />
   ) : (
     <Box onClick={event => event.stopPropagation()}>
@@ -2065,7 +2066,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicSitesDialog = useCallback(() => {
-    const orderedSites = clinic?.sites?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedSites = utils.sortByLabel(clinic?.sites);
 
     return (
       <Dialog
@@ -2244,7 +2245,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
-    const orderedTags = clinic?.patientTags?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedTags = utils.sortByLabel(clinic?.patientTags);
 
     return (
       <Dialog

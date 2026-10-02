@@ -33,7 +33,7 @@ const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, onClose = noo
     print(enrichedOpts);
   };
 
-  const { latestDatumByType, timePrefs } = modalData;
+  const { latestDatumByType, timePrefs, patientTags, sites } = modalData;
 
   const isLoading = !latestDatumByType || !timePrefs;
 
@@ -53,6 +53,8 @@ const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, onClose = noo
       onClickPrint={handleClickPrint}
       processing={!canPrint || isProcessing}
       timePrefs={timePrefs}
+      patientTags={patientTags}
+      sites={sites}
     />
   );
 };
