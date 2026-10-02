@@ -1,4 +1,4 @@
-import { buildGetTideDashboardPatientsParams, tideDashboardExclusionQuery } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardApi';
+import { buildGetTideDashboardPatientsParams, getDefaultSort, tideDashboardExclusionQuery } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardApi';
 import { CATEGORY } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
 describe ('tideDashboardApi', () => {
@@ -93,6 +93,8 @@ describe ('tideDashboardApi', () => {
         sites: 'siteId1,siteId2',
         'cgm.timeInAnyLowPercent': '>=0.035',
         'cgm.timeInVeryLowPercent': '<0.005',
+        sort: '-timeInAnyLowPercent',
+        sortType: 'cgm',
       });
     });
 
@@ -116,6 +118,8 @@ describe ('tideDashboardApi', () => {
         sites: undefined,
         'cgm.timeInAnyLowPercent': '>=0.035',
         'cgm.timeInVeryLowPercent': '<0.005',
+        sort: '-timeInAnyLowPercent',
+        sortType: 'cgm',
       });
     });
   });
