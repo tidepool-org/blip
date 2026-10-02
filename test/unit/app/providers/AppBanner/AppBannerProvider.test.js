@@ -107,7 +107,7 @@ describe('AppBannerProvider', () => {
     useGetMfaStatusQuery.mockReturnValue({ data: undefined });
     // Default: full clinician roster not fetched; sole-admin calc falls back to clinic.clinicians.
     useGetCliniciansForClinicQuery.mockClear();
-    useGetCliniciansForClinicQuery.mockReturnValue({ data: undefined });
+    useGetCliniciansForClinicQuery.mockReturnValue({ data: undefined, currentData: undefined });
 
     store = mockStore(initialState);
   });
@@ -886,12 +886,39 @@ describe('AppBannerProvider', () => {
       // clinic.clinicians still holds only the viewer (sole admin), but the fetched roster shows
       // multiple admins, so the exemption resolves false and the banner appears without navigation.
       useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
-      useGetCliniciansForClinicQuery.mockReturnValue({
-        data: [{ roles: ['CLINIC_ADMIN'] }, { roles: ['CLINIC_ADMIN'] }],
-      });
+      const roster = [{ roles: ['CLINIC_ADMIN'] }, { roles: ['CLINIC_ADMIN'] }];
+      useGetCliniciansForClinicQuery.mockReturnValue({ data: roster, currentData: roster });
       const contextData = renderAt(makeState({ clinicians: { clinician1: { roles: ['CLINIC_ADMIN'] } } }));
       expect(contextData.hasBanner).toBe(true);
       expect(contextData.banner.id).toEqual('enable2fa');
+    });
+
+    it('ignores a previously viewed clinic\'s roster when the query is skipped for the selected clinic', () => {
+      // Switching back from a sole-admin workspace leaves that clinic's roster on the hook's data
+      // field. The selected clinic already shows two admins, so the query is skipped and the
+      // exemption must come from clinic.clinicians, not the stale roster.
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      useGetCliniciansForClinicQuery.mockReturnValue({
+        data: [{ roles: ['CLINIC_ADMIN'] }],
+        currentData: undefined,
+      });
+      const contextData = renderAt(makeState());
+      expect(useGetCliniciansForClinicQuery).toHaveBeenLastCalledWith('clinic1', { skip: true });
+      expect(contextData.hasBanner).toBe(true);
+      expect(contextData.banner.id).toEqual('enable2fa');
+    });
+
+    it('ignores a previously viewed clinic\'s roster while the selected clinic\'s roster is in flight', () => {
+      // The stale roster shows two admins while the sole admin of the selected clinic is fetching
+      // their own roster; the exemption holds until that fetch resolves.
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      useGetCliniciansForClinicQuery.mockReturnValue({
+        data: [{ roles: ['CLINIC_ADMIN'] }, { roles: ['CLINIC_ADMIN'] }],
+        currentData: undefined,
+      });
+      const contextData = renderAt(makeState({ clinicians: { clinician1: { roles: ['CLINIC_ADMIN'] } } }));
+      expect(useGetCliniciansForClinicQuery).toHaveBeenLastCalledWith('clinic1', { skip: false });
+      expect(contextData.hasBanner).toBe(false);
     });
   });
 });

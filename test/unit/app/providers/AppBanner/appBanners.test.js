@@ -252,6 +252,7 @@ describe('appBanners', () => {
     it('enable2fa should return object with the expected keys', () => {
       const props = getPropsForBanner('enable2fa');
       expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'dismiss']);
+      expect(props.action.trackInteraction).to.be.false;
     });
 
     it('enable2fa action handler dispatches a push to /profile with openMfaSetup location state', () => {

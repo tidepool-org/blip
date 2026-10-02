@@ -34,6 +34,7 @@ import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
+import { getPatientSites, getPatientTags } from '../../core/clinicUtils';
 import { getMostRecentDatumTimeByChartType, getStatsByChartType } from '../../core/dataViewUtils';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
@@ -42,14 +43,14 @@ import Trends from '../../components/chart/trends';
 import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
-import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
+import UploadLaunchDialog from '../../components/UploadLaunchDialog';
 import baseTheme from '../../themes/baseTheme';
 import { DesktopOnly, MobileOnly } from '../../components/mediaqueries';
 
 import Messages from '../../components/messages';
-import ChartDateRangeModal from '../../components/ChartDateRangeModal';
-import ChartDateModal from '../../components/ChartDateModal';
-import ExportModal from '../../components/ExportModal';
+import ChartDateRangeDialog from '../../components/ChartDateRangeDialog';
+import ChartDateDialog from '../../components/ChartDateDialog';
+import ExportDialog from '../../components/ExportDialog';
 import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
@@ -62,9 +63,9 @@ import Card from '../../components/elements/Card';
 import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
-import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../components/datasources/DataConnectionsDialog';
 import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, DIABETES_TYPES, MS_IN_MIN } from '../../core/constants';
-import PatientDataPrintModal from './PatientDataPrintModal';
+import PatientDataPrintDialog from './PatientDataPrintDialog';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 import { selectIsSmartOnFhirMode } from '../../core/selectors';
 
@@ -182,7 +183,7 @@ export const PatientDataClass = createReactClass({
       loading: true,
       transitioningChartType: false,
       timePrefs: {},
-      showUploadOverlay: false,
+      showUploadDialog: false,
     };
 
     return state;
@@ -260,8 +261,8 @@ export const PatientDataClass = createReactClass({
 
   renderNoData: function() {
     const { t, currentPatientInViewId, isUserPatient, selectedClinicId } = this.props;
-    const uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
-    const dataConnectionsModal = this.state.showDataConnectionsModal ? this.renderDataConnectionsModal() : null;
+    const uploadLaunchDialog = this.state.showUploadDialog ? this.renderUploadDialog() : null;
+    const dataConnectionsDialog = this.state.showDataConnectionsDialog ? this.renderDataConnectionsDialog() : null;
 
     const self = this;
 
@@ -274,7 +275,7 @@ export const PatientDataClass = createReactClass({
       const properties = { patientID: currentPatientInViewId };
       if (selectedClinicId) properties.clinicId = selectedClinicId;
       self.props.trackMetric('Clicked No Data Upload Card', properties);
-      self.setState({showUploadOverlay: true});
+      self.setState({showUploadDialog: true});
       launchCustomProtocol('tidepoolupload://open');
     };
 
@@ -282,7 +283,7 @@ export const PatientDataClass = createReactClass({
       const properties = { patientID: currentPatientInViewId };
       if (selectedClinicId) properties.clinicId = selectedClinicId;
       self.props.trackMetric('Clicked No Data Data Connections Card', properties);
-      self.setState({showDataConnectionsModal: true});
+      self.setState({showDataConnectionsDialog: true});
     };
 
     const handleShare = function() {
@@ -368,27 +369,27 @@ export const PatientDataClass = createReactClass({
           </Flex>
         </Box>
 
-        {uploadLaunchOverlay}
-        {dataConnectionsModal}
+        {uploadLaunchDialog}
+        {dataConnectionsDialog}
       </Box>
     );
   },
 
-  renderUploadOverlay: function() {
-    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({ showUploadOverlay: false })}}/>
+  renderUploadDialog: function() {
+    return <UploadLaunchDialog open onClose={()=>{this.setState({ showUploadDialog: false })}}/>
   },
 
-  renderDataConnectionsModal: function() {
-    return <DataConnectionsModal
+  renderDataConnectionsDialog: function() {
+    return <DataConnectionsDialog
       open
       patient={this.props.clinicPatient || this.props.patient}
-      onClose={() => this.setState({ showDataConnectionsModal: false })}
+      onClose={() => this.setState({ showDataConnectionsDialog: false })}
     />
   },
 
   renderDatesDialog: function() {
     const isDaily = this.state.chartType === 'daily';
-    const DatePickerComponent = isDaily ? ChartDateModal : ChartDateRangeModal;
+    const DatePickerComponent = isDaily ? ChartDateDialog : ChartDateRangeDialog;
     const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
 
     const extraProps = isDaily ? {
@@ -447,7 +448,7 @@ export const PatientDataClass = createReactClass({
 
   renderExportDialog: function() {
     return (
-      <ExportModal
+      <ExportDialog
         id="export-dialog"
         api={this.props.api}
         open={this.state.exportDialogOpen}
@@ -462,7 +463,7 @@ export const PatientDataClass = createReactClass({
     if (!this.state.printDialogOpen) return null;
 
     return (
-      <PatientDataPrintModal
+      <PatientDataPrintDialog
         api={this.props.api}
         patientId={this.props.currentPatientInViewId}
         chartPrefs={this.state.chartPrefs}
@@ -563,7 +564,11 @@ export const PatientDataClass = createReactClass({
             isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
-      case 'daily':
+      case 'daily': {
+        const manufacturer = this.getMetaData('latestPumpUpload.manufacturer', '');
+        const siteChangeSource = vizUtils.aggregation.getSiteChangeSource(this.getSiteChangePatient(), manufacturer);
+        const siteChangeSourceLabel = vizUtils.aggregation.getSiteChangeSourceLabel(siteChangeSource, manufacturer);
+
         return (
           <Daily
             addingData={this.props.addingData}
@@ -580,6 +585,8 @@ export const PatientDataClass = createReactClass({
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
+            siteChangeSource={siteChangeSource}
+            siteChangeSourceLabel={siteChangeSourceLabel}
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -595,6 +602,7 @@ export const PatientDataClass = createReactClass({
             isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
+      }
       case 'trends':
         return (
           <Trends
@@ -1184,8 +1192,8 @@ export const PatientDataClass = createReactClass({
     // If the user makes a change to the site change source settings,
     // we should remove the currently generated PDF, which will trigger a rebuild of
     // the PDF with the updated settings.
-    const settingsSiteChangeSource = _.get(this.props, 'patient.settings.siteChangeSource');
-    if (settings.siteChangeSource && settings.siteChangeSource !== settingsSiteChangeSource) {
+    const currentSiteChangeSource = this.state.updatedSiteChangeSource || _.get(this.props, 'patient.settings.siteChangeSource');
+    if (settings.siteChangeSource && settings.siteChangeSource !== currentSiteChangeSource) {
       this.setState({ updatedSiteChangeSource: settings.siteChangeSource }, this.props.removeGeneratedPDFS);
     }
   },
@@ -1275,9 +1283,20 @@ export const PatientDataClass = createReactClass({
         latestPumpUpload,
       ),
       aggregationsByDate,
-      this.props.patient,
+      this.getSiteChangePatient(),
       manufacturer
     );
+  },
+
+  // Patient with an unsaved Basics site-change pick applied (care-team members can't persist it)
+  getSiteChangePatient: function() {
+    return {
+      ...this.props.patient,
+      settings: {
+        ...this.props.patient?.settings,
+        siteChangeSource: this.state.updatedSiteChangeSource || this.props.patient?.settings?.siteChangeSource,
+      },
+    };
   },
 
   getAggregationsByChartType: function(chartType = this.state.chartType) {
@@ -1334,18 +1353,10 @@ export const PatientDataClass = createReactClass({
     const diagnosisType = clinicPatient?.diagnosisType || patient?.profile?.patient?.diagnosisType;
     const diagnosisTypeLabel = DIABETES_TYPES().find(t => t.value === diagnosisType)?.label; // eslint-disable-line new-cap
 
-    // Tags
-    const patientTagIds = clinicPatient?.tags || [];
-    const patientTags = clinic?.patientTags?.filter(tag => patientTagIds.includes(tag.id)) || [];
-
-    // Sites
-    const patientSiteIds = clinicPatient?.sites?.map(s => s.id) || [];
-    const sites = clinic?.sites?.filter(site => patientSiteIds.includes(site.id)) || [];
-
     return {
       diagnosisTypeLabel,
-      patientTags: isClinicianAccount ? patientTags : [],
-      sites: isClinicianAccount ? sites: [],
+      patientTags: isClinicianAccount ? getPatientTags(clinic, clinicPatient) : [],
+      sites: isClinicianAccount ? getPatientSites(clinic, clinicPatient) : [],
     };
   },
 

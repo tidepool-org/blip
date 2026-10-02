@@ -1,5 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
+import filter from 'lodash/filter';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import keys from 'lodash/keys';
@@ -10,6 +11,7 @@ import countries from 'i18n-iso-countries';
 import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
+import utils from './utils';
 import { timezoneNames } from './validation/timezoneNames';
 
 import { glycemicRangesSchema } from './glycemicRangesUtils';
@@ -87,6 +89,17 @@ export const summaryPeriodOptions = [
   { value: '30d', label: t('30 days') },
 ];
 
+export const timeInRangeFilterThresholds = {
+  timeInVeryLowPercent: { value: 1, comparator: '>' },
+  timeInLowPercent: { value: 4, comparator: '>' },
+  timeInAnyLowPercent: { value: 4, comparator: '>' },
+  timeInTargetPercent: { value: 70, comparator: '<' },
+  timeInHighPercent: { value: 25, comparator: '>' },
+  timeInAnyHighPercent: { value: 25, comparator: '>' },
+  timeInVeryHighPercent: { value: 5, comparator: '>' },
+  timeInExtremeHighPercent: { value: 1, comparator: '>' },
+};
+
 export const timezoneOptions = map(
   timezoneNames,
   name => ({ value: name, label: name })
@@ -94,6 +107,16 @@ export const timezoneOptions = map(
 
 export const maxClinicPatientTags = 50;
 export const maxWorkspaceClinicSites = 50;
+
+// The clinic patient's tags and sites resolved against the clinic catalogue, sorted alphabetically by name.
+// Ids no longer in the catalogue are dropped.
+export const getPatientTags = (clinic, clinicPatient) =>
+  utils.sortByLabel(filter(clinic?.patientTags, ({ id }) => includes(clinicPatient?.tags, id)));
+
+export const getPatientSites = (clinic, clinicPatient) => {
+  const siteIds = map(clinicPatient?.sites, 'id');
+  return utils.sortByLabel(filter(clinic?.sites, ({ id }) => includes(siteIds, id)));
+};
 
 export const clinicPlansNames = {
   base: t('Base'),

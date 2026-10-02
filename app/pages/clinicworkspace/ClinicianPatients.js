@@ -219,7 +219,7 @@ export const ClinicianPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
+          <Trans i18nKey="html.peopletable-remove-patient-confirm">
             <Body1>
               Are you sure you want to remove patient: {{fullName}} from your list?
             </Body1>
@@ -230,7 +230,7 @@ export const ClinicianPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="patientRemoveCancel" variant="secondary" onClick={handleCloseOverlay}>
+          <Button id="patientRemoveCancel" variant="textSecondary" onClick={handleCloseOverlay}>
             {t('Cancel')}
           </Button>
           <Button
@@ -262,7 +262,7 @@ export const ClinicianPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="addPatientCancel" variant="secondary" onClick={handleCloseOverlay}>
+          <Button id="addPatientCancel" variant="textSecondary" onClick={handleCloseOverlay}>
             {t('Cancel')}
           </Button>
           <Button
@@ -296,7 +296,7 @@ export const ClinicianPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="editPatientCancel" variant="secondary" onClick={handleCloseOverlay}>
+          <Button id="editPatientCancel" variant="textSecondary" onClick={handleCloseOverlay}>
             {t('Cancel')}
           </Button>
 
