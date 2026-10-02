@@ -254,8 +254,8 @@ describe('TideDashboardV2', () => {
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time < 70/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
@@ -273,8 +273,8 @@ describe('TideDashboardV2', () => {
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time < 70/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
@@ -290,8 +290,8 @@ describe('TideDashboardV2', () => {
     expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
@@ -309,10 +309,10 @@ describe('TideDashboardV2', () => {
     expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time > 180/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
@@ -328,10 +328,10 @@ describe('TideDashboardV2', () => {
     expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time > 180/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
@@ -348,8 +348,8 @@ describe('TideDashboardV2', () => {
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
@@ -363,10 +363,11 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Meeting Targets Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low CGM Wear Patient 1')).not.toBeInTheDocument();
 
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(9);
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
