@@ -144,11 +144,13 @@ function renderWithCompat(ui, options = {}) {
   };
 }
 
-function mockPumpSettingsContainer({
-  copySettingsClicked,
-  toggleSettingsSection,
-  view,
-}) {
+let pumpSettingsContainerProps = [];
+
+function mockPumpSettingsContainer(props) {
+  pumpSettingsContainerProps.push(props);
+
+  const { copySettingsClicked, toggleSettingsSection, view } = props;
+
   return (
     <div className="pump-settings-container">
       <button
@@ -285,6 +287,8 @@ describe('Settings', () => {
   });
 
   beforeEach(() => {
+    pumpSettingsContainerProps = [];
+
     mockUseHistory.mockReturnValue({
       location: { query: {}, pathname: '/settings' },
       replace: sinon.stub(),
@@ -534,6 +538,64 @@ describe('Settings', () => {
       sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', {
         source: 'Device Settings',
       });
+    });
+  });
+
+  describe('copy-as-text props forwarded to PumpSettingsContainer', () => {
+    const settingsData = {
+      data: {
+        combined: [
+          {
+            type: 'pumpSettings',
+            normalTime: '2023-01-01T00:00:00Z',
+            source: 'source1',
+            id: 'id1',
+          },
+        ],
+      },
+      timePrefs: { timezoneName: 'UTC' },
+    };
+
+    const metaData = {
+      devices: [{ id: 'source1-id', deviceName: 'Tandem t:slim X2' }],
+      matchedDevices: { 'source1-id': true },
+    };
+
+    const containerProps = () => _.last(pumpSettingsContainerProps);
+
+    it('should pass copyAsTextMetadata through unchanged', () => {
+      const copyAsTextMetadata = {
+        diagnosisTypeLabel: 'Type 1 diabetes',
+        patientTags: [{ id: 'tag1', name: 'Tag 1' }],
+        sites: [{ id: 'site1', name: 'Site 1' }],
+      };
+
+      mountWrapper({ copyAsTextMetadata, data: settingsData });
+
+      expect(containerProps().copyAsTextMetadata).to.eql(copyAsTextMetadata);
+    });
+
+    it('should pass the patient prop through, including the merged mrn', () => {
+      const patientWithMrn = _.merge({}, patient, {
+        profile: { patient: { mrn: 'mrn123' } },
+      });
+
+      mountWrapper({ patient: patientWithMrn, data: settingsData });
+
+      expect(containerProps().patient).to.eql(patientWithMrn);
+      expect(containerProps().patient.profile.patient.mrn).to.equal('mrn123');
+    });
+
+    it('should map data.metaData onto the metaData prop', () => {
+      mountWrapper({ data: { ...settingsData, metaData } });
+
+      expect(containerProps().metaData).to.eql(metaData);
+    });
+
+    it('should pass an empty object as metaData when data carries none', () => {
+      mountWrapper({ data: settingsData });
+
+      expect(containerProps().metaData).to.eql({});
     });
   });
 

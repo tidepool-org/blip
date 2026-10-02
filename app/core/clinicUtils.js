@@ -1,5 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
+import filter from 'lodash/filter';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import keys from 'lodash/keys';
@@ -10,6 +11,7 @@ import countries from 'i18n-iso-countries';
 import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
+import utils from './utils';
 import { timezoneNames } from './validation/timezoneNames';
 
 import { glycemicRangesSchema } from './glycemicRangesUtils';
@@ -106,6 +108,16 @@ export const timezoneOptions = map(
 export const maxClinicPatientTags = 50;
 export const maxWorkspaceClinicSites = 50;
 
+// The clinic patient's tags and sites resolved against the clinic catalogue, sorted alphabetically by name.
+// Ids no longer in the catalogue are dropped.
+export const getPatientTags = (clinic, clinicPatient) =>
+  utils.sortByLabel(filter(clinic?.patientTags, ({ id }) => includes(clinicPatient?.tags, id)));
+
+export const getPatientSites = (clinic, clinicPatient) => {
+  const siteIds = map(clinicPatient?.sites, 'id');
+  return utils.sortByLabel(filter(clinic?.sites, ({ id }) => includes(siteIds, id)));
+};
+
 export const clinicPlansNames = {
   base: t('Base'),
   activeSalesBase: t('Base'),
@@ -154,6 +166,7 @@ export const clinicTierDetails = (clinic = {}) => {
     patientTags: false,
     clinicSites: false,
     prescriptions: false,
+    exportPatientList: false,
   };
 
   const display = {
@@ -193,34 +206,35 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0200: {
       planName: 'essential',
+      entitlements: { ...entitlements, exportPatientList: true },
     },
     tier0201: {
       planName: 'essential',
-      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true, exportPatientList: true },
     },
     tier0202: {
       planName: 'professional',
-      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true, exportPatientList: true },
     },
     tier0300: {
       planName: 'professional',
-      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true, exportPatientList: true },
     },
     tier0301: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true, exportPatientList: true },
     },
     tier0302: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, exportPatientList: true },
     },
     tier0303: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true, exportPatientList: true },
     },
     tier0400: {
       planName: 'enterprise',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true, exportPatientList: true },
     },
   };
 
