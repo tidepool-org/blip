@@ -17,9 +17,6 @@ const { Loader } = vizComponents;
 import { trackMetric } from '../core/metricUtils';
 
 import Button from './elements/Button';
-import Checkbox from './elements/Checkbox';
-import SelectTags from './clinic/PatientForm/SelectTags';
-import SelectSites from './clinic/PatientForm/SelectSites';
 import DateRangePicker from './elements/DateRangePicker';
 import {
   Dialog,
@@ -43,64 +40,6 @@ const {
 } = vizUtils.datetime;
 
 const t = i18next.t.bind(i18next);
-
-// The select renders this many chips before collapsing the remainder into a "+N". Everything
-// selected is still exported.
-const maxVisibleChips = 20;
-
-// One selection panel's body: the "Export all" checkbox plus the multi-select the Edit Patient
-// Details form uses, scoped to what the patient actually has.
-export const SelectionPanelContent = ({ panel, selectedIds, onChangeIds }) => {
-  const isAllSelected = selectedIds.length === panel.items.length;
-
-  const handleToggleAll = event => onChangeIds(event.target.checked ? map(panel.items, 'id') : []);
-
-  return (
-    <Box id={`${panel.key}-content`}>
-      <Checkbox
-        id={`export-all-${panel.key}`}
-        name={`export-all-${panel.key}`}
-        label={panel.exportAllLabel}
-        checked={isAllSelected}
-        onChange={handleToggleAll}
-      />
-
-      <Body0 mt={3} mb={2}>{panel.selectLabel}</Body0>
-
-      {panel.key === 'tags' ? (
-        <SelectTags
-          options={panel.items}
-          maxVisibleValues={maxVisibleChips}
-          menuPlacement="auto"
-          currentTagIds={selectedIds}
-          onChange={onChangeIds}
-        />
-      ) : (
-        <SelectSites
-          options={panel.items}
-          maxVisibleValues={maxVisibleChips}
-          menuPlacement="auto"
-          currentSites={filter(panel.items, ({ id }) => selectedIds.includes(id))}
-          onChange={sites => onChangeIds(map(sites, 'id'))}
-        />
-      )}
-    </Box>
-  );
-};
-
-SelectionPanelContent.propTypes = {
-  panel: PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    exportAllLabel: PropTypes.string.isRequired,
-    selectLabel: PropTypes.string.isRequired,
-    items: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-    })).isRequired,
-  }).isRequired,
-  selectedIds: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onChangeIds: PropTypes.func.isRequired,
-};
 
 export const MainContent = (props) => {
   const {
@@ -220,11 +159,11 @@ export const MainContent = (props) => {
     },
     expandedPanel: 'basics',
     selections: {
-      tags: { enabled: true, ids: map(patientTags, 'id') },
-      clinicSites: { enabled: true, ids: map(sites, 'id') },
+      tags: { enabled: true },
+      clinicSites: { enabled: true },
     },
     submitted: false,
-  }), [mostRecentDatumDates, patientTags, sites]);
+  }), [mostRecentDatumDates]);
 
   const [dates, setDates] = useState(defaults.dates);
   const [enabled, setEnabled] = useLocalStorage(enabledChartsLocalKey, defaults.enabled, true);
@@ -309,16 +248,14 @@ export const MainContent = (props) => {
         key: 'tags',
         optsKey: 'tagSelection',
         items: patientTags,
-        exportAllLabel: t('Export all Tags ({{max}} tags max)', { max: maxClinicPatientTags }),
-        selectLabel: t('Or select from your tags'),
+        caption: t('{{max}} tags max', { max: maxClinicPatientTags }),
       },
       {
         header: t('Clinic Sites'),
         key: 'clinicSites',
         optsKey: 'clinicSiteSelection',
         items: sites,
-        exportAllLabel: t('Export all patient clinic sites ({{max}} sites max)', { max: maxWorkspaceClinicSites }),
-        selectLabel: t('Or select from your clinic sites'),
+        caption: t('{{max}} clinic sites max', { max: maxWorkspaceClinicSites }),
       },
     ], ({ items }) => !!items.length),
   ];
@@ -338,10 +275,6 @@ export const MainContent = (props) => {
   const handleClickPreset = (key, days, presetIndex) => {
     setDates({ ...dates, [key]: getLastNDays(days, key) });
     setRangePresets({ ...rangePresets, [key]: presetIndex })
-  };
-
-  const handleSelectionIdsChange = (key, ids) => {
-    setSelections(selections => ({ ...selections, [key]: { ...selections[key], ids } }));
   };
 
   const handleSplitDatesChange = (newDates, chartType = 'basics') => {
@@ -405,15 +338,10 @@ export const MainContent = (props) => {
     const selectionPanels = filter(panels, 'items');
 
     forEach(selectionPanels, ({ key, optsKey }) => {
-      printOpts[optsKey] = { ...selections[key] };
+      printOpts[optsKey] = { enabled: selections[key].enabled };
     });
 
-    const getSelectionMetric = ({ key, items }) => {
-      const selection = selections[key];
-      if (!selection.enabled) return 'disabled';
-
-      return selection.ids.length === items.length ? 'all' : 'partial';
-    };
+    const getSelectionMetric = ({ key }) => (selections[key].enabled ? 'enabled' : 'disabled');
 
     const getDateRangeMetric = (presets, chartType) => {
       const matches = filter(
@@ -514,11 +442,7 @@ export const MainContent = (props) => {
               </Flex>
 
               {isSelectionPanel && isEnabled && (
-                <SelectionPanelContent
-                  panel={panel}
-                  selectedIds={selections[panel.key].ids}
-                  onChangeIds={ids => handleSelectionIdsChange(panel.key, ids)}
-                />
+                <Body0 id={`${panel.key}-content`}>{panel.caption}</Body0>
               )}
 
               {enabled[panel.key] && panel.daysOptions && (
