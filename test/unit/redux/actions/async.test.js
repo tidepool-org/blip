@@ -9398,8 +9398,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId, tideDashboardFilters: undefined } },
           { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
@@ -9486,8 +9485,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId, tideDashboardFilters: undefined } },
           {
             type: 'SET_CLINIC_UI_DETAILS',
             payload: {
@@ -9574,8 +9572,7 @@ describe('Actions', () => {
         settingsErr.status = 500;
 
         let expectedActions = [
-          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId, tideDashboardFilters: undefined } },
           { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
@@ -9609,15 +9606,15 @@ describe('Actions', () => {
 
         const actions = store.getActions();
 
-        expect(actions[4].error).to.deep.include({
+        expect(actions[3].error).to.deep.include({
           message: ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNTS,
         });
-        expectedActions[4].error = actions[4].error;
+        expectedActions[3].error = actions[3].error;
 
-        expect(actions[5].error).to.deep.include({
+        expect(actions[4].error).to.deep.include({
           message: ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS,
         });
-        expectedActions[5].error = actions[5].error;
+        expectedActions[4].error = actions[4].error;
         expect(actions).to.eql(expectedActions);
 
         expect(api.clinics.getClinicPatientCount.callCount).to.equal(1);
