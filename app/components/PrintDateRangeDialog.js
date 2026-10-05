@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
-import fromPairs from 'lodash/fromPairs';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
@@ -159,8 +158,8 @@ export const MainContent = (props) => {
     },
     expandedPanel: 'basics',
     selections: {
-      tags: { enabled: true },
-      clinicSites: { enabled: true },
+      tags: true,
+      clinicSites: true,
     },
     submitted: false,
   }), [mostRecentDatumDates]);
@@ -335,13 +334,12 @@ export const MainContent = (props) => {
       settings: { disabled: !enabled.settings },
     };
 
-    const selectionPanels = filter(panels, 'items');
+    const selectionMetrics = {};
 
-    forEach(selectionPanels, ({ key, optsKey }) => {
-      printOpts[optsKey] = { enabled: selections[key].enabled };
+    forEach(filter(panels, 'items'), ({ key, optsKey }) => {
+      printOpts[optsKey] = { enabled: selections[key] };
+      selectionMetrics[key] = selections[key] ? 'enabled' : 'disabled';
     });
-
-    const getSelectionMetric = ({ key }) => (selections[key].enabled ? 'enabled' : 'disabled');
 
     const getDateRangeMetric = (presets, chartType) => {
       const matches = filter(
@@ -360,7 +358,7 @@ export const MainContent = (props) => {
       bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.bgLog, 'bgLog'),
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
       settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
-      ...fromPairs(map(selectionPanels, panel => [panel.key, getSelectionMetric(panel)])),
+      ...selectionMetrics,
     };
 
     trackMetric('Submitted Print Options', metrics);
@@ -398,14 +396,11 @@ export const MainContent = (props) => {
       <DialogContent minWidth={766} pt={3} px={3}>
         {map(panels, panel => {
           const isSelectionPanel = !!panel.items;
-          const isEnabled = isSelectionPanel ? selections[panel.key].enabled : enabled[panel.key];
+          const isEnabled = isSelectionPanel ? selections[panel.key] : enabled[panel.key];
           const hasBody = isEnabled && (isSelectionPanel || !!panel.daysOptions);
 
           const handleToggle = () => (isSelectionPanel
-            ? setSelections(prev => ({
-              ...prev,
-              [panel.key]: { ...prev[panel.key], enabled: !prev[panel.key].enabled },
-            }))
+            ? setSelections(prev => ({ ...prev, [panel.key]: !prev[panel.key] }))
             : setEnabled({ ...enabled, [panel.key]: !isEnabled })
           );
 

@@ -74,7 +74,7 @@ export const getPdfOpts = (printOpts, user, patient, clinicPatient, clinic) => {
 
   const toIdAndName = item => pick(item, ['id', 'name']);
 
-  const exportedItems = (items, selection) => (selection?.enabled === false ? [] : map(items, toIdAndName));
+  const exportedItems = (items, selection) => (selection && !selection.enabled ? [] : map(items, toIdAndName));
 
   return {
     ...printOpts,

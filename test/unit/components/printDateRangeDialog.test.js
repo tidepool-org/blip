@@ -361,6 +361,18 @@ describe('PrintDateRangeDialog', function () {
       expect(props.onClickPrint.getCall(0).args[0].clinicSiteSelection).to.eql({ enabled: false });
     });
 
+    it('should reset both toggles to on when the dialog is reopened', () => {
+      renderWith();
+      fireEvent.click(get('input[name="enabled-tags"]'));
+      expect(get('input[name="enabled-tags"]').checked).to.be.false;
+
+      rendered.rerender(<PrintDateRangeDialog {...props} patientTags={patientTags} sites={sites} open={false} />);
+      rendered.rerender(<PrintDateRangeDialog {...props} patientTags={patientTags} sites={sites} open />);
+
+      expect(get('input[name="enabled-tags"]').checked).to.be.true;
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.true;
+    });
+
     it('should not write the new panels into the persisted enabled map', () => {
       renderWith();
       fireEvent.click(get('input[name="enabled-tags"]'));
