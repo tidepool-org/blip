@@ -81,6 +81,7 @@ describe('Actions', () => {
           patientTags: false,
           clinicSites: false,
           prescriptions: false,
+          exportPatientList: false,
           rpmReport: false,
           summaryDashboard: false,
           tideDashboard: false,
