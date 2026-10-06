@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
 import { thunk } from 'redux-thunk';
 
 import ClinicPatientsPrintDialog from '@app/pages/clinicworkspace/ClinicPatientsPrintDialog';
@@ -18,13 +17,9 @@ describe('ClinicPatientsPrintDialog', () => {
   const patientId = 'patient123';
   const mockPrint = jest.fn();
 
-  const selectedClinicId = 'clinic123';
-
   const defaultStoreState = {
     blip: {
       loggedInUserId: 'clinician123',
-      selectedClinicId,
-      clinics: { [selectedClinicId]: { id: selectedClinicId, patientTags: [], sites: [] } },
     },
   };
 
@@ -35,11 +30,9 @@ describe('ClinicPatientsPrintDialog', () => {
   const renderComponent = (props = {}) => {
     return render(
       <Provider store={store}>
-        <MemoryRouter>
-          <ToastProvider>
-            <ClinicPatientsPrintDialog {...defaultProps} {...props} />
-          </ToastProvider>
-        </MemoryRouter>
+        <ToastProvider>
+          <ClinicPatientsPrintDialog {...defaultProps} {...props} />
+        </ToastProvider>
       </Provider>
     );
   };
@@ -130,8 +123,8 @@ describe('ClinicPatientsPrintDialog', () => {
 
       wrapper = renderComponent();
 
-      expect(document.body.querySelector('.PatientFormSelectTags__multi-value__label')).toHaveTextContent('A tag');
-      expect(document.body.querySelector('.PatientFormSelectSites__multi-value__label')).toHaveTextContent('A site');
+      expect(document.body.querySelector('#tags-header')).toBeInTheDocument();
+      expect(document.body.querySelector('#clinicSites-header')).toBeInTheDocument();
     });
   });
 });

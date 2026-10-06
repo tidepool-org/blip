@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
-import fromPairs from 'lodash/fromPairs';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
@@ -17,9 +16,6 @@ const { Loader } = vizComponents;
 import { trackMetric } from '../core/metricUtils';
 
 import Button from './elements/Button';
-import Checkbox from './elements/Checkbox';
-import SelectTags from './clinic/PatientForm/SelectTags';
-import SelectSites from './clinic/PatientForm/SelectSites';
 import DateRangePicker from './elements/DateRangePicker';
 import {
   Dialog,
@@ -43,64 +39,6 @@ const {
 } = vizUtils.datetime;
 
 const t = i18next.t.bind(i18next);
-
-// The select renders this many chips before collapsing the remainder into a "+N". Everything
-// selected is still exported.
-const maxVisibleChips = 20;
-
-// One selection panel's body: the "Export all" checkbox plus the multi-select the Edit Patient
-// Details form uses, scoped to what the patient actually has.
-export const SelectionPanelContent = ({ panel, selectedIds, onChangeIds }) => {
-  const isAllSelected = selectedIds.length === panel.items.length;
-
-  const handleToggleAll = event => onChangeIds(event.target.checked ? map(panel.items, 'id') : []);
-
-  return (
-    <Box id={`${panel.key}-content`}>
-      <Checkbox
-        id={`export-all-${panel.key}`}
-        name={`export-all-${panel.key}`}
-        label={panel.exportAllLabel}
-        checked={isAllSelected}
-        onChange={handleToggleAll}
-      />
-
-      <Body0 mt={3} mb={2}>{panel.selectLabel}</Body0>
-
-      {panel.key === 'tags' ? (
-        <SelectTags
-          options={panel.items}
-          maxVisibleValues={maxVisibleChips}
-          menuPlacement="auto"
-          currentTagIds={selectedIds}
-          onChange={onChangeIds}
-        />
-      ) : (
-        <SelectSites
-          options={panel.items}
-          maxVisibleValues={maxVisibleChips}
-          menuPlacement="auto"
-          currentSites={filter(panel.items, ({ id }) => selectedIds.includes(id))}
-          onChange={sites => onChangeIds(map(sites, 'id'))}
-        />
-      )}
-    </Box>
-  );
-};
-
-SelectionPanelContent.propTypes = {
-  panel: PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    exportAllLabel: PropTypes.string.isRequired,
-    selectLabel: PropTypes.string.isRequired,
-    items: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-    })).isRequired,
-  }).isRequired,
-  selectedIds: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onChangeIds: PropTypes.func.isRequired,
-};
 
 export const MainContent = (props) => {
   const {
@@ -220,11 +158,11 @@ export const MainContent = (props) => {
     },
     expandedPanel: 'basics',
     selections: {
-      tags: { enabled: true, ids: map(patientTags, 'id') },
-      clinicSites: { enabled: true, ids: map(sites, 'id') },
+      tags: true,
+      clinicSites: true,
     },
     submitted: false,
-  }), [mostRecentDatumDates, patientTags, sites]);
+  }), [mostRecentDatumDates]);
 
   const [dates, setDates] = useState(defaults.dates);
   const [enabled, setEnabled] = useLocalStorage(enabledChartsLocalKey, defaults.enabled, true);
@@ -309,16 +247,14 @@ export const MainContent = (props) => {
         key: 'tags',
         optsKey: 'tagSelection',
         items: patientTags,
-        exportAllLabel: t('Export all Tags ({{max}} tags max)', { max: maxClinicPatientTags }),
-        selectLabel: t('Or select from your tags'),
+        caption: t('{{max}} tags max', { max: maxClinicPatientTags }),
       },
       {
         header: t('Clinic Sites'),
         key: 'clinicSites',
         optsKey: 'clinicSiteSelection',
         items: sites,
-        exportAllLabel: t('Export all patient clinic sites ({{max}} sites max)', { max: maxWorkspaceClinicSites }),
-        selectLabel: t('Or select from your clinic sites'),
+        caption: t('{{max}} clinic sites max', { max: maxWorkspaceClinicSites }),
       },
     ], ({ items }) => !!items.length),
   ];
@@ -338,10 +274,6 @@ export const MainContent = (props) => {
   const handleClickPreset = (key, days, presetIndex) => {
     setDates({ ...dates, [key]: getLastNDays(days, key) });
     setRangePresets({ ...rangePresets, [key]: presetIndex })
-  };
-
-  const handleSelectionIdsChange = (key, ids) => {
-    setSelections(selections => ({ ...selections, [key]: { ...selections[key], ids } }));
   };
 
   const handleSplitDatesChange = (newDates, chartType = 'basics') => {
@@ -402,18 +334,12 @@ export const MainContent = (props) => {
       settings: { disabled: !enabled.settings },
     };
 
-    const selectionPanels = filter(panels, 'items');
+    const selectionMetrics = {};
 
-    forEach(selectionPanels, ({ key, optsKey }) => {
-      printOpts[optsKey] = { ...selections[key] };
+    forEach(filter(panels, 'items'), ({ key, optsKey }) => {
+      printOpts[optsKey] = { enabled: selections[key] };
+      selectionMetrics[key] = selections[key] ? 'enabled' : 'disabled';
     });
-
-    const getSelectionMetric = ({ key, items }) => {
-      const selection = selections[key];
-      if (!selection.enabled) return 'disabled';
-
-      return selection.ids.length === items.length ? 'all' : 'partial';
-    };
 
     const getDateRangeMetric = (presets, chartType) => {
       const matches = filter(
@@ -432,7 +358,7 @@ export const MainContent = (props) => {
       bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.bgLog, 'bgLog'),
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
       settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
-      ...fromPairs(map(selectionPanels, panel => [panel.key, getSelectionMetric(panel)])),
+      ...selectionMetrics,
     };
 
     trackMetric('Submitted Print Options', metrics);
@@ -470,14 +396,11 @@ export const MainContent = (props) => {
       <DialogContent minWidth={766} pt={3} px={3}>
         {map(panels, panel => {
           const isSelectionPanel = !!panel.items;
-          const isEnabled = isSelectionPanel ? selections[panel.key].enabled : enabled[panel.key];
+          const isEnabled = isSelectionPanel ? selections[panel.key] : enabled[panel.key];
           const hasBody = isEnabled && (isSelectionPanel || !!panel.daysOptions);
 
           const handleToggle = () => (isSelectionPanel
-            ? setSelections(prev => ({
-              ...prev,
-              [panel.key]: { ...prev[panel.key], enabled: !prev[panel.key].enabled },
-            }))
+            ? setSelections(prev => ({ ...prev, [panel.key]: !prev[panel.key] }))
             : setEnabled({ ...enabled, [panel.key]: !isEnabled })
           );
 
@@ -514,11 +437,7 @@ export const MainContent = (props) => {
               </Flex>
 
               {isSelectionPanel && isEnabled && (
-                <SelectionPanelContent
-                  panel={panel}
-                  selectedIds={selections[panel.key].ids}
-                  onChangeIds={ids => handleSelectionIdsChange(panel.key, ids)}
-                />
+                <Body0 id={`${panel.key}-content`}>{panel.caption}</Body0>
               )}
 
               {enabled[panel.key] && panel.daysOptions && (
