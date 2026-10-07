@@ -1119,7 +1119,7 @@ export const PatientDataClass = createReactClass({
       returnData: false,
       showLoading: true,
       noDates: true,
-      type: 'pumpSettings,upload',
+      type: 'pumpSettings',
     });
 
     this.updateChart('settings');
@@ -1853,7 +1853,7 @@ export const PatientDataClass = createReactClass({
           returnData: false,
           showLoading: true,
           noDates: true,
-          type: 'pumpSettings,upload',
+          type: 'pumpSettings',
         });
       }
 

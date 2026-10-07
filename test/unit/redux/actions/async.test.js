@@ -3991,6 +3991,36 @@ describe('Actions', () => {
             'dosingDecision.reason': 'normalBolus,simpleBolus,watchBolus,oneButtonBolus',
           }).callCount).to.equal(1);
         });
+
+        it('should fetch all upload records without a date range', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, router: { location: { pathname: `data/${patientId}` } } });
+
+          api.patientData.get = sinon.stub().callsArgWith(2, null, patientData);
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          expect(api.patientData.get.withArgs(patientId, { type: 'upload' }).callCount).to.equal(1);
+          sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match.has('uploadId'));
+        });
+
+        it('should include all fetched upload records in the DATA_WORKER_ADD_DATA_REQUEST payload', () => {
+          api.patientData = {
+            get: sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, patientData)
+              .onThirdCall().callsArgWith(2, null, uploadRecord),
+          };
+
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, router: { location: { pathname: `data/${patientId}` } } });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
+          expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...uploadRecord, ...teamNotes]));
+        });
       });
 
       context('handleFetchSuccess', () => {
@@ -4000,12 +4030,9 @@ describe('Actions', () => {
 
         context('fetching data for current patient in view', () => {
           it('should trigger FETCH_PATIENT_DATA_SUCCESS and DATA_WORKER_ADD_DATA_REQUEST', () => {
-            options.getPumpSettingsUploadRecordById = 'upload123';
-
             api.patientData = {
               get: sinon.stub()
                 .onFirstCall().callsArgWith(2, null, patientData)
-                .onSecondCall().callsArgWith(2, null, [ uploadRecord ]),
             };
 
             let expectedActions = [
@@ -4015,8 +4042,8 @@ describe('Actions', () => {
                 type: 'DATA_WORKER_ADD_DATA_REQUEST',
                 meta: { WebWorker: true, worker: 'data', id: patientId },
                 payload: {
-                  data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
-                  fetchedCount: 6,
+                  data: JSON.stringify([...patientData, ...teamNotes]),
+                  fetchedCount: 5,
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   oneMinCgmFetchedUntil: undefined,
@@ -4037,6 +4064,7 @@ describe('Actions', () => {
             const actions = store.getActions();
             expect(actions).to.eql(expectedActions);
             expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.patientData.get.withArgs(patientId, { type: 'upload' }).callCount).to.equal(0);
             expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
           });
         });
@@ -4140,7 +4168,7 @@ describe('Actions', () => {
           expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to latest pump settings upload call returning error', () => {
+        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to upload records call returning error', () => {
           options.initial = true;
 
           api.patientData = {
@@ -4150,7 +4178,7 @@ describe('Actions', () => {
               .onThirdCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           };
 
-          let err = new Error(ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD);
+          let err = new Error(ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS);
           err.status = 500;
 
           let expectedActions = [
@@ -4170,7 +4198,7 @@ describe('Actions', () => {
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
+          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS });
           expectedActions[3].error = actions[3].error;
           expect(actions).to.eql(expectedActions);
           expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
