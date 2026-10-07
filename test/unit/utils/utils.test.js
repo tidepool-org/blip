@@ -904,4 +904,38 @@ describe('utils', () => {
       expect(arr).to.eql(['John', 'jOhn', 'john']);
     });
   });
+
+  describe('sortByLabel', function() {
+    it('Sorts by the name field, alphabetically, uppercase first and numerically', () => {
+      const tags = [{ name: 'Type 10' }, { name: 'Type 2' }, { name: 'apple' }, { name: 'Banana' }, { name: 'Apple' }];
+
+      expect(utils.sortByLabel(tags)).to.eql([
+        { name: 'Apple' },
+        { name: 'apple' },
+        { name: 'Banana' },
+        { name: 'Type 2' },
+        { name: 'Type 10' },
+      ]);
+    });
+
+    it('Sorts by the named key', () => {
+      const options = [{ label: 'Site 10' }, { label: 'Site 2' }];
+
+      expect(utils.sortByLabel(options, 'label')).to.eql([{ label: 'Site 2' }, { label: 'Site 10' }]);
+    });
+
+    it('Returns an empty array for empty and missing input', () => {
+      expect(utils.sortByLabel([])).to.eql([]);
+      expect(utils.sortByLabel(undefined)).to.eql([]);
+      expect(utils.sortByLabel(null)).to.eql([]);
+    });
+
+    it('Returns a new array and leaves the input untouched', () => {
+      const tags = [{ name: 'Zulu' }, { name: 'Alpha' }];
+      const sorted = utils.sortByLabel(tags);
+
+      expect(sorted).to.not.equal(tags);
+      expect(tags).to.eql([{ name: 'Zulu' }, { name: 'Alpha' }]);
+    });
+  });
 });

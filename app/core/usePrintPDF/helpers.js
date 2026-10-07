@@ -6,6 +6,7 @@ import utils from '../utils';
 import personUtils from '../personutils';
 import { getStatsByChartType } from '../dataViewUtils';
 import { DEFAULT_GLYCEMIC_RANGES } from '../glycemicRangesUtils';
+import { getPatientTags, getPatientSites } from '../clinicUtils';
 
 import {
   DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
@@ -19,6 +20,7 @@ import min from 'lodash/min';
 import at from 'lodash/at';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
+import pick from 'lodash/pick';
 
 export const getInitialFetchOpts = () => ({
   initial: true,
@@ -57,9 +59,10 @@ export const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
   };
 };
 
-export const getPdfOpts = (printOpts, user, patient, clinicPatient) => {
+export const getPdfOpts = (printOpts, user, patient, clinicPatient, clinic) => {
+  const isClinician = personUtils.isClinicianAccount(user);
   const combinedPatient = clinicPatient ? personUtils.combinedAccountAndClinicPatient(patient, clinicPatient) : null;
-  const sourcePatient = personUtils.isClinicianAccount(user) && !!combinedPatient ? combinedPatient : patient;
+  const sourcePatient = isClinician && !!combinedPatient ? combinedPatient : patient;
   const patientSettings = patient?.settings || {};
   const siteChangeSource = patient?.settings?.siteChangeSource;
 
@@ -69,7 +72,16 @@ export const getPdfOpts = (printOpts, user, patient, clinicPatient) => {
     settings: { ...patientSettings, siteChangeSource },
   };
 
-  return { ...printOpts, patient: pdfPatient };
+  const toIdAndName = item => pick(item, ['id', 'name']);
+
+  const exportedItems = (items, selection) => (selection && !selection.enabled ? [] : map(items, toIdAndName));
+
+  return {
+    ...printOpts,
+    patient: pdfPatient,
+    patientTags: isClinician ? exportedItems(getPatientTags(clinic, clinicPatient), printOpts.tagSelection) : [],
+    sites: isClinician ? exportedItems(getPatientSites(clinic, clinicPatient), printOpts.clinicSiteSelection) : [],
+  };
 };
 
 export const getFetchedUntil = (data, printOpts) => {

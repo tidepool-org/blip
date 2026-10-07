@@ -133,6 +133,27 @@ describe('PatientDataPrintDialog', () => {
     });
   });
 
+  describe('when the patient has tags and sites', () => {
+    it('forwards them from modalData to the PrintDateRangeDialog panels', () => {
+      usePrintPDF.mockReturnValue({
+        status: STATUS.AWAITING_INPUT,
+        canPrint: true,
+        print: jest.fn(),
+        modalData: {
+          latestDatumByType,
+          timePrefs: { timezoneName: 'UTC' },
+          patientTags: [{ id: 'tag-a', name: 'A tag' }],
+          sites: [{ id: 'site-a', name: 'A site' }],
+        },
+      });
+
+      wrapper = renderComponent();
+
+      expect(document.body.querySelector('#tags-header')).toBeInTheDocument();
+      expect(document.body.querySelector('#clinicSites-header')).toBeInTheDocument();
+    });
+  });
+
   describe('on unmount', () => {
     it('dispatches removeGeneratedPDFS', () => {
       wrapper = renderComponent();

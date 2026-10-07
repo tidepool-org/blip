@@ -90,8 +90,7 @@ const DropdownContent = ({
   const isFilteringForZeroTags = isEqual(pendingTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
 
   const sortedTagFilterOptions = useMemo(() => {
-    return map(clinic?.patientTags, ({ id, name }) => ({ id, label: name }))
-      .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+    return utils.sortByLabel(map(clinic?.patientTags, ({ id, name }) => ({ id, label: name })), 'label');
   }, [clinic?.patientTags]);
 
   const shownTagFilterOptions = useMemo(() => {

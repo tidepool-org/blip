@@ -106,4 +106,25 @@ describe('ClinicPatientsPrintDialog', () => {
       expect(mockPrint).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('when the patient has tags and sites', () => {
+    it('forwards them from modalData to the PrintDateRangeDialog panels', () => {
+      usePrintPDF.mockReturnValue({
+        status: STATUS.AWAITING_INPUT,
+        canPrint: true,
+        print: jest.fn(),
+        modalData: {
+          latestDatumByType: { cbg: { time: '2020-03-10T00:00:00.000Z' } },
+          timePrefs: { timezoneName: 'UTC' },
+          patientTags: [{ id: 'tag-a', name: 'A tag' }],
+          sites: [{ id: 'site-a', name: 'A site' }],
+        },
+      });
+
+      wrapper = renderComponent();
+
+      expect(document.body.querySelector('#tags-header')).toBeInTheDocument();
+      expect(document.body.querySelector('#clinicSites-header')).toBeInTheDocument();
+    });
+  });
 });

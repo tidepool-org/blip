@@ -77,10 +77,10 @@ import PopoverLabel from '../../components/elements/PopoverLabel';
 import Popover from '../../components/elements/Popover';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
-import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
 import ClearFilterButtons, { PATIENT_QUERY_STATE } from './components/ClearFilterButtons';
+import ExportDropdown from './components/ExportDropdown';
 
 import {
   Dialog,
@@ -103,6 +103,7 @@ import {
   rpmReportConfigSchema,
   maxClinicPatientTags,
   maxWorkspaceClinicSites,
+  getPatientTags,
   timeInRangeFilterThresholds,
 } from '../../core/clinicUtils';
 
@@ -362,7 +363,7 @@ const PatientTags = ({
     horizontal: 'center',
   }), []);
 
-  const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
+  const resolvedPatientTags = getPatientTags(clinic, patient);
 
   const handleEditPatient = useCallback(() => {
     editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'tag list');
@@ -372,14 +373,14 @@ const PatientTags = ({
   const hasMrnError = !patient.mrn && clinic?.mrnSettings?.required;
   const addTagsBindTrigger = hasMrnError ? {} : bindTrigger(addPatientTagsPopupState); // if MRN error, do not pass bindTrigger
 
-  return !!filteredPatientTags.length ? (
+  return !!resolvedPatientTags.length ? (
     <TagList
       maxTagsVisible={4}
       maxCharactersVisible={12}
       popupId={`tags-overflow-${patient?.id}`}
       onClickEdit={handleEditPatient}
       tagProps={{ variant: 'compact' }}
-      tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
+      tags={resolvedPatientTags}
     />
   ) : (
     <Box onClick={event => event.stopPropagation()}>
@@ -577,6 +578,7 @@ export const ClinicPatients = (props) => {
   const previousShowSummaryData = usePrevious(showSummaryData)
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
+  const showPatientListExportUI = isClinicAdmin && !!clinic?.entitlements?.exportPatientList;
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -1549,35 +1551,38 @@ export const ClinicPatients = (props) => {
                     activeSummaryPeriod={activeSummaryPeriod}
                     setActiveSummaryPeriod={setActiveSummaryPeriod}
                   />
+                </Flex>
+              )}
 
-                  {showRpmReportUI && (
-                    <Flex
-                      alignItems="center"
-                      color="grays.4"
-                      py="1px"
-                      pl={[0, 0, 3]}
-                      sx={{ borderLeft: ['none', null, borders.divider] }}
-                    >
-                      <Button
-                        id="open-rpm-report-config"
-                        variant="tertiary"
-                        onClick={handleConfigureRpmReport}
-                        lineHeight={1.3}
-                        px={2}
-                        py={1}
-                        iconSrc={TabularReportIcon}
-                        iconPosition="left"
-                        sx={{ fontSize: 0 }}
-                      >
-                        {t('RPM Report')}
-                      </Button>
-                    </Flex>
-                  )}
+              {/* Export dropdown */}
+              {(showRpmReportUI || showPatientListExportUI) && (
+                <Flex
+                  alignItems="center"
+                  color="grays.4"
+                  py="1px"
+                  pl={showSummaryData ? [0, 0, 3] : 0}
+                  sx={{ borderLeft: showSummaryData ? ['none', null, borders.dividerDarkThin] : 'none' }}
+                >
+                  <ExportDropdown
+                    period={activeSummaryPeriod}
+                    showRpmReport={showRpmReportUI}
+                    showPatientListExport={showPatientListExportUI}
+                    onSelectRpmReport={handleConfigureRpmReport}
+                  />
                 </Flex>
               )}
 
             {/* Info/Visibility Icons */}
-            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexShrink: 0, alignItems: 'center' }}>
+            <Flex
+              pl={showSummaryData ? [0, 0, 3] : 0}
+              sx={{
+                gap: 2,
+                justifyContent: 'flex-end',
+                flexShrink: 0,
+                alignItems: 'center',
+                borderLeft: showSummaryData ? ['none', null, borders.dividerDarkThin] : 'none',
+              }}
+            >
               {showSummaryData && isPatientListVisible && (
                 <>
                   <PopoverLabel
@@ -2065,7 +2070,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicSitesDialog = useCallback(() => {
-    const orderedSites = clinic?.sites?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedSites = utils.sortByLabel(clinic?.sites);
 
     return (
       <Dialog
@@ -2244,7 +2249,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
-    const orderedTags = clinic?.patientTags?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedTags = utils.sortByLabel(clinic?.patientTags);
 
     return (
       <Dialog

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
+import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
@@ -26,6 +27,7 @@ import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
+import { maxClinicPatientTags, maxWorkspaceClinicSites } from '../core/clinicUtils';
 import PartialDaysTooltip from './PartialDaysTooltip';
 
 import { utils as vizUtils } from '@tidepool/viz';
@@ -49,6 +51,8 @@ export const MainContent = (props) => {
     processing,
     timePrefs,
     metricSource,
+    patientTags = [],
+    sites = [],
   } = props;
 
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
@@ -153,6 +157,10 @@ export const MainContent = (props) => {
       general: false,
     },
     expandedPanel: 'basics',
+    selections: {
+      tags: true,
+      clinicSites: true,
+    },
     submitted: false,
   }), [mostRecentDatumDates]);
 
@@ -161,6 +169,7 @@ export const MainContent = (props) => {
   const [errors, setErrors] = useState(defaults.errors);
   const [submitted, setSubmitted] = useState(defaults.submitted);
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
+  const [selections, setSelections] = useState(defaults.selections);
 
   const presetDateRanges = {
     agpBGM: useMemo(() => map(presetDaysOptions.agpBGM, days => getLastNDays(days, 'agpBGM')), [open]),
@@ -232,6 +241,22 @@ export const MainContent = (props) => {
       header: t('Device Settings'),
       key: 'settings',
     },
+    ...filter([
+      {
+        header: t('Tags'),
+        key: 'tags',
+        optsKey: 'tagSelection',
+        items: patientTags,
+        caption: t('{{max}} tags max', { max: maxClinicPatientTags }),
+      },
+      {
+        header: t('Clinic Sites'),
+        key: 'clinicSites',
+        optsKey: 'clinicSiteSelection',
+        items: sites,
+        caption: t('{{max}} clinic sites max', { max: maxWorkspaceClinicSites }),
+      },
+    ], ({ items }) => !!items.length),
   ];
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
@@ -309,6 +334,13 @@ export const MainContent = (props) => {
       settings: { disabled: !enabled.settings },
     };
 
+    const selectionMetrics = {};
+
+    forEach(filter(panels, 'items'), ({ key, optsKey }) => {
+      printOpts[optsKey] = { enabled: selections[key] };
+      selectionMetrics[key] = selections[key] ? 'enabled' : 'disabled';
+    });
+
     const getDateRangeMetric = (presets, chartType) => {
       const matches = filter(
         presets,
@@ -326,6 +358,7 @@ export const MainContent = (props) => {
       bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.bgLog, 'bgLog'),
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
       settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
+      ...selectionMetrics,
     };
 
     trackMetric('Submitted Print Options', metrics);
@@ -343,6 +376,7 @@ export const MainContent = (props) => {
       setDatePickerOpen(defaults.datePickerOpen);
       setDates(defaults.dates);
       setErrors(defaults.errors);
+      setSelections(defaults.selections);
       setSubmitted(defaults.submitted);
     }
   }, [open]);
@@ -360,10 +394,19 @@ export const MainContent = (props) => {
   return (
     <>
       <DialogContent minWidth={766} pt={3} px={3}>
-        {map(panels, panel => (
-          <Element name={`${panel.key}-wrapper`}>
+        {map(panels, panel => {
+          const isSelectionPanel = !!panel.items;
+          const isEnabled = isSelectionPanel ? selections[panel.key] : enabled[panel.key];
+          const hasBody = isEnabled && (isSelectionPanel || !!panel.daysOptions);
+
+          const handleToggle = () => (isSelectionPanel
+            ? setSelections(prev => ({ ...prev, [panel.key]: !prev[panel.key] }))
+            : setEnabled({ ...enabled, [panel.key]: !isEnabled })
+          );
+
+          return (
+          <Element key={panel.key} name={`${panel.key}-wrapper`}>
             <Box
-              key={panel.key}
               variant="containers.fluidBordered"
               sx={{
                 bg: 'white',
@@ -374,10 +417,10 @@ export const MainContent = (props) => {
             >
               <Flex
                 id={`${panel.key}-header`}
-                mb={enabled[panel.key] && panel.daysOptions ? 2 : 0}
-                pb={enabled[panel.key] && panel.daysOptions ? 3 : 0}
+                mb={hasBody ? 2 : 0}
+                pb={hasBody ? 3 : 0}
                 sx={{
-                  borderBottom: enabled[panel.key] && panel.daysOptions ? borders.input : 'none',
+                  borderBottom: hasBody ? borders.input : 'none',
                   justifyContent: 'space-between',
                 }}
               >
@@ -387,11 +430,15 @@ export const MainContent = (props) => {
                     theme={baseTheme}
                     name={`enabled-${panel.key}`}
                     ml={4}
-                    checked={enabled[panel.key]}
-                    onClick={() => setEnabled({ ...enabled, [panel.key]: !enabled[panel.key] })}
+                    checked={isEnabled}
+                    onClick={handleToggle}
                   />
                 </Box>
               </Flex>
+
+              {isSelectionPanel && isEnabled && (
+                <Body0 id={`${panel.key}-content`}>{panel.caption}</Body0>
+              )}
 
               {enabled[panel.key] && panel.daysOptions && (
                 <Box id={`${panel.key}-content`}>
@@ -462,7 +509,8 @@ export const MainContent = (props) => {
               </Caption>
             )}
           </Element>
-        ))}
+          );
+        })}
         {errors.general && (
           <Caption mx={5} mt={2} sx={{ color: 'feedback.danger' }} id="general-print-error">
             {errors.general}
@@ -495,6 +543,14 @@ MainContent.propTypes = {
   onDatesChange: PropTypes.func.isRequired,
   open: PropTypes.bool,
   processing: PropTypes.bool,
+  patientTags: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  })),
+  sites: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  })),
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool,
     timezoneName: PropTypes.string,

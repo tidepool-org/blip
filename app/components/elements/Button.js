@@ -60,7 +60,7 @@ export function Button(props) {
   };
 
   let justifyContent = 'center';
-  if (icon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
+  if (icon || iconSrc) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
 
   return (
     <Flex
