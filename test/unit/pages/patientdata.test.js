@@ -1472,6 +1472,40 @@ describe('PatientData', function () {
           expect(view.length).to.equal(1);
         });
       });
+
+      it('should fetch pumpSettings without dates when the chart type from the path is settings', () => {
+        instance.fetchAdditionalData = sinon.stub();
+
+        wrapper.setProps(_.assign({}, props, {
+          location: { search: '', pathname: '/data/settings' },
+          match: { params: { chartType: 'settings' } },
+          history: { push: sinon.stub() },
+          data: {
+            data: { current: {
+              data: { upload: [] },
+            } },
+            metaData: {
+              latestDatumByType: {
+                bolus: {
+                  type: 'bolus',
+                  deviceId: 'pump',
+                  normalTime: 100,
+                },
+              },
+              size: 10,
+            },
+          },
+        }));
+
+        instance.setInitialChartView();
+
+        sinon.assert.calledWith(instance.fetchAdditionalData, {
+          returnData: false,
+          showLoading: true,
+          noDates: true,
+          type: 'pumpSettings',
+        });
+      });
     });
   });
 
@@ -4665,6 +4699,21 @@ describe('PatientData', function () {
 
       instance.handleSwitchToSettings();
       expect(wrapper.state('chartType')).to.equal('settings');
+    });
+
+    it('should fetch pumpSettings without dates', () => {
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      const instance = wrapper.instance();
+      instance.fetchAdditionalData = sinon.stub();
+
+      instance.handleSwitchToSettings();
+
+      sinon.assert.calledWith(instance.fetchAdditionalData, {
+        returnData: false,
+        showLoading: true,
+        noDates: true,
+        type: 'pumpSettings',
+      });
     });
   });
 
