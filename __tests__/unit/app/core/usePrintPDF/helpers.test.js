@@ -391,6 +391,12 @@ describe('getPdfOpts', () => {
     expect(result.sites).toEqual([]);
   });
 
+  it('should prefer an unsaved `siteChangeSource` print option over the saved patient setting', () => {
+    const result = getPdfOpts({ ...printOpts, siteChangeSource: 'tubingPrime' }, clinicianUser, patient, clinicPatient, clinic);
+
+    expect(result.patient.settings).toEqual({ siteChangeSource: 'tubingPrime', units: { bg: 'mg/dL' } });
+  });
+
   it('should send empty arrays for a patient account', () => {
     const result = getPdfOpts(printOpts, { userid: 'patient-1', roles: [] }, patient, clinicPatient, clinic);
 

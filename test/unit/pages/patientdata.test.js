@@ -28,6 +28,7 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import PatientDataPrintDialog from '../../../app/pages/patientdata/PatientDataPrintDialog';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
 jest.mock('../../../app/core/dataViewUtils', () => {
@@ -3414,6 +3415,28 @@ describe('PatientData', function () {
         datesDialogProcessing: false,
         datesDialogFetchingData: false,
       });
+    });
+  });
+
+  describe('renderPrintDialog', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should render nothing when the print dialog is closed', () => {
+      expect(instance.renderPrintDialog()).to.be.null;
+    });
+
+    it('should pass the unsaved Basics site change pick to the print dialog', () => {
+      wrapper.setState({ printDialogOpen: true, updatedSiteChangeSource: 'tubingPrime' });
+
+      const view = instance.renderPrintDialog();
+      expect(view.type).to.equal(PatientDataPrintDialog);
+      expect(view.props.siteChangeSource).to.equal('tubingPrime');
     });
   });
 

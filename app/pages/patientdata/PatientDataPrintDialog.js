@@ -18,7 +18,7 @@ const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, siteChangeSou
     return () => dispatch(actions.worker.removeGeneratedPDFS());
   }, []);
 
-  const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose, siteChangeSource);
+  const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
 
   const handleClickPrint = (opts) => {
     const enrichedOpts = _.cloneDeep(opts);
@@ -28,6 +28,9 @@ const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, siteChangeSou
       const rangeFromChartPrefs = chartPrefs?.daily?.cgmSampleIntervalRange;
       enrichedOpts.daily.cgmSampleIntervalRange = rangeFromChartPrefs || DEFAULT_CGM_SAMPLE_INTERVAL_RANGE;
     }
+
+    // Unsaved Basics site change pick; care-team members without custodian permission can't persist it
+    if (siteChangeSource) enrichedOpts.siteChangeSource = siteChangeSource;
 
     setIsProcessing(true);
     print(enrichedOpts);

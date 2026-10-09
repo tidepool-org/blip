@@ -73,7 +73,6 @@ const usePrintPDF = (
   api,
   patientId,
   onPrintTriggered = noop,
-  siteChangeSource, // unsaved Basics pick; care-team members without custodian permission can't persist it
 ) => {
   const dispatch = useDispatch();
   const generateAGPImages = useGenerateAGPImages();
@@ -82,11 +81,7 @@ const usePrintPDF = (
 
   const data = useSelector(state => state.blip.data);
   const pdf = useSelector(state => state.blip.pdf);
-  const savedPatient = useSelector(state => selectPatient(state));
-  const patient = useMemo(() => (savedPatient && siteChangeSource
-    ? { ...savedPatient, settings: { ...savedPatient.settings, siteChangeSource } }
-    : savedPatient
-  ), [savedPatient, siteChangeSource]);
+  const patient = useSelector(state => selectPatient(state));
   const user = useSelector(state => selectUser(state));
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];

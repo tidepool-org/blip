@@ -393,37 +393,6 @@ describe('usePrintPDF', () => {
       expect(result.current.status).toBe(STATUS.ATTACHING_SVGS);
       expect(actions.worker.generatePDFRequest).toHaveBeenCalledTimes(1);
     });
-
-    it('overlays an unsaved site change source onto the saved patient settings sent to the PDF', () => {
-      const store = mockStore({
-        blip: {
-          data: { metaData: { patientId } },
-          pdf: {
-            data: { agpCGM: { current: 'stats' } },
-            opts: {
-              agpCGM: { disabled: false },
-              svgDataURLS: { agpCGM: { ambulatoryGlucoseProfile: 'data:image/svg+xml...' } },
-            },
-          },
-          allUsersMap: {
-            [patientId]: { userid: patientId, profile: {}, settings: { siteChangeSource: 'reservoirChange', units: { bg: 'mg/dL' } } },
-            [userId]: { userid: userId, profile: {}, roles: ['CLINIC_ADMIN'] },
-          },
-          currentPatientInViewId: patientId,
-          loggedInUserId: userId,
-          selectedClinicId: clinicId,
-          clinics: { [clinicId]: { patients: { [patientId]: { fullName: 'Test Patient' } } } },
-        },
-      });
-
-      renderHook(
-        () => usePrintPDF(api, patientId, onPrintTriggered, 'cannulaPrime'),
-        { wrapper: ({ children }) => <Provider store={store}>{children}</Provider> },
-      );
-
-      const pdfOpts = actions.worker.generatePDFRequest.mock.calls[0][2];
-      expect(pdfOpts.patient.settings).toEqual({ siteChangeSource: 'cannulaPrime', units: { bg: 'mg/dL' } });
-    });
   });
 
   describe('When the combined PDF URL is in state (TRIGGERING_PRINT)', () => {
