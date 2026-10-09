@@ -10,7 +10,7 @@ import * as actions from '../../redux/actions';
 import usePrintPDF from '../../core/usePrintPDF';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 
-const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, onClose = noop }) => {
+const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, siteChangeSource, onClose = noop }) => {
   const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -18,7 +18,7 @@ const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, onClose = noo
     return () => dispatch(actions.worker.removeGeneratedPDFS());
   }, []);
 
-  const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
+  const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose, siteChangeSource);
 
   const handleClickPrint = (opts) => {
     const enrichedOpts = _.cloneDeep(opts);
@@ -63,6 +63,7 @@ PatientDataPrintDialog.propTypes = {
   api: PropTypes.object.isRequired,
   patientId: PropTypes.string.isRequired,
   chartPrefs: PropTypes.object,
+  siteChangeSource: PropTypes.string,
   onClose: PropTypes.func,
 };
 

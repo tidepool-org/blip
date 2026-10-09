@@ -467,6 +467,7 @@ export const PatientDataClass = createReactClass({
         api={this.props.api}
         patientId={this.props.currentPatientInViewId}
         chartPrefs={this.state.chartPrefs}
+        siteChangeSource={this.state.updatedSiteChangeSource}
         onClose={() => this.setState({ printDialogOpen: false })}
       />
     );

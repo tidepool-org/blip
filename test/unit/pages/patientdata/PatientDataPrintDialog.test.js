@@ -83,6 +83,19 @@ describe('PatientDataPrintDialog', () => {
       expect(mockPrint).toHaveBeenCalledTimes(1);
     });
 
+    it('passes the unsaved site change source through to usePrintPDF', () => {
+      usePrintPDF.mockReturnValue({
+        status: STATUS.AWAITING_INPUT,
+        canPrint: true,
+        print: jest.fn(),
+        modalData: { latestDatumByType, timePrefs: { timezoneName: 'UTC' } },
+      });
+
+      wrapper = renderComponent({ siteChangeSource: 'cannulaPrime' });
+
+      expect(usePrintPDF).toHaveBeenCalledWith(api, patientId, defaultProps.onClose, 'cannulaPrime');
+    });
+
     describe('opts enrichment from chartPrefs', () => {
       it('injects cgmSampleIntervalRange from chartPrefs into daily opts', () => {
         const mockPrint = jest.fn();
