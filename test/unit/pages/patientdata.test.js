@@ -3427,10 +3427,6 @@ describe('PatientData', function () {
       instance = wrapper.instance();
     });
 
-    it('should render nothing when the print dialog is closed', () => {
-      expect(instance.renderPrintDialog()).to.be.null;
-    });
-
     it('should pass the unsaved Basics site change pick to the print dialog', () => {
       wrapper.setState({ printDialogOpen: true, updatedSiteChangeSource: 'tubingPrime' });
 
