@@ -10,7 +10,7 @@ import * as actions from '../../redux/actions';
 import usePrintPDF from '../../core/usePrintPDF';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 
-const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, onClose = noop }) => {
+const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, siteChangeSource, onClose = noop }) => {
   const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -28,6 +28,9 @@ const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, onClose = noo
       const rangeFromChartPrefs = chartPrefs?.daily?.cgmSampleIntervalRange;
       enrichedOpts.daily.cgmSampleIntervalRange = rangeFromChartPrefs || DEFAULT_CGM_SAMPLE_INTERVAL_RANGE;
     }
+
+    // Unsaved Basics site change pick; care-team members without custodian permission can't persist it
+    if (siteChangeSource) enrichedOpts.siteChangeSource = siteChangeSource;
 
     setIsProcessing(true);
     print(enrichedOpts);
@@ -63,6 +66,7 @@ PatientDataPrintDialog.propTypes = {
   api: PropTypes.object.isRequired,
   patientId: PropTypes.string.isRequired,
   chartPrefs: PropTypes.object,
+  siteChangeSource: PropTypes.string,
   onClose: PropTypes.func,
 };
 
