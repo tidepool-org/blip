@@ -64,7 +64,8 @@ export const getPdfOpts = (printOpts, user, patient, clinicPatient, clinic) => {
   const combinedPatient = clinicPatient ? personUtils.combinedAccountAndClinicPatient(patient, clinicPatient) : null;
   const sourcePatient = isClinician && !!combinedPatient ? combinedPatient : patient;
   const patientSettings = patient?.settings || {};
-  const siteChangeSource = patient?.settings?.siteChangeSource;
+  // Prefer the unsaved Basics pick sent with the print options over the saved patient setting
+  const siteChangeSource = printOpts?.siteChangeSource || patient?.settings?.siteChangeSource;
 
   const pdfPatient = {
     ...sourcePatient,
