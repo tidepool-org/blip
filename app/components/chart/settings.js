@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import bows from 'bows';
 import PropTypes from 'prop-types';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
 import { Trans, withTranslation } from 'react-i18next';
@@ -35,7 +35,6 @@ import Button from '../elements/Button';
 import Popover from '../elements/Popover';
 import PopoverLabel from '../elements/PopoverLabel';
 import RadioGroup from '../../components/elements/RadioGroup';
-import { usePrevious } from '../../core/hooks';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
 import Icon from '../elements/Icon';
 import { useSelector } from 'react-redux';
@@ -45,7 +44,7 @@ import DataConnectionsDialog from '../../components/datasources/DataConnectionsD
 import Card from '../elements/Card';
 import { Body1, MediumTitle } from '../elements/FontStyles';
 import UploadLaunchDialog from '../UploadLaunchDialog';
-import api from '../../core/api';
+import { useGetLatestDatumTimeByUploadQuery } from '../../redux/features/latestDatum/latestDatumApi';
 import styled from '@emotion/styled';
 
 const log = bows('Settings View');
@@ -66,36 +65,6 @@ function formatDuration(milliseconds) {
   const years = Math.floor(days / 365);
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
-
-export const useLatestDatumTime = (tidepoolApi = api, uploadId) => {
-  const { id: patientId } = useParams();
-  const [latestTimestamp, setLatestTimestamp] = useState(null);
-
-  useEffect(() => {
-    setLatestTimestamp(null);
-
-    if (!uploadId) return;
-
-    const fetchOpts = {
-      uploadId,
-      type: ['cbg', 'smbg', 'basal', 'bolus', 'wizard', 'food', 'pumpSettings', 'upload'].join(','),
-      latest: 1,
-    };
-
-    tidepoolApi.patientData.get(patientId, fetchOpts, (err, latestDatums) => {
-      if (err || !latestDatums.length) return;
-
-      const latestISOTimestamp = _.maxBy(latestDatums, 'time')?.time;
-      const latestUnixTimestamp = latestISOTimestamp && moment(latestISOTimestamp).valueOf();
-
-      if (!latestUnixTimestamp) return;
-
-      setLatestTimestamp(latestUnixTimestamp);
-    });
-  }, [patientId, uploadId]);
-
-  return latestTimestamp;
-};
 
 const SettingsPopover = styled(Popover)`
   .MuiPopover-paper {
@@ -138,18 +107,11 @@ const Settings = ({
   const [pendingSettings, setPendingSettings] = useState(null);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [selectedSettingsId, setSelectedSettingsId] = useState(null);
-  const [settingsOptions, setSettingsOptions] = useState([]);
-  const [devices, setDevices] = useState([]);
-  const [groupedData, setGroupedData] = useState([]);
-  const previousSelectedDevice = usePrevious(selectedDevice);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const isClinicContext = !!selectedClinicId;
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
   const metaDataDevices = useSelector(state => state.blip.data?.metaData?.devices || []);
-
-  const [latestUploadId, setLatestUploadId] = useState(null);
-  const latestDatumFromUploadTimestamp = useLatestDatumTime(api, latestUploadId);
 
   const patientData = clinicPatient || {
     ...clinicPatientFromAccountInfo(patient),
@@ -172,7 +134,23 @@ const Settings = ({
 
   const combinedData = data?.data?.combined;
 
-  useEffect(() => {
+  const { id: patientId } = useParams();
+  // The data prop holds the previous chart's query results until the settings query lands
+  const settingsQueryComplete = data?.query?.chartType === 'settings';
+
+  /**
+   * array of arrays, each containing a source and its settings objects
+   * sorted by most recent settings
+   * @type {Array<[string, Array<Object>]>}
+   * @example
+   * [
+   *   ['medtronic', [{settings}, {settings}]],
+   *   ['tandem', [{settings}]]
+   * ]
+   */
+  const groupedData = useMemo(() => {
+    if (!settingsQueryComplete) return [];
+
     const sortedData = _.sortBy(_.filter(_.cloneDeep(combinedData), { type: 'pumpSettings' }), 'normalTime');
 
     let groupedBySource = _.groupBy(sortedData, 'source');
@@ -181,7 +159,7 @@ const Settings = ({
       groupedBySource = _.omit(groupedBySource, 'Unspecified Data Source');
     }
 
-    const groupedData = _.mapValues(groupedBySource, (sourceGroup) => {
+    const groupedBySourceAndDay = _.mapValues(groupedBySource, (sourceGroup) => {
       const dateGroups = _.groupBy(sourceGroup, (obj) => {
         return moment.utc(obj.normalTime).tz(timezoneName).format('YYYY-MM-DD');
       });
@@ -193,139 +171,107 @@ const Settings = ({
       return _.values(filteredDateGroups);
     });
 
-    _.forEach(groupedData, (group, source) => {
-       _.sortBy(group, 'normalTime');
+    _.forEach(groupedBySourceAndDay, (group) => {
       group.reverse();
 
+      // The newest entry has no end date here; its end is resolved in settingsOptions
       group.forEach((obj, index) => {
-        let previousObj = group[index - 1];
+        if (index === 0) return;
 
-        // For the latest setting option, there is no end date, but we need to display when those pumpSettings
-        // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
-        // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
-        // in the upload it was batched together with.
-        if (index === 0) {
-          setLatestUploadId(obj.uploadId); // triggers a fetch for the latest datums of this upload id
-          const endTimestamp = latestDatumFromUploadTimestamp || obj.normalTime;
-
-          previousObj = { normalTime: endTimestamp };
-        }
-
+        const previousObj = group[index - 1];
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;
         obj.durationString = formatDuration(obj.elapsedTime);
       });
     });
 
-    /**
-     * array of arrays, each containing a source and its settings objects
-     * sorted by most recent settings
-     * @type {Array<[string, Array<Object>]>}
-     * @example
-     * [
-     *   ['medtronic', [{settings}, {settings}]],
-     *   ['tandem', [{settings}]]
-     * ]
-     */
-    const sortedGroupedData = _.sortBy(_.toPairs(groupedData), (pair) => { return -pair[1][0].normalTime; });
+    return _.sortBy(_.toPairs(groupedBySourceAndDay), (pair) => { return -pair[1][0].normalTime; });
+  }, [settingsQueryComplete, combinedData, timezoneName]);
 
-    setGroupedData(sortedGroupedData);
+  const activeDevice = _.find(groupedData, { 0: selectedDevice }) ? selectedDevice : groupedData[0]?.[0];
+  const activeSettings = useMemo(() => _.find(groupedData, { 0: activeDevice })?.[1] || [], [groupedData, activeDevice]);
+  const activeSettingsId = _.find(activeSettings, { id: selectedSettingsId }) ? selectedSettingsId : activeSettings[0]?.id;
+  const latestUploadId = activeSettings[0]?.uploadId;
 
-    if (!selectedDevice && sortedGroupedData.length > 0) {
-      // find the source with the most recent settings across all sources
-      const mostRecentSource = sortedGroupedData[0][0];
+  const { currentData: latestDatumTime } = useGetLatestDatumTimeByUploadQuery(
+    { patientId, uploadId: latestUploadId },
+    { skip: !latestUploadId }
+  );
 
-      setSelectedDevice(mostRecentSource);
-      setSelectedSettingsId(sortedGroupedData[0][1][0].id);
+  const devices = useMemo(() => _.map(groupedData, (group) => {
+    const source = group[0];
+    const serial = group[1][0]?.deviceSerialNumber || '';
+    const serialText = serial === 'Unknown' ? '' : `(Serial #: ${serial})`;
+    const sourceName = deviceName(_.toLower(source));
+
+    const deviceInMetaData = metaDataDevices.find(d => d.serialNumber === serial);
+    const friendlyName = getDeviceName(deviceInMetaData || {});
+
+    return {
+      value: source,
+      label: (
+        <span>
+          <span style={{ fontWeight: 'bold' }}>
+            {friendlyName || sourceName}
+          </span>
+          {serial && (<>
+            {' '}
+            <span style={{ fontSize: '0.8em', fontWeight: 'normal' }}>
+              {serialText}
+            </span></>
+          )}
+        </span>
+      ),
+    };
+  }), [groupedData, metaDataDevices]);
+
+  const settingsOptions = useMemo(() => _.map(activeSettings, (setting, index) => {
+    let { previousNormalTime, durationString } = setting;
+
+    // For the latest setting option, there is no end date, but we need to display when those pumpSettings
+    // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
+    // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
+    // in the upload it was batched together with.
+    if (index === 0) {
+      previousNormalTime = latestDatumTime ?? setting.normalTime;
+      durationString = formatDuration(previousNormalTime - setting.normalTime);
     }
 
-    if(selectedDevice && !selectedSettingsId) {
-      setSelectedSettingsId(_.find(sortedGroupedData, { 0: selectedDevice })[1][0].id);
-    }
+    // If the latest setting option starts and ends on the same day, we show '(Last Upload Date)' in place of end date
+    const isSameDayAsLastUpload = index === 0 && (moment(previousNormalTime).tz(timezoneName).isSame(setting.normalTime, 'day'));
 
-  }, [data, selectedDevice, selectedSettingsId, timezoneName]);
-
-  useEffect(() => {
-    setDevices(_.map(groupedData, (group, i) => {
-      const source = group[0];
-      const serial = group[1][0]?.deviceSerialNumber || '';
-      const serialText = serial === 'Unknown' ? '' : `(Serial #: ${serial})`;
-      const sourceName = deviceName(_.toLower(source));
-
-      const deviceInMetaData = metaDataDevices.find(d => d.serialNumber === serial);
-      const friendlyName = getDeviceName(deviceInMetaData || {});
-
+    if (isSameDayAsLastUpload) {
       return {
-        value: source,
+        value: setting.id,
         label: (
           <span>
-            <span style={{ fontWeight: 'bold' }}>
-              {friendlyName || sourceName}
-            </span>
-            {serial && (<>
-              {' '}
-              <span style={{ fontSize: '0.8em', fontWeight: 'normal' }}>
-                {serialText}
-              </span></>
-            )}
+            {moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')}
+            {' '}
+            {t('(Last Upload Date)')}
           </span>
         ),
-      }
-    }));
-  }, [groupedData]);
-
-  useEffect(() => {
-    const selectedDevicePair = _.find(groupedData, { 0: selectedDevice });
-    if(selectedDevice && selectedDevicePair) {
-      setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
-        // If the latest setting option starts and ends on the same day, we show '(Last Upload Date)' in place of end date
-        const { previousNormalTime, normalTime } = setting;
-        const isSameDayAsLastUpload = index === 0 && (moment(previousNormalTime).isSame(normalTime, 'day'));
-
-        if (isSameDayAsLastUpload) {
-          return {
-            value: setting.id,
-            label: (
-              <span>
-                {moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')}
-                {' '}
-                {t('(Last Upload Date)')}
-              </span>
-            ),
-          };
-        }
-
-        return {
-          value: setting.id,
-          label: (
-            <span>
-              {moment(setting.normalTime)
-                .tz(timezoneName)
-                .format('MMM DD, YYYY')}
-              {' '}-{' '}
-              {moment(setting.previousNormalTime)
-                .tz(timezoneName)
-                .format('MMM DD, YYYY')}
-              {' '}:{' '}
-              <span style={{ fontWeight: 'bold' }}>
-                Active for {setting.durationString}
-              </span>
-            </span>
-          ),
-        };
-      }));
-    } else {
-      setSettingsOptions([]);
+      };
     }
-  }, [selectedDevice, groupedData, timezoneName]);
 
-  useEffect(() => {
-    if(previousSelectedDevice && previousSelectedDevice !== selectedDevice && _.find(groupedData, { 0: selectedDevice })) {
-      setSelectedSettingsId(_.find(groupedData, { 0: selectedDevice })[1][0].id);
-    }
-  }, [groupedData, previousSelectedDevice, selectedDevice]);
-
-  const manufacturer = _.find(groupedData, { 0: selectedDevice })?.[1][0]?.source || '';
+    return {
+      value: setting.id,
+      label: (
+        <span>
+          {moment(setting.normalTime)
+            .tz(timezoneName)
+            .format('MMM DD, YYYY')}
+          {' '}-{' '}
+          {moment(previousNormalTime)
+            .tz(timezoneName)
+            .format('MMM DD, YYYY')}
+          {' '}:{' '}
+          <span style={{ fontWeight: 'bold' }}>
+            Active for {durationString}
+          </span>
+        </span>
+      ),
+    };
+  }), [activeSettings, latestDatumTime, timezoneName, t]);
 
   const handleCopySettingsClicked = useCallback(() => {
     trackMetric('Clicked Copy Settings', { source: 'Device Settings' });
@@ -431,7 +377,7 @@ const Settings = ({
             py: 2,
           }}
         >
-          {_.find(devices, { value: selectedDevice })?.label ||
+          {_.find(devices, { value: activeDevice })?.label ||
             t('Select Device')}
         </Button>
       </Box>
@@ -454,7 +400,7 @@ const Settings = ({
             options={devices}
             variant="vertical"
             sx={{ fontSize: 0 }}
-            value={pendingDevice || selectedDevice}
+            value={pendingDevice || activeDevice}
             onChange={(event) => {
               setPendingDevice(event.target.value || null);
             }}
@@ -487,6 +433,7 @@ const Settings = ({
                 prefixSettingsMetric('Device selection apply')
               );
               setSelectedDevice(pendingDevice);
+              setSelectedSettingsId(null);
               deviceSelectionPopupState.close();
             }}
           >
@@ -531,7 +478,7 @@ const Settings = ({
             icon={DateRangeRoundedIcon}
           />
           <span style={{ alignSelf: 'end'}}>
-            {_.find(settingsOptions, { value: selectedSettingsId })
+            {_.find(settingsOptions, { value: activeSettingsId })
               ?.label || t('Select Settings')}
           </span>
         </Button>
@@ -568,7 +515,7 @@ const Settings = ({
             options={settingsOptions}
             variant="vertical"
             sx={{ fontSize: 0 }}
-            value={pendingSettings || selectedSettingsId}
+            value={pendingSettings || activeSettingsId}
             onChange={(event) => {
               setPendingSettings(event.target.value || null);
             }}
@@ -645,8 +592,7 @@ const Settings = ({
   );
 
   const renderChart = () => {
-    const pumpSettings = _.find(groupedData, { 0: selectedDevice })?.[1];
-    const selectedSettings = _.find(pumpSettings, { id: selectedSettingsId });
+    const selectedSettings = _.find(activeSettings, { id: activeSettingsId });
     const manufacturer = _.toLower(selectedSettings?.source);
 
     return (
@@ -792,12 +738,12 @@ const Settings = ({
                   <Divider my={4} />
                   <MediumTitle mb={2} sx={{ color: 'black' }}>{t('Therapy Settings')}</MediumTitle>
 
-                  {selectedSettingsId ? (
+                  {settingsQueryComplete && (activeSettingsId ? (
                     <>
                       {renderDeviceSettingsSelectionUI()}
                       {renderChart()}
                     </>
-                  ) : renderMissingSettingsMessage()}
+                  ) : renderMissingSettingsMessage())}
                 </DesktopOnly>
               </Box>
 
