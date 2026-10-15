@@ -368,8 +368,7 @@ describe('PrintDateRangeDialog', function () {
       fireEvent.click(get('input[name="enabled-clinicSites"]'));
       expect(get('input[name="enabled-clinicSites"]').checked).to.be.false;
 
-      rendered.rerender(<PrintDateRangeDialog {...props} patientTags={patientTags} sites={sites} open={false} />);
-      rendered.rerender(<PrintDateRangeDialog {...props} patientTags={patientTags} sites={sites} open />);
+      renderWith();
 
       expect(get('input[name="enabled-clinicSites"]').checked).to.be.false;
       expect(get('input[name="enabled-tags"]').checked).to.be.true;
