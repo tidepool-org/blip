@@ -432,7 +432,7 @@ export const MainContent = (props) => {
                 <Body0 id={`${panel.key}-content`}>{panel.caption}</Body0>
               )}
 
-              {enabled[panel.key] && panel.daysOptions && (
+              {isEnabled && panel.daysOptions && (
                 <Box id={`${panel.key}-content`}>
                   <Box mb={3}>
                     <Body0 mb={2}>{t('Number of days (most recent)')}</Body0>

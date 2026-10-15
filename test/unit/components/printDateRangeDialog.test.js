@@ -363,7 +363,7 @@ describe('PrintDateRangeDialog', function () {
       expect(props.onClickPrint.getCall(0).args[0].clinicSiteSelection).to.eql({ enabled: false });
     });
 
-    it('should keep a toggled-off panel off when the dialog is closed and reopened', () => {
+    it('should not reset a toggled-off panel when the dialog reopens', () => {
       renderWith();
       fireEvent.click(get('input[name="enabled-clinicSites"]'));
       expect(get('input[name="enabled-clinicSites"]').checked).to.be.false;
