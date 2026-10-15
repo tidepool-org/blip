@@ -130,6 +130,40 @@ describe('PatientDataPrintDialog', () => {
           })
         );
       });
+
+      it('injects the unsaved site change source into the print opts', () => {
+        const mockPrint = jest.fn();
+
+        usePrintPDF.mockReturnValue({
+          status: STATUS.AWAITING_INPUT,
+          canPrint: true,
+          print: mockPrint,
+          modalData: { latestDatumByType, timePrefs: { timezoneName: 'UTC' } },
+        });
+
+        wrapper = renderComponent({ siteChangeSource: 'tubingPrime' });
+
+        screen.getByRole('button', { name: /Print/ }).click();
+
+        expect(mockPrint).toHaveBeenCalledWith(expect.objectContaining({ siteChangeSource: 'tubingPrime' }));
+      });
+
+      it('omits the site change source from the print opts when there is no unsaved pick', () => {
+        const mockPrint = jest.fn();
+
+        usePrintPDF.mockReturnValue({
+          status: STATUS.AWAITING_INPUT,
+          canPrint: true,
+          print: mockPrint,
+          modalData: { latestDatumByType, timePrefs: { timezoneName: 'UTC' } },
+        });
+
+        wrapper = renderComponent();
+
+        screen.getByRole('button', { name: /Print/ }).click();
+
+        expect(mockPrint.mock.calls[0][0]).not.toHaveProperty('siteChangeSource');
+      });
     });
   });
 

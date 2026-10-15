@@ -147,6 +147,8 @@ export const MainContent = (props) => {
       bgLog: true,
       daily: true,
       settings: true,
+      tags: true,
+      clinicSites: true,
     },
     errors: {
       agpBGM: false,
@@ -157,10 +159,6 @@ export const MainContent = (props) => {
       general: false,
     },
     expandedPanel: 'basics',
-    selections: {
-      tags: true,
-      clinicSites: true,
-    },
     submitted: false,
   }), [mostRecentDatumDates]);
 
@@ -169,7 +167,6 @@ export const MainContent = (props) => {
   const [errors, setErrors] = useState(defaults.errors);
   const [submitted, setSubmitted] = useState(defaults.submitted);
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
-  const [selections, setSelections] = useState(defaults.selections);
 
   const presetDateRanges = {
     agpBGM: useMemo(() => map(presetDaysOptions.agpBGM, days => getLastNDays(days, 'agpBGM')), [open]),
@@ -337,8 +334,8 @@ export const MainContent = (props) => {
     const selectionMetrics = {};
 
     forEach(filter(panels, 'items'), ({ key, optsKey }) => {
-      printOpts[optsKey] = { enabled: selections[key] };
-      selectionMetrics[key] = selections[key] ? 'enabled' : 'disabled';
+      printOpts[optsKey] = { enabled: enabled[key] };
+      selectionMetrics[key] = enabled[key] ? 'enabled' : 'disabled';
     });
 
     const getDateRangeMetric = (presets, chartType) => {
@@ -376,7 +373,6 @@ export const MainContent = (props) => {
       setDatePickerOpen(defaults.datePickerOpen);
       setDates(defaults.dates);
       setErrors(defaults.errors);
-      setSelections(defaults.selections);
       setSubmitted(defaults.submitted);
     }
   }, [open]);
@@ -396,13 +392,9 @@ export const MainContent = (props) => {
       <DialogContent minWidth={766} pt={3} px={3}>
         {map(panels, panel => {
           const isSelectionPanel = !!panel.items;
-          const isEnabled = isSelectionPanel ? selections[panel.key] : enabled[panel.key];
+          const isEnabled = enabled[panel.key];
           const hasBody = isEnabled && (isSelectionPanel || !!panel.daysOptions);
-
-          const handleToggle = () => (isSelectionPanel
-            ? setSelections(prev => ({ ...prev, [panel.key]: !prev[panel.key] }))
-            : setEnabled({ ...enabled, [panel.key]: !isEnabled })
-          );
+          const handleToggle = () => setEnabled({ ...enabled, [panel.key]: !isEnabled });
 
           return (
           <Element key={panel.key} name={`${panel.key}-wrapper`}>
@@ -440,7 +432,7 @@ export const MainContent = (props) => {
                 <Body0 id={`${panel.key}-content`}>{panel.caption}</Body0>
               )}
 
-              {enabled[panel.key] && panel.daysOptions && (
+              {isEnabled && panel.daysOptions && (
                 <Box id={`${panel.key}-content`}>
                   <Box mb={3}>
                     <Body0 mb={2}>{t('Number of days (most recent)')}</Body0>
