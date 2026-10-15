@@ -27,8 +27,15 @@ describe('PrintDateRangeDialog', function () {
   const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
   const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
 
-  const store = mockStore({ blip: { loggedInUserId } });
-  const wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;
+  const store = mockStore({
+    blip: {
+      loggedInUserId,
+    },
+  });
+
+  const wrapper = ({ children }) => (
+    <Provider store={store}>{children}</Provider>
+  );
 
   const props = {
     loggedInUserId,
@@ -106,6 +113,8 @@ describe('PrintDateRangeDialog', function () {
       bgLog: true,
       daily: true,
       settings: true,
+      tags: true,
+      clinicSites: true,
     }));
 
     expect(numValue(get('#days-agpCGM .selected'))).to.equal(14);
@@ -294,6 +303,153 @@ describe('PrintDateRangeDialog', function () {
         daily: '30 days',
         settings: 'enabled',
       }]);
+    });
+  });
+
+  describe('tags and clinic sites', () => {
+    const patientTags = [{ id: 'tag-a', name: 'A tag' }, { id: 'tag-b', name: 'B tag' }];
+    const sites = [{ id: 'site-a', name: 'A site' }];
+
+    const renderWith = (extraProps = { patientTags, sites }) => {
+      rendered.unmount();
+      rendered = render(<PrintDateRangeDialog {...props} {...extraProps} />, { wrapper });
+    };
+
+    const submit = () => fireEvent.click(get('button.print-submit'));
+
+    it('should not render either panel when the patient has no tags or sites', () => {
+      expect(get('#tags-header')).to.not.exist;
+      expect(get('#clinicSites-header')).to.not.exist;
+    });
+
+    it('should render both panels after Device Settings, toggled on with their export limits', () => {
+      renderWith();
+
+      const headerIds = getAll('[id$="-header"]').map(el => el.id);
+      expect(headerIds).to.eql([
+        'agpCGM-header',
+        'agpBGM-header',
+        'basics-header',
+        'daily-header',
+        'bgLog-header',
+        'settings-header',
+        'tags-header',
+        'clinicSites-header',
+      ]);
+
+      expect(get('input[name="enabled-tags"]').checked).to.be.true;
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.true;
+      expect(get('#tags-content').textContent).to.equal('50 tags max');
+      expect(get('#clinicSites-content').textContent).to.equal('50 clinic sites max');
+    });
+
+    it('should submit both sections as enabled', () => {
+      renderWith();
+      submit();
+
+      const printOpts = props.onClickPrint.getCall(0).args[0];
+      expect(printOpts.tagSelection).to.eql({ enabled: true });
+      expect(printOpts.clinicSiteSelection).to.eql({ enabled: true });
+    });
+
+    it('should hide a panel\'s caption and submit it as disabled when its toggle is off', () => {
+      renderWith();
+      fireEvent.click(get('input[name="enabled-clinicSites"]'));
+
+      expect(get('#clinicSites-content')).to.not.exist;
+      expect(get('#tags-content')).to.exist;
+
+      submit();
+      expect(props.onClickPrint.getCall(0).args[0].clinicSiteSelection).to.eql({ enabled: false });
+    });
+
+    it('should not reset a toggled-off panel when the dialog reopens', () => {
+      renderWith();
+      fireEvent.click(get('input[name="enabled-clinicSites"]'));
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.false;
+
+      renderWith();
+
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.false;
+      expect(get('input[name="enabled-tags"]').checked).to.be.true;
+    });
+
+    it('should write both panels into the persisted enabled map', () => {
+      renderWith();
+      fireEvent.click(get('input[name="enabled-tags"]'));
+
+      expect(JSON.parse(localStorage[enabledChartsLocalKey])).to.eql({
+        agpBGM: true,
+        agpCGM: true,
+        basics: true,
+        bgLog: true,
+        daily: true,
+        settings: true,
+        tags: false,
+        clinicSites: true,
+      });
+    });
+
+    it('should open with a panel off and submit it as disabled when the stored map has it off', () => {
+      localStorage.setItem(enabledChartsLocalKey, JSON.stringify({
+        agpBGM: true,
+        agpCGM: true,
+        basics: true,
+        bgLog: true,
+        daily: true,
+        settings: true,
+        tags: false,
+        clinicSites: true,
+      }));
+      renderWith();
+
+      expect(get('input[name="enabled-tags"]').checked).to.be.false;
+      expect(get('#tags-content')).to.not.exist;
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.true;
+
+      submit();
+      expect(props.onClickPrint.getCall(0).args[0].tagSelection).to.eql({ enabled: false });
+    });
+
+    it('should open with both panels on when the stored map predates them', () => {
+      localStorage.setItem(enabledChartsLocalKey, JSON.stringify({
+        agpBGM: true,
+        agpCGM: true,
+        basics: false,
+        bgLog: true,
+        daily: true,
+        settings: true,
+      }));
+      renderWith();
+
+      expect(get('input[name="enabled-basics"]').checked).to.be.false;
+      expect(get('input[name="enabled-tags"]').checked).to.be.true;
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.true;
+    });
+
+    it('should still require at least one chart when only the new panels are enabled', () => {
+      renderWith();
+
+      ['agpCGM', 'agpBGM', 'basics', 'daily', 'bgLog', 'settings'].forEach(key => {
+        fireEvent.click(get(`input[name="enabled-${key}"]`));
+      });
+
+      submit();
+
+      expect(get('#general-print-error').textContent).to.equal('Please enable at least one chart to print');
+      sinon.assert.notCalled(props.onClickPrint);
+    });
+
+    it('should report the new sections in the print options metric', () => {
+      renderWith();
+      fireEvent.click(get('input[name="enabled-clinicSites"]'));
+
+      submit();
+
+      expect(mockTrackMetric.mock.calls[0][1]).to.include({
+        tags: 'enabled',
+        clinicSites: 'disabled',
+      });
     });
   });
 

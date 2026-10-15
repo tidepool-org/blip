@@ -87,8 +87,7 @@ const DropdownContent = ({
   const isFilteringForZeroSites = isEqual(pendingSites, SPECIAL_FILTER_STATES.ZERO_SITES);
 
   const sortedSiteFilterOptions = useMemo(() => {
-    return map(clinic?.sites, ({ id, name }) => ({ id, label: name }))
-      .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+    return utils.sortByLabel(map(clinic?.sites, ({ id, name }) => ({ id, label: name })), 'label');
   }, [clinic?.sites]);
 
   const shownSiteFilterOptions = useMemo(() => {
