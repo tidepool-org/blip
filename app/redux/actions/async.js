@@ -1044,7 +1044,6 @@ export function fetchPatientData(api, options, id) {
     options['dosingDecision.reason'] = 'normalBolus,simpleBolus,watchBolus,oneButtonBolus';
   }
 
-  let latestUpload;
   let latestPumpSettings;
 
   return (dispatch, getState) => {
@@ -1121,18 +1120,9 @@ export function fetchPatientData(api, options, id) {
             // in the future due to timezones or incorrect device and/or computer time upon upload.
             options.endDate = moment.utc(fetchToTime).add(1, 'days').toISOString();
 
-            // We want to make sure the latest upload, which may be beyond the data range we'll be
+            // We want to make sure the latest pumpSettings, which may be beyond the data range we'll be
             // fetching, is stored so we can include it with the fetched results
-            latestUpload = _.find(latestDatums, { type: 'upload' });
             latestPumpSettings = _.find(latestDatums, { type: 'pumpSettings' });
-            const latestPumpSettingsUploadId = _.get(latestPumpSettings || {}, 'uploadId');
-            const latestPumpSettingsUpload = _.find(latestDatums, { type: 'upload', uploadId: latestPumpSettingsUploadId });
-
-            if (latestPumpSettingsUploadId && !latestPumpSettingsUpload) {
-              // If we have pump settings, but we don't have the corresponing upload record used
-              // to get the device source, we need to fetch it
-              options.getPumpSettingsUploadRecordById = latestPumpSettingsUploadId;
-            }
 
             fetchData(options);
           }
@@ -1156,10 +1146,10 @@ export function fetchPatientData(api, options, id) {
           errors.teamNotes
         ));
       }
-      if (errors.latestPumpSettingsUpload) {
+      if (errors.uploads) {
         dispatch(sync.fetchPatientDataFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD, errors.latestPumpSettingsUpload),
-          errors.latestPumpSettingsUpload
+          createActionError(ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS, errors.uploads),
+          errors.uploads
         ));
       }
     }
@@ -1203,11 +1193,10 @@ export function fetchPatientData(api, options, id) {
         })),
       };
 
-      if (options.getPumpSettingsUploadRecordById) {
-        fetchers.latestPumpSettingsUpload = api.patientData.get.bind(api, id, {
-          type: 'upload',
-          uploadId: options.getPumpSettingsUploadRecordById,
-        });
+      // Upload records are fetched undated, since a continuous dataset (e.g. Loop) is created once
+      // and keeps receiving data, so its record can predate the fetched range by any amount
+      if (options.initial) {
+        fetchers.uploads = api.patientData.get.bind(api, id, { type: 'upload' });
       }
 
       async.parallel(async.reflectAll(fetchers), (err, results) => {
@@ -1221,15 +1210,12 @@ export function fetchPatientData(api, options, id) {
         else {
           const combinedData = [
             ...resultsVal.patientData,
-            ...(resultsVal.latestPumpSettingsUpload || []),
+            ...(resultsVal.uploads || []),
             ...resultsVal.teamNotes,
           ];
 
-          // If the latest upload or pumpSettings is later than the latest diabetes datum, it would have been
+          // If the latest pumpSettings is later than the latest diabetes datum, it would have been
           // outside of the fetched data range, and needs to be added.
-          if (latestUpload && !_.find(combinedData, { id: latestUpload.id })) {
-            combinedData.push(latestUpload);
-          }
           if (latestPumpSettings && !_.find(combinedData, { id: latestPumpSettings.id })) {
             combinedData.push(latestPumpSettings);
           }
