@@ -1383,6 +1383,22 @@ describe('Settings', () => {
       applyDevice('source1');
       expect(settingsButtonText()).to.include('Nov 04, 2024 (Last Upload Date)');
     });
+
+    it('keeps the selected entry when the current device is applied again', () => {
+      mountWrapper({
+        data: settingsData([
+          pumpSettings('a1', 'source1', '2024-09-01', 'upload-a1'),
+          pumpSettings('b1', 'source2', '2024-10-01', 'upload-b'),
+          pumpSettings('a2', 'source1', '2024-11-04', 'upload-a2'),
+        ]),
+      });
+
+      applySettings('a1');
+      expect(settingsButtonText()).to.include('Sep 01, 2024 - Nov 04, 2024');
+
+      applyDevice('source1');
+      expect(settingsButtonText()).to.include('Sep 01, 2024 - Nov 04, 2024');
+    });
   });
 
   describe('data connections', () => {

@@ -432,8 +432,8 @@ const Settings = ({
               trackMetric(
                 prefixSettingsMetric('Device selection apply')
               );
+              if (pendingDevice !== activeDevice) setSelectedSettingsId(null);
               setSelectedDevice(pendingDevice);
-              setSelectedSettingsId(null);
               deviceSelectionPopupState.close();
             }}
           >
