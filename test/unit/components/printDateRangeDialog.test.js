@@ -113,6 +113,8 @@ describe('PrintDateRangeDialog', function () {
       bgLog: true,
       daily: true,
       settings: true,
+      tags: true,
+      clinicSites: true,
     }));
 
     expect(numValue(get('#days-agpCGM .selected'))).to.equal(14);
@@ -361,31 +363,68 @@ describe('PrintDateRangeDialog', function () {
       expect(props.onClickPrint.getCall(0).args[0].clinicSiteSelection).to.eql({ enabled: false });
     });
 
-    it('should reset both toggles to on when the dialog is reopened', () => {
+    it('should not reset a toggled-off panel when the dialog reopens', () => {
       renderWith();
-      fireEvent.click(get('input[name="enabled-tags"]'));
-      expect(get('input[name="enabled-tags"]').checked).to.be.false;
+      fireEvent.click(get('input[name="enabled-clinicSites"]'));
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.false;
 
-      rendered.rerender(<PrintDateRangeDialog {...props} patientTags={patientTags} sites={sites} open={false} />);
-      rendered.rerender(<PrintDateRangeDialog {...props} patientTags={patientTags} sites={sites} open />);
+      renderWith();
 
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.false;
       expect(get('input[name="enabled-tags"]').checked).to.be.true;
-      expect(get('input[name="enabled-clinicSites"]').checked).to.be.true;
     });
 
-    it('should not write the new panels into the persisted enabled map', () => {
+    it('should write both panels into the persisted enabled map', () => {
       renderWith();
       fireEvent.click(get('input[name="enabled-tags"]'));
-      fireEvent.click(get('input[name="enabled-basics"]'));
 
       expect(JSON.parse(localStorage[enabledChartsLocalKey])).to.eql({
+        agpBGM: true,
+        agpCGM: true,
+        basics: true,
+        bgLog: true,
+        daily: true,
+        settings: true,
+        tags: false,
+        clinicSites: true,
+      });
+    });
+
+    it('should open with a panel off and submit it as disabled when the stored map has it off', () => {
+      localStorage.setItem(enabledChartsLocalKey, JSON.stringify({
+        agpBGM: true,
+        agpCGM: true,
+        basics: true,
+        bgLog: true,
+        daily: true,
+        settings: true,
+        tags: false,
+        clinicSites: true,
+      }));
+      renderWith();
+
+      expect(get('input[name="enabled-tags"]').checked).to.be.false;
+      expect(get('#tags-content')).to.not.exist;
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.true;
+
+      submit();
+      expect(props.onClickPrint.getCall(0).args[0].tagSelection).to.eql({ enabled: false });
+    });
+
+    it('should open with both panels on when the stored map predates them', () => {
+      localStorage.setItem(enabledChartsLocalKey, JSON.stringify({
         agpBGM: true,
         agpCGM: true,
         basics: false,
         bgLog: true,
         daily: true,
         settings: true,
-      });
+      }));
+      renderWith();
+
+      expect(get('input[name="enabled-basics"]').checked).to.be.false;
+      expect(get('input[name="enabled-tags"]').checked).to.be.true;
+      expect(get('input[name="enabled-clinicSites"]').checked).to.be.true;
     });
 
     it('should still require at least one chart when only the new panels are enabled', () => {
