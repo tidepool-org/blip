@@ -23,7 +23,7 @@ jest.mock('@tidepool/viz', () => {
   };
 });
 
-import CGMClipboardButton from '../../../../../../app/pages/dashboard/PatientDrawer/MenuBar/CGMClipboardButton';
+import CGMClipboardButton from '@app/components/PatientDrawer/MenuBar/CGMClipboardButton';
 
 const patient = {
   birthDate: '2001-01-01',
