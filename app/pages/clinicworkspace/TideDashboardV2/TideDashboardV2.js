@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Redirect, useLocation, useHistory } from 'react-router-dom';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box } from 'theme-ui';
+import { colors as vizColors } from '@tidepool/viz';
 
 import FilterByCategory from './filters/FilterByCategory';
 import FilterByTags from './filters/FilterByTags';
@@ -16,6 +17,7 @@ import TableCategoryHeader from './TableCategoryHeader';
 import PaginationController from './PaginationController';
 
 import useTideDashboardPatients from './useTideDashboardPatients';
+import { getDefaultSort } from './tideDashboardApi';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
@@ -26,10 +28,19 @@ import EditPatientDialogController from './modals/EditPatientDialogController';
 import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
 import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar';
 import DataIssues from './DataIssues/DataIssues';
+import noop from 'lodash/noop';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
-const tableContainerProps = { sx: { containerType: 'inline-size' } };
+const tableContainerProps = {
+  sx: {
+    containerType: 'inline-size',
+
+    // Sort is fixed per category, so the sort labels are not interactive
+    '.MuiTableSortLabel-root': { cursor: 'default' },
+    '.MuiTableSortLabel-root:not(.MuiTableSortLabel-active):hover .MuiTableSortLabel-icon': { opacity: 0 },
+  },
+};
 
 const TideDashboardV2 = ({ api }) => {
   const { t } = useTranslation();
@@ -47,6 +58,7 @@ const TideDashboardV2 = ({ api }) => {
   // category updating view before the API call resolves and updates it again
   const resolvedCategory = data?.category || category;
 
+  const sort = getDefaultSort(resolvedCategory);
   const tableColumns = useTableColumns(resolvedCategory);
   const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
 
@@ -97,6 +109,9 @@ const TideDashboardV2 = ({ api }) => {
         emptyContentNode={emptyContentNode}
         containerProps={tableContainerProps}
         onClickRow={handleClickRow}
+        onSort={noop} // disabled
+        order={sort[0] === '+' ? 'asc' : 'desc'}
+        orderBy={sort.substring(1)}
       />
 
       <PaginationController total={total} />
