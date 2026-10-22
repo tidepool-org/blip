@@ -467,6 +467,7 @@ export const PatientDataClass = createReactClass({
         api={this.props.api}
         patientId={this.props.currentPatientInViewId}
         chartPrefs={this.state.chartPrefs}
+        siteChangeSource={this.state.updatedSiteChangeSource}
         onClose={() => this.setState({ printDialogOpen: false })}
       />
     );
@@ -1119,7 +1120,7 @@ export const PatientDataClass = createReactClass({
       returnData: false,
       showLoading: true,
       noDates: true,
-      type: 'pumpSettings,upload',
+      type: 'pumpSettings',
     });
 
     this.updateChart('settings');
@@ -1853,7 +1854,7 @@ export const PatientDataClass = createReactClass({
           returnData: false,
           showLoading: true,
           noDates: true,
-          type: 'pumpSettings,upload',
+          type: 'pumpSettings',
         });
       }
 
