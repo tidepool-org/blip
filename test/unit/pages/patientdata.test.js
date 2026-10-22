@@ -28,6 +28,7 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import PatientDataPrintDialog from '../../../app/pages/patientdata/PatientDataPrintDialog';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
 jest.mock('../../../app/core/dataViewUtils', () => {
@@ -1470,6 +1471,40 @@ describe('PatientData', function () {
           // Setting data.type to 'basal' should result in <Basics /> view rendering
           const view = wrapper.find('.fake-basics-view');
           expect(view.length).to.equal(1);
+        });
+      });
+
+      it('should fetch pumpSettings without dates when the chart type from the path is settings', () => {
+        instance.fetchAdditionalData = sinon.stub();
+
+        wrapper.setProps(_.assign({}, props, {
+          location: { search: '', pathname: '/data/settings' },
+          match: { params: { chartType: 'settings' } },
+          history: { push: sinon.stub() },
+          data: {
+            data: { current: {
+              data: { upload: [] },
+            } },
+            metaData: {
+              latestDatumByType: {
+                bolus: {
+                  type: 'bolus',
+                  deviceId: 'pump',
+                  normalTime: 100,
+                },
+              },
+              size: 10,
+            },
+          },
+        }));
+
+        instance.setInitialChartView();
+
+        sinon.assert.calledWith(instance.fetchAdditionalData, {
+          returnData: false,
+          showLoading: true,
+          noDates: true,
+          type: 'pumpSettings',
         });
       });
     });
@@ -3417,6 +3452,24 @@ describe('PatientData', function () {
     });
   });
 
+  describe('renderPrintDialog', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should pass the unsaved Basics site change pick to the print dialog', () => {
+      wrapper.setState({ printDialogOpen: true, updatedSiteChangeSource: 'tubingPrime' });
+
+      const view = instance.renderPrintDialog();
+      expect(view.type).to.equal(PatientDataPrintDialog);
+      expect(view.props.siteChangeSource).to.equal('tubingPrime');
+    });
+  });
+
   describe('handleClickPrint', () => {
     let wrapper;
     let instance;
@@ -4665,6 +4718,21 @@ describe('PatientData', function () {
 
       instance.handleSwitchToSettings();
       expect(wrapper.state('chartType')).to.equal('settings');
+    });
+
+    it('should fetch pumpSettings without dates', () => {
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      const instance = wrapper.instance();
+      instance.fetchAdditionalData = sinon.stub();
+
+      instance.handleSwitchToSettings();
+
+      sinon.assert.calledWith(instance.fetchAdditionalData, {
+        returnData: false,
+        showLoading: true,
+        noDates: true,
+        type: 'pumpSettings',
+      });
     });
   });
 

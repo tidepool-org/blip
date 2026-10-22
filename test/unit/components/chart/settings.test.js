@@ -11,9 +11,8 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import _ from 'lodash';
-import { MemoryRouter, Route } from 'react-router-dom';
-import Settings, { useLatestDatumTime } from '../../../../app/components/chart/settings';
-import { renderHook } from '@testing-library/react-hooks/dom';
+import Settings from '../../../../app/components/chart/settings';
+import { useGetLatestDatumTimeByUploadQuery } from '../../../../app/redux/features/latestDatum/latestDatumApi';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 import api from '../../../../app/core/api';
@@ -185,6 +184,8 @@ jest.mock('react-router-dom', () => {
   };
 });
 
+jest.mock('../../../../app/redux/features/latestDatum/latestDatumApi');
+
 jest.mock('@tidepool/viz', () => {
   const actual = jest.requireActual('@tidepool/viz');
   return {
@@ -200,6 +201,7 @@ describe('Settings', () => {
   let wrapper;
   let props;
   let clock;
+  let latestDatumTimes;
 
   const bgPrefs = {
     bgClasses: {
@@ -246,6 +248,7 @@ describe('Settings', () => {
       },
     },
     data: {
+      query: { chartType: 'settings' },
       bgPrefs,
       timePrefs: {
         timezoneAware: false,
@@ -294,13 +297,11 @@ describe('Settings', () => {
       replace: sinon.stub(),
     });
 
-    if (!api.patientData) {
-      api.patientData = {};
-    }
-
-    api.patientData.get = sinon.stub().callsFake((_patientId, _fetchOpts, callback) => {
-      callback(null, []);
-    });
+    latestDatumTimes = {};
+    useGetLatestDatumTimeByUploadQuery.mockClear();
+    useGetLatestDatumTimeByUploadQuery.mockImplementation((args, opts) => ({
+      currentData: opts?.skip ? undefined : latestDatumTimes[args.uploadId],
+    }));
   });
 
   after(() => {
@@ -368,12 +369,19 @@ describe('Settings', () => {
 
   const store = mockStore(defaultState);
 
-  const mountWrapper = (customProps) => {
-    wrapper = renderWithCompat(
+  // Data overrides default to the settings query results unless a test sets its own query
+  const settingsElement = (customProps = {}) => {
+    const data = customProps.data && { query: { chartType: 'settings' }, ...customProps.data };
+
+    return (
       <Provider store={store}>
-        <Settings {...props} {...customProps} />
+        <Settings {...props} {...customProps} {...(data && { data })} />
       </Provider>
     );
+  };
+
+  const mountWrapper = (customProps) => {
+    wrapper = renderWithCompat(settingsElement(customProps));
   };
 
   describe('render', () => {
@@ -387,6 +395,7 @@ describe('Settings', () => {
       const props = {
         chartPrefs: {},
         data: {
+          query: { chartType: 'settings' },
           bgPrefs,
           timePrefs: {
             timezoneAware: false,
@@ -1146,14 +1155,6 @@ describe('Settings', () => {
   });
 
   it('formats duration labels correctly for latest upload and prior range', () => {
-    api.patientData.get.callsFake((_patientId, _fetchOpts, callback) => {
-      callback(null, [
-        {
-          time: '2023-03-12T00:00:00Z',
-        },
-      ]);
-    });
-
     clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
     mountWrapper({
       data: {
@@ -1190,14 +1191,8 @@ describe('Settings', () => {
     );
   });
 
-  it('formats duration correctly when useLatestDatumTime returns a later date than latest pumpSettings', () => {
-    api.patientData.get.callsFake((_patientId, _fetchOpts, callback) => {
-      callback(null, [
-        {
-          time: '2023-03-20T00:00:00Z',
-        },
-      ]);
-    });
+  it('ends the latest settings entry at the latest datum of its upload when that is later', () => {
+    latestDatumTimes['upload-2'] = moment('2023-03-20T00:00:00Z').valueOf();
 
     clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
     mountWrapper({
@@ -1228,93 +1223,181 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Mar 01, 2023 (Last Upload Date)'
+      'Mar 01, 2023 - Mar 20, 2023 : Active for 19 days'
     );
-    // Feb 1 settings end on Mar 1 (the normalTime of the next settings entry);
-    // latestDatumFromUploadTimestamp (Mar 20) is later than the latest pumpSettings (Mar 1)
-    // but only affects the latest entry's own end range, not this range.
+    // Earlier entries end where the next entry starts, regardless of the upload's latest datum
     expect(radioOptions.at(1).text()).to.equal(
       'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
     );
   });
 
-  describe('useLatestDatumTime hook', () => {
-    const wrapper = ({ children }) => (
-      <MemoryRouter initialEntries={['/patients/1234-abcd/data/settings']}>
-        <Route path='/patients/:id/data'>
-          {children}
-        </Route>
-      </MemoryRouter>
-    );
+  describe('latest settings end date', () => {
+    const pumpSettings = (id, source, date, uploadId) => ({
+      type: 'pumpSettings',
+      normalTime: moment(`${date}T00:00:00Z`).valueOf(),
+      source,
+      id,
+      uploadId,
+    });
 
-    it('calls the API with correct args and returns the timestamp of the latest datum', () => {
-      const mockApiCall = sinon.stub();
+    const settingsData = (combined, query = { chartType: 'settings' }) => ({
+      query,
+      data: { combined },
+      timePrefs: { timezoneName: 'UTC' },
+    });
 
-      mockApiCall.callsFake((_patientId, _fetchOpts, callback) => {
-        callback(
-          null,
-          [
-            {
-              type: 'smbg',
-              time: '2023-03-02T00:00:00Z',
-              source: 'source1',
-              id: 'id2',
-            },
-            {
-              type: 'cbg',
-              time: '2023-03-01T00:00:00Z',
-              source: 'source1',
-              id: 'id2',
-            },
-          ]
-        );
+    const lookedUpUploadIds = () => _.uniq(_.map(
+      _.reject(useGetLatestDatumTimeByUploadQuery.mock.calls, ([, opts]) => opts?.skip),
+      ([args]) => args.uploadId
+    ));
+
+    const settingsButtonText = () => wrapper.find('button#settings-selection').text();
+
+    const applyDevice = (source) => {
+      wrapper.find('button#device-selection').simulate('click');
+      fireEvent.click(document.body.querySelector(`input[name="device"][value="${source}"]`));
+      wrapper.find('button#apply-device-selection').simulate('click');
+    };
+
+    const applySettings = (id) => {
+      wrapper.find('button#settings-selection').simulate('click');
+      fireEvent.click(document.body.querySelector(`input[name="settings"][value="${id}"]`));
+      wrapper.find('button#apply-settings-selection').simulate('click');
+    };
+
+    beforeEach(() => {
+      clock.jump(new Date('2024-12-01T00:00:00Z').getTime());
+    });
+
+    it('shows no options or missing-settings message, and skips the latest-datum lookup, while the data belongs to another chart', () => {
+      mountWrapper({
+        data: settingsData([pumpSettings('old', 'source1', '2024-10-10', 'upload-old')], { chartType: 'daily' }),
       });
 
-      const mockApi = {
-        patientData: {
-          get: mockApiCall,
-        },
-      };
-
-      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
-      const latestDatumTime = result.current;
-
-      expect(latestDatumTime).to.equal(1677715200000); // March 2, 2023
-
-      expect(mockApiCall.getCall(0).args[0]).to.equal('1234-abcd');
-      expect(mockApiCall.getCall(0).args[1]['latest']).to.equal(1);
-      expect(mockApiCall.getCall(0).args[1]['type']).to.equal('cbg,smbg,basal,bolus,wizard,food,pumpSettings,upload');
-      expect(mockApiCall.getCall(0).args[1]['uploadId']).to.equal('mock-upload-id');
+      expect(wrapper.find('#device-settings-selection')).to.have.lengthOf(0);
+      expect(wrapper.find('RadioGroup#settings').find('Radio')).to.have.lengthOf(0);
+      expect(wrapper.container.textContent).to.not.include('To see Therapy Settings');
+      expect(useGetLatestDatumTimeByUploadQuery.mock.calls.length).to.be.above(0);
+      expect(lookedUpUploadIds()).to.eql([]);
     });
 
-    it('returns null when resulting dataset is empty', () => {
-      const mockApi = {
-        patientData: {
-          get: (_patientId, _fetchOpts, callback) => {
-            callback(null, []);
-          },
-        },
-      };
+    it('selects the newest entry and looks up only its upload once the settings query lands', () => {
+      latestDatumTimes['upload-old'] = moment('2024-10-18T00:00:00Z').valueOf();
+      latestDatumTimes['upload-new'] = moment('2024-11-06T00:00:00Z').valueOf();
+      const oldSettings = pumpSettings('old', 'source1', '2024-10-10', 'upload-old');
+      const newSettings = pumpSettings('new', 'source1', '2024-11-04', 'upload-new');
 
-      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
-      const latestDatumTime = result.current;
+      mountWrapper({ data: settingsData([oldSettings], { chartType: 'daily' }) });
+      wrapper.rerender(settingsElement({ data: settingsData([oldSettings, newSettings]) }));
 
-      expect(latestDatumTime).to.equal(null); // expected no latest datum => null
+      expect(settingsButtonText()).to.include('Nov 04, 2024 - Nov 06, 2024 : Active for 2 days');
+      expect(lookedUpUploadIds()).to.eql(['upload-new']);
     });
 
-    it('returns null when API throws an error', () => {
-      const mockApi = {
-        patientData: {
-          get: (_patientId, _fetchOpts, callback) => {
-            callback(new Error('API request failed'));
-          },
+    it('updates the newest row\'s end date when the lookup result arrives', () => {
+      const data = settingsData([pumpSettings('new', 'source1', '2024-11-04', 'upload-new')]);
+
+      mountWrapper({ data });
+      expect(settingsButtonText()).to.include('Nov 04, 2024 (Last Upload Date)');
+
+      latestDatumTimes['upload-new'] = moment('2024-11-06T00:00:00Z').valueOf();
+      wrapper.rerender(settingsElement({ data }));
+      expect(settingsButtonText()).to.include('Nov 04, 2024 - Nov 06, 2024 : Active for 2 days');
+    });
+
+    it('looks up the selected device\'s newest upload and shows that upload\'s end date after switching device', () => {
+      latestDatumTimes['upload-a'] = moment('2024-11-10T00:00:00Z').valueOf();
+      latestDatumTimes['upload-b'] = moment('2024-10-20T00:00:00Z').valueOf();
+
+      mountWrapper({
+        data: settingsData([
+          pumpSettings('b1', 'source2', '2024-10-01', 'upload-b'),
+          pumpSettings('a1', 'source1', '2024-11-01', 'upload-a'),
+        ]),
+      });
+      expect(settingsButtonText()).to.include('Nov 01, 2024 - Nov 10, 2024 : Active for 9 days');
+
+      applyDevice('source2');
+      expect(settingsButtonText()).to.include('Oct 01, 2024 - Oct 20, 2024 : Active for 19 days');
+      expect(_.last(lookedUpUploadIds())).to.equal('upload-b');
+    });
+
+    it('shows (Last Upload Date) for the newly selected device while its lookup is pending, not the previous device\'s end date', () => {
+      latestDatumTimes['upload-a'] = moment('2024-11-10T00:00:00Z').valueOf();
+
+      mountWrapper({
+        data: settingsData([
+          pumpSettings('b1', 'source2', '2024-10-01', 'upload-b'),
+          pumpSettings('a1', 'source1', '2024-11-01', 'upload-a'),
+        ]),
+      });
+
+      applyDevice('source2');
+      expect(settingsButtonText()).to.include('Oct 01, 2024 (Last Upload Date)');
+    });
+
+    it('looks up the newest entry\'s own upload for a device used before and after another device, giving a positive duration', () => {
+      latestDatumTimes['upload-a2'] = moment('2024-11-06T00:00:00Z').valueOf();
+      latestDatumTimes['upload-b'] = moment('2024-10-18T00:00:00Z').valueOf();
+
+      mountWrapper({
+        data: settingsData([
+          pumpSettings('a1', 'source1', '2024-09-01', 'upload-a1'),
+          pumpSettings('b1', 'source2', '2024-10-01', 'upload-b'),
+          pumpSettings('a2', 'source1', '2024-11-04', 'upload-a2'),
+        ]),
+      });
+
+      expect(settingsButtonText()).to.include('Nov 04, 2024 - Nov 06, 2024 : Active for 2 days');
+      expect(lookedUpUploadIds()).to.eql(['upload-a2']);
+    });
+
+    it('compares the latest entry\'s start and end days in the patient\'s timezone', () => {
+      latestDatumTimes['upload-new'] = moment('2024-09-13T17:37:00Z').valueOf();
+
+      mountWrapper({
+        data: {
+          ...settingsData([{ ...pumpSettings('new', 'source1', '2024-09-13', 'upload-new'), normalTime: moment('2024-09-13T04:54:00Z').valueOf() }]),
+          timePrefs: { timezoneName: 'US/Pacific' },
         },
-      };
+      });
 
-      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
-      const latestDatumTime = result.current;
+      expect(settingsButtonText()).to.include('Sep 12, 2024 - Sep 13, 2024 : Active for 1 day');
+    });
 
-      expect(latestDatumTime).to.equal(null);
+    it('opens a newly applied device on its newest entry', () => {
+      mountWrapper({
+        data: settingsData([
+          pumpSettings('a1', 'source1', '2024-09-01', 'upload-a1'),
+          pumpSettings('b1', 'source2', '2024-10-01', 'upload-b'),
+          pumpSettings('a2', 'source1', '2024-11-04', 'upload-a2'),
+        ]),
+      });
+
+      applySettings('a1');
+      expect(settingsButtonText()).to.include('Sep 01, 2024 - Nov 04, 2024');
+
+      applyDevice('source2');
+      expect(settingsButtonText()).to.include('Oct 01, 2024 (Last Upload Date)');
+
+      applyDevice('source1');
+      expect(settingsButtonText()).to.include('Nov 04, 2024 (Last Upload Date)');
+    });
+
+    it('keeps the selected entry when the current device is applied again', () => {
+      mountWrapper({
+        data: settingsData([
+          pumpSettings('a1', 'source1', '2024-09-01', 'upload-a1'),
+          pumpSettings('b1', 'source2', '2024-10-01', 'upload-b'),
+          pumpSettings('a2', 'source1', '2024-11-04', 'upload-a2'),
+        ]),
+      });
+
+      applySettings('a1');
+      expect(settingsButtonText()).to.include('Sep 01, 2024 - Nov 04, 2024');
+
+      applyDevice('source1');
+      expect(settingsButtonText()).to.include('Sep 01, 2024 - Nov 04, 2024');
     });
   });
 

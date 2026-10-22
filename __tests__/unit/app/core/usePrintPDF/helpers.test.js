@@ -391,6 +391,12 @@ describe('getPdfOpts', () => {
     expect(result.sites).toEqual([]);
   });
 
+  it('should prefer an unsaved `siteChangeSource` print option over the saved patient setting', () => {
+    const result = getPdfOpts({ ...printOpts, siteChangeSource: 'tubingPrime' }, clinicianUser, patient, clinicPatient, clinic);
+
+    expect(result.patient.settings).toEqual({ siteChangeSource: 'tubingPrime', units: { bg: 'mg/dL' } });
+  });
+
   it('should send empty arrays for a patient account', () => {
     const result = getPdfOpts(printOpts, { userid: 'patient-1', roles: [] }, patient, clinicPatient, clinic);
 
@@ -401,7 +407,7 @@ describe('getPdfOpts', () => {
   describe('with a selection from the print dialog', () => {
     it('should send an empty array for a disabled section', () => {
       const result = getPdfOpts(
-        { ...printOpts, tagSelection: { enabled: false, ids: ['tag-a', 'tag-b'] } },
+        { ...printOpts, tagSelection: { enabled: false } },
         clinicianUser, patient, clinicPatient, clinic
       );
 
@@ -409,17 +415,17 @@ describe('getPdfOpts', () => {
       expect(result.sites).toEqual([{ id: 'site-a', name: 'A site' }, { id: 'site-b', name: 'B site' }]);
     });
 
-    it('should send only the selected items, still sorted alphabetically by name', () => {
+    it('should send every item for an enabled section, sorted alphabetically by name', () => {
       const result = getPdfOpts(
         {
           ...printOpts,
-          tagSelection: { enabled: true, ids: ['tag-b'] },
-          clinicSiteSelection: { enabled: true, ids: ['site-b', 'site-a'] },
+          tagSelection: { enabled: true },
+          clinicSiteSelection: { enabled: true },
         },
         clinicianUser, patient, clinicPatient, clinic
       );
 
-      expect(result.patientTags).toEqual([{ id: 'tag-b', name: 'B tag' }]);
+      expect(result.patientTags).toEqual([{ id: 'tag-a', name: 'A tag' }, { id: 'tag-b', name: 'B tag' }]);
       expect(result.sites).toEqual([{ id: 'site-a', name: 'A site' }, { id: 'site-b', name: 'B site' }]);
     });
 
@@ -428,14 +434,14 @@ describe('getPdfOpts', () => {
     it('should resolve to the same arrays when its own output is fed back in', () => {
       const optsWithSelection = {
         ...printOpts,
-        tagSelection: { enabled: true, ids: ['tag-a'] },
-        clinicSiteSelection: { enabled: false, ids: ['site-a'] },
+        tagSelection: { enabled: true },
+        clinicSiteSelection: { enabled: false },
       };
 
       const firstPass = getPdfOpts(optsWithSelection, clinicianUser, patient, clinicPatient, clinic);
       const secondPass = getPdfOpts(firstPass, clinicianUser, patient, clinicPatient, clinic);
 
-      expect(firstPass.patientTags).toEqual([{ id: 'tag-a', name: 'A tag' }]);
+      expect(firstPass.patientTags).toEqual([{ id: 'tag-a', name: 'A tag' }, { id: 'tag-b', name: 'B tag' }]);
       expect(firstPass.sites).toEqual([]);
       expect(secondPass.patientTags).toEqual(firstPass.patientTags);
       expect(secondPass.sites).toEqual(firstPass.sites);
