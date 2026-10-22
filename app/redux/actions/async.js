@@ -3120,6 +3120,7 @@ export function selectClinic(api, clinicId) {
     dispatch(sync.selectClinicSuccess(clinicId));
 
     const { blip: { clinics = {} } } = getState();
+
     const clinic = clinics[clinicId];
 
     if (clinic) {
