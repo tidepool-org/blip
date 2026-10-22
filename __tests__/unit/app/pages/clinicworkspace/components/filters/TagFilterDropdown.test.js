@@ -6,7 +6,7 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import TagFilterDropdown from '@app/pages/clinicworkspace/components/TagFilterDropdown';
+import TagFilterDropdown from '@app/pages/clinicworkspace/components/filters/TagFilterDropdown';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 import useIsClinicAdmin from '@app/pages/clinicworkspace/useIsClinicAdmin';
 import { SPECIAL_FILTER_STATES } from '@app/pages/clinicworkspace/useClinicPatientsFilters';
