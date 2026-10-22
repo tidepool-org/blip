@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.60.0-rc.5":
-  version: 1.60.0-rc.5
-  resolution: "@tidepool/viz@npm:1.60.0-rc.5"
+"@tidepool/viz@npm:1.60.0":
+  version: 1.60.0
+  resolution: "@tidepool/viz@npm:1.60.0"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 5332395a5b1162ac7a71c323c4626903928f1db4dfde8cf23a01015d1bb414a151c0348d563bb105e01c002261f9e87fdfd17447b1cb4a3674c9840fd67aa2a1
+  checksum: a4332597943996f5cbcaca1e419ce21ec7d5326833fa286cc2c86dfb200a8d18498ed69ae123c6422081c6ff7ab26ce960d2abe349ae9cb4976b97bf88f4b8a7
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.60.0-rc.5
+    "@tidepool/viz": 1.60.0
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
@@ -8527,7 +8527,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.41.0-rc.2
+    tideline: 1.41.0
     tidepool-platform-client: 0.66.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -21768,9 +21768,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.41.0-rc.2":
-  version: 1.41.0-rc.2
-  resolution: "tideline@npm:1.41.0-rc.2"
+"tideline@npm:1.41.0":
+  version: 1.41.0
+  resolution: "tideline@npm:1.41.0"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -21791,7 +21791,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: af534cb89bfa88aee5525dfa8792181aa4616ef433aad2b7d86da9694a5c35302a25d511e79bfc2ac2c5a47273fdcec60a9082238a0719b01ff508a2007a3fa8
+  checksum: 5b48bb5f4c844c300d47ccff51f7c269bf86192d8ebe027885b0b46b80a87a1c0e2fd0b0d9857654eb5906967718712ed231653fb9403438533a88dbef8e68a1
   languageName: node
   linkType: hard
 
