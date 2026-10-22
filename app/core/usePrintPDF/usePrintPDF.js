@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions';
 import noop from 'lodash/noop';
 import utils from '../utils';
 import personUtils from '../personutils';
 import { useGenerateAGPImages } from '../agpUtils';
+import { getPatientTags, getPatientSites } from '../clinicUtils';
 import { selectPatient, selectUser } from '../selectors';
 import usePrintWindow from './usePrintWindow';
 import { trackMetric } from '../../core/metricUtils';
@@ -84,6 +85,11 @@ const usePrintPDF = (
   const user = useSelector(state => selectUser(state));
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
+  const isClinician = personUtils.isClinicianAccount(user);
+
+  // Stable identities so the print dialog's mount-time defaults only recompute when the source changes
+  const patientTags = useMemo(() => (isClinician ? getPatientTags(clinic, clinicPatient) : []), [isClinician, clinic, clinicPatient]);
+  const sites = useMemo(() => (isClinician ? getPatientSites(clinic, clinicPatient) : []), [isClinician, clinic, clinicPatient]);
 
   const printOptsRef = useRef(null);
   const timePrefsRef = useRef(null);
@@ -133,7 +139,7 @@ const usePrintPDF = (
 
       case STATUS.GENERATING_PDF:
         const queries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const pdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
+        const pdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient, clinic);
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         trackMetric('Generated PDF', { patientID: patientId });
         break;
@@ -149,7 +155,7 @@ const usePrintPDF = (
         printOptsRef.current = pdf.opts;
         // Call generatePDFRequest a second time with SVGs in args to attach them to the PDF
         const agpQueries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const agpPdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
+        const agpPdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient, clinic);
         dispatch(actions.worker.generatePDFRequest('combined', agpQueries, agpPdfOpts, patientId));
         break;
 
@@ -184,6 +190,8 @@ const usePrintPDF = (
     modalData: {
       timePrefs: getTimePrefs(),
       latestDatumByType: canPrint ? data?.metaData?.latestDatumByType : null,
+      patientTags,
+      sites,
     },
   };
 };

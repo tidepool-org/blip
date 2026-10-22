@@ -28,6 +28,7 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import PatientDataPrintDialog from '../../../app/pages/patientdata/PatientDataPrintDialog';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
 jest.mock('../../../app/core/dataViewUtils', () => {
@@ -328,12 +329,16 @@ describe('PatientData', function () {
   let isCustomBgRangeStub;
   let defineBasicsAggregationsStub;
   let processBasicsAggregationsStub;
+  let getSiteChangeSourceStub;
+  let getSiteChangeSourceLabelStub;
   let originalSelectDailyViewData;
   let originalSelectBgLogViewData;
   let originalReshapeBgClassesToBgBounds;
   let originalIsCustomBgRange;
   let originalDefineBasicsAggregations;
   let originalProcessBasicsAggregations;
+  let originalGetSiteChangeSource;
+  let originalGetSiteChangeSourceLabel;
 
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
@@ -390,6 +395,8 @@ describe('PatientData', function () {
     originalIsCustomBgRange = vizUtils.bg.isCustomBgRange;
     originalDefineBasicsAggregations = vizUtils.aggregation.defineBasicsAggregations;
     originalProcessBasicsAggregations = vizUtils.aggregation.processBasicsAggregations;
+    originalGetSiteChangeSource = vizUtils.aggregation.getSiteChangeSource;
+    originalGetSiteChangeSourceLabel = vizUtils.aggregation.getSiteChangeSourceLabel;
 
     selectDailyViewDataStub = sinon.stub().returns('stubbed filtered daily data');
     selectBgLogViewDataStub = sinon.stub().returns('stubbed filtered bgLog data');
@@ -397,6 +404,8 @@ describe('PatientData', function () {
     isCustomBgRangeStub = sinon.stub().returns(false);
     defineBasicsAggregationsStub = sinon.stub().returns('stubbed aggregations definitions');
     processBasicsAggregationsStub = sinon.stub().returns('stubbed processed aggregations');
+    getSiteChangeSourceStub = sinon.stub().returns('stubbed site change source');
+    getSiteChangeSourceLabelStub = sinon.stub().returns('stubbed site change source label');
 
     vizUtils.data.selectDailyViewData = selectDailyViewDataStub;
     vizUtils.data.selectBgLogViewData = selectBgLogViewDataStub;
@@ -404,6 +413,8 @@ describe('PatientData', function () {
     vizUtils.bg.isCustomBgRange = isCustomBgRangeStub;
     vizUtils.aggregation.defineBasicsAggregations = defineBasicsAggregationsStub;
     vizUtils.aggregation.processBasicsAggregations = processBasicsAggregationsStub;
+    vizUtils.aggregation.getSiteChangeSource = getSiteChangeSourceStub;
+    vizUtils.aggregation.getSiteChangeSourceLabel = getSiteChangeSourceLabelStub;
   });
 
   beforeEach(() => {
@@ -422,6 +433,8 @@ describe('PatientData', function () {
     vizUtils.bg.isCustomBgRange = originalIsCustomBgRange;
     vizUtils.aggregation.defineBasicsAggregations = originalDefineBasicsAggregations;
     vizUtils.aggregation.processBasicsAggregations = originalProcessBasicsAggregations;
+    vizUtils.aggregation.getSiteChangeSource = originalGetSiteChangeSource;
+    vizUtils.aggregation.getSiteChangeSourceLabel = originalGetSiteChangeSourceLabel;
   });
 
   afterEach(() => {
@@ -1460,6 +1473,40 @@ describe('PatientData', function () {
           expect(view.length).to.equal(1);
         });
       });
+
+      it('should fetch pumpSettings without dates when the chart type from the path is settings', () => {
+        instance.fetchAdditionalData = sinon.stub();
+
+        wrapper.setProps(_.assign({}, props, {
+          location: { search: '', pathname: '/data/settings' },
+          match: { params: { chartType: 'settings' } },
+          history: { push: sinon.stub() },
+          data: {
+            data: { current: {
+              data: { upload: [] },
+            } },
+            metaData: {
+              latestDatumByType: {
+                bolus: {
+                  type: 'bolus',
+                  deviceId: 'pump',
+                  normalTime: 100,
+                },
+              },
+              size: 10,
+            },
+          },
+        }));
+
+        instance.setInitialChartView();
+
+        sinon.assert.calledWith(instance.fetchAdditionalData, {
+          returnData: false,
+          showLoading: true,
+          noDates: true,
+          type: 'pumpSettings',
+        });
+      });
     });
   });
 
@@ -1678,6 +1725,59 @@ describe('PatientData', function () {
         instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
 
         sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
+      });
+    });
+
+    it('should remove the generated PDF when an unsaved site change source is reverted to the saved one', () => {
+      const settingsProps = _.assign({}, defaultProps, {
+        patient: _.assign({}, defaultProps.patient, {
+          settings: {
+            siteChangeSource: 'cannulaPrime',
+          },
+        }),
+      });
+
+      const wrapper = shallow(<PatientDataClass {...settingsProps} />);
+      const instance = wrapper.instance();
+      defaultProps.removeGeneratedPDFS.resetHistory();
+
+      let canUpdateSettings = false;
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, { siteChangeSource: 'tubingPrime' }, canUpdateSettings);
+      expect(wrapper.state('updatedSiteChangeSource')).to.equal('tubingPrime');
+
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, { siteChangeSource: 'cannulaPrime' }, canUpdateSettings);
+      expect(wrapper.state('updatedSiteChangeSource')).to.equal('cannulaPrime');
+      sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 2);
+    });
+  });
+
+  describe('renderChart', () => {
+    context('daily', () => {
+      let wrapper;
+      let instance;
+
+      beforeEach(() => {
+        wrapper = shallow(<PatientDataClass {...defaultProps} patient={{
+          ...defaultProps.patient,
+          settings: { siteChangeSource: 'cannulaPrime' },
+        }} data={{
+          ...defaultProps.data,
+          metaData: { latestPumpUpload: { manufacturer: 'tandem' } },
+        }} />);
+        instance = wrapper.instance();
+        wrapper.setState({ chartType: 'daily' });
+        getSiteChangeSourceStub.resetHistory();
+      });
+
+      it('should resolve the site change source from the saved patient settings', () => {
+        expect(instance.renderChart().props.siteChangeSource).to.equal('stubbed site change source');
+        sinon.assert.calledWithMatch(getSiteChangeSourceStub, { settings: { siteChangeSource: 'cannulaPrime' } }, 'tandem');
+      });
+
+      it('should resolve the site change source from an unsaved Basics pick over the saved patient settings', () => {
+        wrapper.setState({ updatedSiteChangeSource: 'tubingPrime' });
+        instance.renderChart();
+        sinon.assert.calledWithMatch(getSiteChangeSourceStub, { settings: { siteChangeSource: 'tubingPrime' } }, 'tandem');
       });
     });
   });
@@ -2123,7 +2223,24 @@ describe('PatientData', function () {
         processBasicsAggregationsStub,
         'stubbed aggregations definitions',
         'my aggregations',
-        defaultProps.patient,
+        { ...defaultProps.patient, settings: { siteChangeSource: undefined } },
+        'animas',
+      );
+    });
+
+    it('should aggregate with an unsaved Basics site change pick over the saved patient settings', () => {
+      wrapper.setProps({ data: {
+        data: { aggregationsByDate: 'my aggregations' },
+        metaData: { latestPumpUpload: { manufacturer: 'animas' } },
+      } });
+      wrapper.setState({ updatedSiteChangeSource: 'tubingPrime' });
+
+      instance.getBasicsAggregations();
+      sinon.assert.calledWithMatch(
+        processBasicsAggregationsStub,
+        'stubbed aggregations definitions',
+        'my aggregations',
+        { settings: { siteChangeSource: 'tubingPrime' } },
         'animas',
       );
     });
@@ -3332,6 +3449,24 @@ describe('PatientData', function () {
         datesDialogProcessing: false,
         datesDialogFetchingData: false,
       });
+    });
+  });
+
+  describe('renderPrintDialog', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should pass the unsaved Basics site change pick to the print dialog', () => {
+      wrapper.setState({ printDialogOpen: true, updatedSiteChangeSource: 'tubingPrime' });
+
+      const view = instance.renderPrintDialog();
+      expect(view.type).to.equal(PatientDataPrintDialog);
+      expect(view.props.siteChangeSource).to.equal('tubingPrime');
     });
   });
 
@@ -4583,6 +4718,21 @@ describe('PatientData', function () {
 
       instance.handleSwitchToSettings();
       expect(wrapper.state('chartType')).to.equal('settings');
+    });
+
+    it('should fetch pumpSettings without dates', () => {
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      const instance = wrapper.instance();
+      instance.fetchAdditionalData = sinon.stub();
+
+      instance.handleSwitchToSettings();
+
+      sinon.assert.calledWith(instance.fetchAdditionalData, {
+        returnData: false,
+        showLoading: true,
+        noDates: true,
+        type: 'pumpSettings',
+      });
     });
   });
 

@@ -58,6 +58,13 @@ jest.mock('../../../app/pages/clinicworkspace/useClinicPatientsFilters', () => {
   };
 });
 
+// The page mounts with redux-mock-store, which carries no RTK Query middleware; the
+// real request path is covered by the ExportDropdown suite.
+jest.mock('../../../app/redux/features/patientListExport/patientListExportApi', () => ({
+  __esModule: true,
+  useExportPatientListMutation: () => [jest.fn(), { isLoading: false }],
+}));
+
 jest.mock('../../../app/core/api', () => {
   if (!mockApi) mockApi = { clinics: {} };
   return {
@@ -108,6 +115,13 @@ describe('ClinicPatients', () => {
         revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [yesterday]),
       },
     },
+  };
+
+  // The RPM Report CTA lives in the Export dropdown's popover, which portals outside
+  // the render container, so queries for it run against the document.
+  const openExportDropdown = async () => {
+    fireEvent.click(document.querySelector('#export-dropdown-trigger'));
+    await waitFor(() => expect(document.querySelector('#open-rpm-report-config')).to.exist);
   };
 
   const mountWrapper = (store) => {
@@ -2393,17 +2407,17 @@ describe('ClinicPatients', () => {
             exportRpmReportStub = null;
           });
 
-          it('should render the RPM Report CTA', () => {
-            const rpmReportButton = container.querySelector('#open-rpm-report-config');
-            expect(rpmReportButton).to.exist;
+          it('should render the RPM Report CTA', async () => {
+            await openExportDropdown();
+            expect(document.querySelector('#open-rpm-report-config')).to.exist;
           });
 
-          it('should not render the RPM Report CTA if clinic tier < tier0300', () => {
+          it('should not render the Export dropdown if clinic tier < tier0300', () => {
             store = mockStore(tier0100ClinicState);
             mountWrapper(store);
 
-            const rpmReportButton = container.querySelector('#open-rpm-report-config');
-            expect(rpmReportButton).to.be.null;
+            expect(document.querySelector('#export-dropdown-trigger')).to.be.null;
+            expect(document.querySelector('#open-rpm-report-config')).to.be.null;
           });
 
           it('should open a patient count limit modal if current filtered count is > 1000', async () => {
@@ -2421,7 +2435,8 @@ describe('ClinicPatients', () => {
 
             mountWrapper(store);
 
-            const rpmReportButton = container.querySelector('#open-rpm-report-config');
+            await openExportDropdown();
+            const rpmReportButton = document.querySelector('#open-rpm-report-config');
             const dialog = () => document.querySelector('#rpmReportLimit');
 
             // Clicking RPM report button should open dashboard limit popover since fetchedPatientCount > 1000
@@ -2492,7 +2507,8 @@ describe('ClinicPatients', () => {
             const summaryPeriodApplyButton = document.querySelector('#apply-summary-period-filter');
             fireEvent.click(summaryPeriodApplyButton);
 
-            const rpmReportButton = container.querySelector('#open-rpm-report-config');
+            await openExportDropdown();
+            const rpmReportButton = document.querySelector('#open-rpm-report-config');
             const dialog = () => document.querySelector('#rpmReportConfig');
 
             // Clicking RPM report button should open dashboard config popover since fetchedPatientCount <= 1000
@@ -2657,12 +2673,15 @@ describe('ClinicPatients', () => {
             });
           });
 
-          it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
+          it('should not show the RPM Report CTA, even if clinic tier >= tier0300', async () => {
             store = mockStore(tier0300ClinicState);
             mountWrapper(store);
 
-            const rpmReportButton = container.querySelector('#open-rpm-report-config');
-            expect(rpmReportButton).to.be.null;
+            // An admin on a summary-data clinic still gets the patient list export, so
+            // the dropdown renders with only that item.
+            fireEvent.click(document.querySelector('#export-dropdown-trigger'));
+            await waitFor(() => expect(document.querySelector('#export-patient-list')).to.exist);
+            expect(document.querySelector('#open-rpm-report-config')).to.be.null;
           });
         });
       });

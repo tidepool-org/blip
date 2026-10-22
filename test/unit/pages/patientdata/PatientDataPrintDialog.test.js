@@ -130,6 +130,61 @@ describe('PatientDataPrintDialog', () => {
           })
         );
       });
+
+      it('injects the unsaved site change source into the print opts', () => {
+        const mockPrint = jest.fn();
+
+        usePrintPDF.mockReturnValue({
+          status: STATUS.AWAITING_INPUT,
+          canPrint: true,
+          print: mockPrint,
+          modalData: { latestDatumByType, timePrefs: { timezoneName: 'UTC' } },
+        });
+
+        wrapper = renderComponent({ siteChangeSource: 'tubingPrime' });
+
+        screen.getByRole('button', { name: /Print/ }).click();
+
+        expect(mockPrint).toHaveBeenCalledWith(expect.objectContaining({ siteChangeSource: 'tubingPrime' }));
+      });
+
+      it('omits the site change source from the print opts when there is no unsaved pick', () => {
+        const mockPrint = jest.fn();
+
+        usePrintPDF.mockReturnValue({
+          status: STATUS.AWAITING_INPUT,
+          canPrint: true,
+          print: mockPrint,
+          modalData: { latestDatumByType, timePrefs: { timezoneName: 'UTC' } },
+        });
+
+        wrapper = renderComponent();
+
+        screen.getByRole('button', { name: /Print/ }).click();
+
+        expect(mockPrint.mock.calls[0][0]).not.toHaveProperty('siteChangeSource');
+      });
+    });
+  });
+
+  describe('when the patient has tags and sites', () => {
+    it('forwards them from modalData to the PrintDateRangeDialog panels', () => {
+      usePrintPDF.mockReturnValue({
+        status: STATUS.AWAITING_INPUT,
+        canPrint: true,
+        print: jest.fn(),
+        modalData: {
+          latestDatumByType,
+          timePrefs: { timezoneName: 'UTC' },
+          patientTags: [{ id: 'tag-a', name: 'A tag' }],
+          sites: [{ id: 'site-a', name: 'A site' }],
+        },
+      });
+
+      wrapper = renderComponent();
+
+      expect(document.body.querySelector('#tags-header')).toBeInTheDocument();
+      expect(document.body.querySelector('#clinicSites-header')).toBeInTheDocument();
     });
   });
 

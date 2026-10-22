@@ -22,6 +22,7 @@ import Select from '../elements/Select';
 import DateRangePicker from '../elements/DateRangePicker';
 import { async, sync } from '../../redux/actions';
 import i18next from '../../core/language';
+import utils from '../../core/utils';
 
 const t = i18next.t.bind(i18next);
 const log = bows('RpmReportConfigForm');
@@ -77,14 +78,9 @@ export const exportRpmReport = ({ config, results }) => {
   });
 
   const csv = csvRows.map((row) => row.join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
   const downloadFileName = `RPM Report (${startDate.replaceAll('/', '-')} - ${endDate.replaceAll('/', '-')}).csv`;
 
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = downloadFileName;
-  a.click();
+  utils.downloadCsv(csv, downloadFileName);
 };
 
 export const RpmReportConfigForm = props => {
