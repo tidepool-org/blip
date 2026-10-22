@@ -16,7 +16,6 @@ import {
 
 import get from 'lodash/get';
 import filter from 'lodash/filter';
-import includes from 'lodash/includes';
 import min from 'lodash/min';
 import at from 'lodash/at';
 import map from 'lodash/map';
@@ -65,7 +64,8 @@ export const getPdfOpts = (printOpts, user, patient, clinicPatient, clinic) => {
   const combinedPatient = clinicPatient ? personUtils.combinedAccountAndClinicPatient(patient, clinicPatient) : null;
   const sourcePatient = isClinician && !!combinedPatient ? combinedPatient : patient;
   const patientSettings = patient?.settings || {};
-  const siteChangeSource = patient?.settings?.siteChangeSource;
+  // Prefer the unsaved Basics pick sent with the print options over the saved patient setting
+  const siteChangeSource = printOpts?.siteChangeSource || patient?.settings?.siteChangeSource;
 
   const pdfPatient = {
     ...sourcePatient,
@@ -75,12 +75,7 @@ export const getPdfOpts = (printOpts, user, patient, clinicPatient, clinic) => {
 
   const toIdAndName = item => pick(item, ['id', 'name']);
 
-  const exportedItems = (items, selection) => {
-    if (!selection) return map(items, toIdAndName); // no selection panel — export everything
-    if (!selection.enabled) return [];
-
-    return map(filter(items, ({ id }) => includes(selection.ids, id)), toIdAndName);
-  };
+  const exportedItems = (items, selection) => (selection && !selection.enabled ? [] : map(items, toIdAndName));
 
   return {
     ...printOpts,

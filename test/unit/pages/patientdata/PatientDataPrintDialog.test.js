@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
 import { thunk } from 'redux-thunk';
 
 import PatientDataPrintDialog from '@app/pages/patientdata/PatientDataPrintDialog';
@@ -17,13 +16,9 @@ describe('PatientDataPrintDialog', () => {
   const api = {};
   const patientId = 'patient123';
 
-  const selectedClinicId = 'clinic123';
-
   const defaultStoreState = {
     blip: {
       loggedInUserId: 'clinician123',
-      selectedClinicId,
-      clinics: { [selectedClinicId]: { id: selectedClinicId, patientTags: [], sites: [] } },
     },
   };
 
@@ -41,9 +36,7 @@ describe('PatientDataPrintDialog', () => {
   const renderComponent = (props = {}) => {
     return render(
       <Provider store={store}>
-        <MemoryRouter>
-          <PatientDataPrintDialog {...defaultProps} {...props} />
-        </MemoryRouter>
+        <PatientDataPrintDialog {...defaultProps} {...props} />
       </Provider>
     );
   };
@@ -137,6 +130,40 @@ describe('PatientDataPrintDialog', () => {
           })
         );
       });
+
+      it('injects the unsaved site change source into the print opts', () => {
+        const mockPrint = jest.fn();
+
+        usePrintPDF.mockReturnValue({
+          status: STATUS.AWAITING_INPUT,
+          canPrint: true,
+          print: mockPrint,
+          modalData: { latestDatumByType, timePrefs: { timezoneName: 'UTC' } },
+        });
+
+        wrapper = renderComponent({ siteChangeSource: 'tubingPrime' });
+
+        screen.getByRole('button', { name: /Print/ }).click();
+
+        expect(mockPrint).toHaveBeenCalledWith(expect.objectContaining({ siteChangeSource: 'tubingPrime' }));
+      });
+
+      it('omits the site change source from the print opts when there is no unsaved pick', () => {
+        const mockPrint = jest.fn();
+
+        usePrintPDF.mockReturnValue({
+          status: STATUS.AWAITING_INPUT,
+          canPrint: true,
+          print: mockPrint,
+          modalData: { latestDatumByType, timePrefs: { timezoneName: 'UTC' } },
+        });
+
+        wrapper = renderComponent();
+
+        screen.getByRole('button', { name: /Print/ }).click();
+
+        expect(mockPrint.mock.calls[0][0]).not.toHaveProperty('siteChangeSource');
+      });
     });
   });
 
@@ -156,8 +183,8 @@ describe('PatientDataPrintDialog', () => {
 
       wrapper = renderComponent();
 
-      expect(document.body.querySelector('.PatientFormSelectTags__multi-value__label')).toHaveTextContent('A tag');
-      expect(document.body.querySelector('.PatientFormSelectSites__multi-value__label')).toHaveTextContent('A site');
+      expect(document.body.querySelector('#tags-header')).toBeInTheDocument();
+      expect(document.body.querySelector('#clinicSites-header')).toBeInTheDocument();
     });
   });
 
