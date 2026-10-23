@@ -204,7 +204,6 @@
   "resolutions": {
     "cheerio": "1.0.0-rc.12",
     "express": "4.21.2",
-    "handlebars": "^4.7.10",
     "@emotion/react": "11.5.0",
     "@emotion/styled": "11.3.0",
     "crypto-js": "4.2.0",
