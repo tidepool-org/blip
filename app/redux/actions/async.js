@@ -1218,7 +1218,6 @@ export function fetchPatientData(api, options, id) {
           if (!missingUploadIds.length) return handleFetchSuccess(combinedData, id, options);
 
           // One request per uploadId (the API takes a single id); batch if it gains multi-id support.
-          // The limit stays under the browser's per-host connection limit so other API requests aren't blocked.
           const uploadFetchConcurrency = 5;
           async.mapLimit(missingUploadIds, uploadFetchConcurrency, (uploadId, cb) => {
             api.patientData.get(id, { type: 'upload', uploadId }, (err, records) => cb(null, err ? [] : records));

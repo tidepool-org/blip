@@ -3775,7 +3775,7 @@ describe('Actions', () => {
         ];
 
         uploadRecord = [
-          { type: 'upload', id: 'upload123', uploadId: '_upload123', time: '2018-01-15T00:00:00.000Z'}
+          { type: 'upload', id: 'upload123', uploadId: 'upload123', time: '2018-01-15T00:00:00.000Z' }
         ];
 
         teamNotes = [
