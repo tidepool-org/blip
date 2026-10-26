@@ -3999,7 +3999,7 @@ describe('Actions', () => {
 
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
-          expect(api.patientData.get.withArgs(patientId, { type: 'upload' }).callCount).to.equal(0);
+          sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match(opts => opts.type === 'upload' && !opts.uploadId && !opts.startDate, 'undated upload read'));
         });
 
         it('should request each missing upload record by uploadId once', () => {
@@ -4049,6 +4049,52 @@ describe('Actions', () => {
 
           const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
           expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...teamNotes, ...uploadRecord]));
+        });
+
+        context('more than five upload records are missing', () => {
+          let settings;
+          let uploads;
+          let datedRead;
+
+          beforeEach(() => {
+            settings = _.map(_.range(1, 7), i => ({ id: `ps${i}`, uploadId: `up${i}`, type: 'pumpSettings', time: `2018-0${i}-01T00:00:00.000Z` }));
+            uploads = _.map(settings, s => ({ type: 'upload', id: s.uploadId, uploadId: s.uploadId, time: s.time }));
+            datedRead = sinon.match({ type: 'upload', startDate: sinon.match.string, endDate: sinon.match.string });
+
+            api.patientData.get = sinon.stub().callsArgWith(2, null, [...patientData, ...settings]);
+            api.patientData.get.withArgs(patientId, datedRead).callsArgWith(2, null, [{ type: 'upload', id: 'other', uploadId: 'other' }, ...uploads.slice(0, 5)]);
+            api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'up6' }).callsArgWith(2, null, [uploads[5]]);
+            api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'upload123' }).callsArgWith(2, null, uploadRecord);
+          });
+
+          it('should read upload records by date from the earliest referencing datum, then look up only those still missing', () => {
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, router: { location: { pathname: `data/${patientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            expect(api.patientData.get.withArgs(patientId, datedRead).callCount).to.equal(1);
+            expect(api.patientData.get.withArgs(patientId, datedRead).firstCall.args[1].startDate).to.equal('2018-01-01T00:00:00.000Z');
+            expect(api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'up6' }).callCount).to.equal(1);
+            sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match({ uploadId: 'up1' }));
+
+            const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
+            expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes, ...uploads.slice(0, 5), ...uploadRecord, uploads[5]]));
+          });
+
+          it('should look up every missing upload record by uploadId when the dated read fails', () => {
+            api.patientData.get.withArgs(patientId, datedRead).callsArgWith(2, { status: 500 }, null);
+            _.each(uploads, u => api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: u.uploadId }).callsArgWith(2, null, [u]));
+
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, router: { location: { pathname: `data/${patientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            expect(api.patientData.get.withArgs(patientId, sinon.match.has('uploadId')).callCount).to.equal(7);
+            const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
+            expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes, ...uploadRecord, ...uploads]));
+          });
         });
       });
 

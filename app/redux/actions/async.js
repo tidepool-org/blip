@@ -19,6 +19,9 @@ import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 
+// Upload record lookups in flight at once, a courtesy to the backend rather than a browser limit
+const UPLOAD_FETCH_CONCURRENCY = 5;
+
 // Exported as a mutable reference to allow location to be swapped in tests
 export const _win = { location: window.location };
 
@@ -1176,6 +1179,44 @@ export function fetchPatientData(api, options, id) {
       }
     }
 
+    // Upload records that the fetched data references but does not include: a continuous dataset
+    // (e.g. Loop) created before the fetched range, or old pump uploads behind the Devices view's
+    // full settings history. Failed requests are dropped; the data loads without those records.
+    function fetchMissingUploadRecords(data, cb) {
+      const referencedIds = _.uniq(_.compact(_.map(data, 'uploadId')));
+      const fetchedIds = _.map(_.filter(data, { type: 'upload' }), 'uploadId');
+      const missingIds = _.difference(referencedIds, fetchedIds);
+
+      if (!missingIds.length) return cb([]);
+
+      // A few records: one request each by uploadId.
+      if (missingIds.length <= UPLOAD_FETCH_CONCURRENCY) return fetchUploadRecordsById(missingIds, cb);
+
+      // Many records: an upload record is dated at the upload, so one read from the earliest datum
+      // that references a missing record finds every upload made since. A continuous dataset created
+      // before that is still missing afterwards and is looked up by uploadId.
+      const earliestTime = _.min(_.compact(_.map(_.filter(data, d => _.includes(missingIds, d.uploadId)), 'time')));
+
+      fetchUploadRecordsByDate(earliestTime, (records) => {
+        const found = _.filter(records, r => _.includes(missingIds, r.uploadId));
+        const stillMissingIds = _.difference(missingIds, _.map(found, 'uploadId'));
+
+        fetchUploadRecordsById(stillMissingIds, (rest) => cb([...found, ...rest]));
+      });
+    }
+
+    // One request per uploadId (the API takes a single id); batch if it gains multi-id support.
+    function fetchUploadRecordsById(uploadIds, cb) {
+      async.mapLimit(uploadIds, UPLOAD_FETCH_CONCURRENCY, (uploadId, done) => {
+        api.patientData.get(id, { type: 'upload', uploadId }, (err, records) => done(null, err ? [] : records));
+      }, (err, records) => cb(_.flatten(records)));
+    }
+
+    function fetchUploadRecordsByDate(startDate, cb) {
+      const endDate = moment.utc().add(1, 'days').toISOString();
+      api.patientData.get(id, { type: 'upload', startDate, endDate }, (err, records) => cb(err ? [] : records));
+    }
+
     function fetchData(options) {
       dispatch(sync.fetchPatientDataRequest(id));
 
@@ -1207,22 +1248,8 @@ export function fetchPatientData(api, options, id) {
             combinedData.push(latestPumpSettings);
           }
 
-          // A continuous dataset (e.g. Loop) keeps receiving data after it is created, so its upload
-          // record can predate the fetched range. Look those up by uploadId; failures are dropped.
-          const [uploads, datums] = _.partition(combinedData, { type: 'upload' });
-          const missingUploadIds = _.difference(
-            _.uniq(_.compact(_.map(datums, 'uploadId'))),
-            _.map(uploads, 'uploadId')
-          );
-
-          if (!missingUploadIds.length) return handleFetchSuccess(combinedData, id, options);
-
-          // One request per uploadId (the API takes a single id); batch if it gains multi-id support.
-          const uploadFetchConcurrency = 5;
-          async.mapLimit(missingUploadIds, uploadFetchConcurrency, (uploadId, cb) => {
-            api.patientData.get(id, { type: 'upload', uploadId }, (err, records) => cb(null, err ? [] : records));
-          }, (err, records) => {
-            handleFetchSuccess([...combinedData, ..._.flatten(records)], id, options);
+          fetchMissingUploadRecords(combinedData, (uploadRecords) => {
+            handleFetchSuccess([...combinedData, ...uploadRecords], id, options);
           });
         }
       });
