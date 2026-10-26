@@ -1146,12 +1146,6 @@ export function fetchPatientData(api, options, id) {
           errors.teamNotes
         ));
       }
-      if (errors.uploads) {
-        dispatch(sync.fetchPatientDataFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS, errors.uploads),
-          errors.uploads
-        ));
-      }
     }
 
     function handleFetchSuccess(data, patientId, options) {
@@ -1193,12 +1187,6 @@ export function fetchPatientData(api, options, id) {
         })),
       };
 
-      // Upload records are fetched undated, since a continuous dataset (e.g. Loop) is created once
-      // and keeps receiving data, so its record can predate the fetched range by any amount
-      if (options.initial) {
-        fetchers.uploads = api.patientData.get.bind(api, id, { type: 'upload' });
-      }
-
       async.parallel(async.reflectAll(fetchers), (err, results) => {
         const resultsErr = _.mapValues(results, ({error}) => error);
         const resultsVal = _.mapValues(results, ({value}) => value);
@@ -1210,7 +1198,6 @@ export function fetchPatientData(api, options, id) {
         else {
           const combinedData = [
             ...resultsVal.patientData,
-            ...(resultsVal.uploads || []),
             ...resultsVal.teamNotes,
           ];
 
@@ -1220,7 +1207,24 @@ export function fetchPatientData(api, options, id) {
             combinedData.push(latestPumpSettings);
           }
 
-          handleFetchSuccess(combinedData, id, options);
+          // A continuous dataset (e.g. Loop) keeps receiving data after it is created, so its upload
+          // record can predate the fetched range. Look those up by uploadId; failures are dropped.
+          const [uploads, datums] = _.partition(combinedData, { type: 'upload' });
+          const missingUploadIds = _.difference(
+            _.uniq(_.compact(_.map(datums, 'uploadId'))),
+            _.map(uploads, 'uploadId')
+          );
+
+          if (!missingUploadIds.length) return handleFetchSuccess(combinedData, id, options);
+
+          // One request per uploadId (the API takes a single id); batch if it gains multi-id support.
+          // The limit stays under the browser's per-host connection limit so other API requests aren't blocked.
+          const uploadFetchConcurrency = 5;
+          async.mapLimit(missingUploadIds, uploadFetchConcurrency, (uploadId, cb) => {
+            api.patientData.get(id, { type: 'upload', uploadId }, (err, records) => cb(null, err ? [] : records));
+          }, (err, records) => {
+            handleFetchSuccess([...combinedData, ..._.flatten(records)], id, options);
+          });
         }
       });
     };
