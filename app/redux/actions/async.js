@@ -1212,8 +1212,10 @@ export function fetchPatientData(api, options, id) {
       }, (err, records) => cb(_.flatten(records)));
     }
 
-    // medtronic: true skips the Medtronic data-source filter, which can't exclude an upload record but
-    // makes the query planner scan the whole upload-id index for users with Medtronic Loop data.
+    // medtronic: true tells tide-whisperer to skip its Medtronic data-source filter, which hides
+    // Medtronic direct uploads that overlap Loop data. The filter can't exclude an upload record,
+    // but on a dated upload read it makes the query planner scan the whole upload-id index for
+    // users with Medtronic Loop data. Lookups by uploadId never get the filter; datum fetches need it.
     function fetchUploadRecordsByDate(startDate, cb) {
       const endDate = moment.utc().add(1, 'days').toISOString();
       api.patientData.get(id, { type: 'upload', startDate, endDate, medtronic: true }, (err, records) => cb(err ? [] : records));

@@ -4067,7 +4067,7 @@ describe('Actions', () => {
             api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'upload123' }).callsArgWith(2, null, uploadRecord);
           });
 
-          it('should read upload records by date from the earliest referencing datum, then look up only those still missing', () => {
+          it('should read upload records by date without the Medtronic data-source filter, then look up only those still missing', () => {
             let store = mockStore({ blip: {
               ...initialState,
             }, router: { location: { pathname: `data/${patientId}` } } });
