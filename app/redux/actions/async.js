@@ -1212,9 +1212,11 @@ export function fetchPatientData(api, options, id) {
       }, (err, records) => cb(_.flatten(records)));
     }
 
+    // medtronic: true skips the Medtronic data-source filter, which can't exclude an upload record but
+    // makes the query planner scan the whole upload-id index for users with Medtronic Loop data.
     function fetchUploadRecordsByDate(startDate, cb) {
       const endDate = moment.utc().add(1, 'days').toISOString();
-      api.patientData.get(id, { type: 'upload', startDate, endDate }, (err, records) => cb(err ? [] : records));
+      api.patientData.get(id, { type: 'upload', startDate, endDate, medtronic: true }, (err, records) => cb(err ? [] : records));
     }
 
     function fetchData(options) {

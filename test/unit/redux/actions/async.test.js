@@ -4059,7 +4059,7 @@ describe('Actions', () => {
           beforeEach(() => {
             settings = _.map(_.range(1, 7), i => ({ id: `ps${i}`, uploadId: `up${i}`, type: 'pumpSettings', time: `2018-0${i}-01T00:00:00.000Z` }));
             uploads = _.map(settings, s => ({ type: 'upload', id: s.uploadId, uploadId: s.uploadId, time: s.time }));
-            datedRead = sinon.match({ type: 'upload', startDate: sinon.match.string, endDate: sinon.match.string });
+            datedRead = sinon.match({ type: 'upload', startDate: sinon.match.string, endDate: sinon.match.string, medtronic: true });
 
             api.patientData.get = sinon.stub().callsArgWith(2, null, [...patientData, ...settings]);
             api.patientData.get.withArgs(patientId, datedRead).callsArgWith(2, null, [{ type: 'upload', id: 'other', uploadId: 'other' }, ...uploads.slice(0, 5)]);
