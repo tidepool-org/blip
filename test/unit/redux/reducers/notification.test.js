@@ -337,4 +337,19 @@ describe('notification', () => {
       });
     });
   });
+
+  describe('fetchUploadRecordsFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchUploadRecordsFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingUploadRecords',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
 });

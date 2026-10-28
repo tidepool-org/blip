@@ -4082,7 +4082,7 @@ describe('Actions', () => {
             expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes, ...uploads.slice(0, 5), ...uploadRecord, uploads[5]]));
           });
 
-          it('should not look up missing upload records by uploadId when the dated read fails', () => {
+          it('should not look up missing upload records by uploadId and should trigger FETCH_UPLOAD_RECORDS_FAILURE when the dated read fails', () => {
             api.patientData.get.withArgs(patientId, datedRead).callsArgWith(2, { status: 500 }, null);
 
             let store = mockStore({ blip: {
@@ -4093,6 +4093,7 @@ describe('Actions', () => {
             sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match.has('uploadId'));
             const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
             expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes]));
+            expect(_.last(store.getActions()).type).to.equal('FETCH_UPLOAD_RECORDS_FAILURE');
           });
         });
       });
@@ -4253,7 +4254,7 @@ describe('Actions', () => {
           expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        it('should still add the patient data when an upload record lookup fails', () => {
+        it('should still add the patient data and trigger FETCH_UPLOAD_RECORDS_FAILURE without a status when an upload record lookup fails', () => {
           options.initial = true;
 
           api.patientData = {
@@ -4276,8 +4277,11 @@ describe('Actions', () => {
             'FETCH_PATIENT_DATA_REQUEST',
             'FETCH_PATIENT_DATA_SUCCESS',
             'DATA_WORKER_ADD_DATA_REQUEST',
+            'FETCH_UPLOAD_RECORDS_FAILURE',
           ]);
           expect(actions[4].payload.data).to.equal(JSON.stringify([...patientData, ...teamNotes]));
+          expect(actions[5].error.message).to.equal(ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS);
+          expect(actions[5].error.status).to.be.undefined;
           expect(api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'upload123' }).callCount).to.equal(1);
         });
 

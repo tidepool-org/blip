@@ -1048,6 +1048,7 @@ export function fetchPatientData(api, options, id) {
   }
 
   let latestPumpSettings;
+  let uploadRecordsIncomplete = false;
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
@@ -1181,7 +1182,8 @@ export function fetchPatientData(api, options, id) {
 
     // Upload records that the fetched data references but does not include: a continuous dataset
     // (e.g. Loop) created before the fetched range, or old pump uploads behind the Devices view's
-    // full settings history. Failed requests are dropped; the data loads without those records.
+    // full settings history. Failed requests are dropped; the data loads without those records,
+    // and uploadRecordsIncomplete raises a dismissible error.
     function fetchMissingUploadRecords(data, cb) {
       const referencedIds = _.uniq(_.compact(_.map(data, 'uploadId')));
       const fetchedIds = _.map(_.filter(data, { type: 'upload' }), 'uploadId');
@@ -1202,7 +1204,10 @@ export function fetchPatientData(api, options, id) {
         const stillMissingIds = _.difference(missingIds, _.map(found, 'uploadId'));
 
         // Many still missing means the dated read likely failed; looking each up could flood a failing API
-        if (stillMissingIds.length > UPLOAD_FETCH_CONCURRENCY) return cb(found);
+        if (stillMissingIds.length > UPLOAD_FETCH_CONCURRENCY) {
+          uploadRecordsIncomplete = true;
+          return cb(found);
+        }
 
         fetchUploadRecordsById(stillMissingIds, (rest) => cb([...found, ...rest]));
       });
@@ -1211,7 +1216,10 @@ export function fetchPatientData(api, options, id) {
     // One request per uploadId (the API takes a single id); batch if it gains multi-id support.
     function fetchUploadRecordsById(uploadIds, cb) {
       async.mapLimit(uploadIds, UPLOAD_FETCH_CONCURRENCY, (uploadId, done) => {
-        api.patientData.get(id, { type: 'upload', uploadId }, (err, records) => done(null, err ? [] : records));
+        api.patientData.get(id, { type: 'upload', uploadId }, (err, records) => {
+          if (err) uploadRecordsIncomplete = true;
+          done(null, err ? [] : records);
+        });
       }, (err, records) => cb(_.flatten(records)));
     }
 
@@ -1257,6 +1265,11 @@ export function fetchPatientData(api, options, id) {
 
           fetchMissingUploadRecords(combinedData, (uploadRecords) => {
             handleFetchSuccess([...combinedData, ...uploadRecords], id, options);
+
+            // No apiError, so the banner shows this message rather than the generic one for its status
+            if (uploadRecordsIncomplete) {
+              dispatch(sync.fetchUploadRecordsFailure(createActionError(ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS)));
+            }
           });
         }
       });
