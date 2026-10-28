@@ -27,7 +27,7 @@ const t = i18next.t.bind(i18next);
 
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
-import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps, mergeProps } from '../../../app/pages/patientdata/patientdata.js';
 import PatientDataPrintDialog from '../../../app/pages/patientdata/PatientDataPrintDialog';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
@@ -5539,6 +5539,48 @@ describe('PatientData', function () {
       it('should map working.data to data', () => {
         expect(result.data).to.equal(state.working.data);
       });
+    });
+  });
+
+  describe('mergeProps', () => {
+    const notFetching = { inProgress: false, completed: null };
+
+    const stateProps = {
+      fetchingPendingSentInvites: notFetching,
+      fetchingAssociatedAccounts: notFetching,
+      fetchingUserConsentRecords: notFetching,
+      fetchingClinicsForPatient: notFetching,
+    };
+
+    const ownProps = {
+      match: { params: { id: '12345' } },
+      location: { query: {} },
+      api: { getUploadUrl: sinon.stub(), team: { replyToMessageThread: sinon.stub() } },
+    };
+
+    const dispatchProps = {
+      createMessageThread: sinon.stub(),
+      editMessageThread: sinon.stub(),
+      fetchAssociatedAccounts: sinon.stub(),
+      fetchClinicsForPatient: sinon.stub(),
+      fetchMessageThread: sinon.stub(),
+      fetchPatient: sinon.stub(),
+      fetchPatientData: sinon.stub(),
+      fetchPendingSentInvites: sinon.stub(),
+      fetchUserConsentRecords: sinon.stub(),
+      selectClinic: sinon.stub(),
+      updateSettings: sinon.stub(),
+    };
+
+    it('should refresh settings with an undated pump settings fetch that excludes upload records', () => {
+      mergeProps(stateProps, dispatchProps, ownProps).onRefresh('12345', 'settings');
+
+      sinon.assert.calledWith(dispatchProps.fetchPatientData, ownProps.api, sinon.match({
+        type: 'pumpSettings',
+        initial: false,
+        startDate: undefined,
+        endDate: undefined,
+      }), '12345');
     });
   });
 });

@@ -852,6 +852,13 @@ export function fetchPatientDataFailure(error, apiError) {
   };
 }
 
+export function fetchUploadRecordsFailure(error) {
+  return {
+    type: ActionTypes.FETCH_UPLOAD_RECORDS_FAILURE,
+    error: error,
+  };
+}
+
 export function fetchClinicPrescriptionsRequest() {
   return {
     type: ActionTypes.FETCH_CLINIC_PRESCRIPTIONS_REQUEST,
