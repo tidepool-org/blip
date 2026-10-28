@@ -1201,6 +1201,9 @@ export function fetchPatientData(api, options, id) {
         const found = _.filter(records, r => _.includes(missingIds, r.uploadId));
         const stillMissingIds = _.difference(missingIds, _.map(found, 'uploadId'));
 
+        // Many still missing means the dated read likely failed; looking each up could flood a failing API
+        if (stillMissingIds.length > UPLOAD_FETCH_CONCURRENCY) return cb(found);
+
         fetchUploadRecordsById(stillMissingIds, (rest) => cb([...found, ...rest]));
       });
     }

@@ -4082,18 +4082,17 @@ describe('Actions', () => {
             expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes, ...uploads.slice(0, 5), ...uploadRecord, uploads[5]]));
           });
 
-          it('should look up every missing upload record by uploadId when the dated read fails', () => {
+          it('should not look up missing upload records by uploadId when the dated read fails', () => {
             api.patientData.get.withArgs(patientId, datedRead).callsArgWith(2, { status: 500 }, null);
-            _.each(uploads, u => api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: u.uploadId }).callsArgWith(2, null, [u]));
 
             let store = mockStore({ blip: {
               ...initialState,
             }, router: { location: { pathname: `data/${patientId}` } } });
             store.dispatch(async.fetchPatientData(api, options, patientId));
 
-            expect(api.patientData.get.withArgs(patientId, sinon.match.has('uploadId')).callCount).to.equal(7);
+            sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match.has('uploadId'));
             const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
-            expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes, ...uploadRecord, ...uploads]));
+            expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes]));
           });
         });
       });
