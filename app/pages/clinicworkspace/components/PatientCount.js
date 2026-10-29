@@ -6,9 +6,9 @@ import { colors as vizColors } from '@tidepool/viz';
 const PatientCount = ({ total = 0, offset = 0, limit }) => {
   const { t } = useTranslation();
 
-  if (total === 0) return null;
+  if (offset >= total) return null;
 
-  const start = total === 0 ? 0 : offset + 1;
+  const start = offset + 1;
   const end = Math.min(offset + limit, total);
 
   return (

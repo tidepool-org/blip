@@ -20,7 +20,7 @@ export default class CGMExclusionQuery {
 
   // Each rule is adjusted for the half-percent rounding cutoff e.g. if querying
   // for X >= 4%, we need to include patients that have X >= 3.5%, since anything
-  // above 3.6% gets rounded to 4% in the view
+  // above 3.5% gets rounded to 4% in the view
   getAdjustedThreshold(value, operator) {
     const rounded = Math.round(value * 100) / 100; // round to 2 decimal places
 
