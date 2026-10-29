@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+import { SELECT_CLINIC_SUCCESS } from '../../../redux/constants/actionTypes';
+
 export const CATEGORY = {
   DEFAULT: 'DEFAULT',
   VERY_LOW: 'VERY_LOW',
@@ -27,6 +29,9 @@ const tideDashboardSlice = createSlice({
       state.offset = action.payload;
     },
     resetTideDashboardState: () => getInitialState(),
+  },
+  extraReducers: (builder) => {
+    builder.addCase(SELECT_CLINIC_SUCCESS, () => getInitialState());
   },
 });
 
