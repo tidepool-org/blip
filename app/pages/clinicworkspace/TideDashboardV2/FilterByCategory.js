@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { SegmentedControl, Segment } from '../components/SegmentedControl';
 import { setCategory, setOffset, CATEGORY } from './tideDashboardSlice';
 import { colors as vizColors } from '@tidepool/viz';
-import { Box } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 
 const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
@@ -26,7 +26,7 @@ const FilterByCategory = () => {
     dispatch(setOffset(0));
   };
 
-  return (
+  return (<Flex mb={3} sx={{ justifyContent: 'center' }}>
     <SegmentedControl>
       <Segment selected={category === DEFAULT} onClick={() => handleChange(DEFAULT)}>
         {t('All Patients')}
@@ -53,7 +53,7 @@ const FilterByCategory = () => {
         <Indicator color={vizColors.target}/>{t('Meeting Targets')}
       </Segment>
     </SegmentedControl>
-  );
+  </Flex>);
 };
 
 export default FilterByCategory;
