@@ -13,6 +13,7 @@ import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
+import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
 const tableContainerProps = { sx: { containerType: 'inline-size' } };
 
@@ -21,7 +22,7 @@ const TideDashboardV2 = () => {
   const category = useSelector(state => state.blip.tideDashboard.category);
 
   const { isAuthorized, isUnauthorized } = useAuthorizationGate();
-  const { data } = useTideDashboardPatients();
+  const { data, isError } = useTideDashboardPatients();
 
   // Sync category to data fetching resolution; prevents visual glitch due to
   // category updating view before the API call resolves and updates it again
@@ -36,14 +37,21 @@ const TideDashboardV2 = () => {
 
   if (!isAuthorized || !data) return null;
 
+  if (isError) return (
+    <>
+      <FilterByCategory />
+      <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
+        {ErrorMessages.ERR_FETCHING_TIDE_DASHBOARD_PATIENTS}
+      </Flex>
+    </>
+  );
+
   const patients = data?.data || [];
   const total = data?.meta?.count || 0;
 
   return (
     <>
-      <Flex mb={3} sx={{ justifyContent: 'center' }}>
-        <FilterByCategory />
-      </Flex>
+      <FilterByCategory />
 
       <TableCategoryHeader category={resolvedCategory} />
       <Table
