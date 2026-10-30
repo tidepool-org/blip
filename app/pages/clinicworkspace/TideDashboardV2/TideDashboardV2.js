@@ -22,9 +22,12 @@ import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
+import EditPatientDialogController from './modals/EditPatientDialogController';
+import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
+
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
-const TideDashboardV2 = () => {
+const TideDashboardV2 = ({ api }) => {
   const { search } = useLocation();
   const { t } = useTranslation();
 
@@ -91,6 +94,9 @@ const TideDashboardV2 = () => {
       />
 
       <PaginationController total={total} resolvedOffset={resolvedOffset} />
+
+      <EditPatientDialogController api={api} patients={patients} />
+      <DataConnectionsDialogController patients={patients}/>
     </>
   );
 };

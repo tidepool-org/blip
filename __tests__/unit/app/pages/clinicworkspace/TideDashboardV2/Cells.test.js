@@ -267,4 +267,34 @@ describe('Cells', () => {
       expect(screen.queryByText('Very Low')).not.toBeInTheDocument();
     });
   });
+
+  describe('MoreMenuCell', () => {
+    it('dispatches the actions to open the Edit Patient dialog for the patient', async () => {
+      renderComponent(<MoreMenuCell patient={patient} />);
+
+      expect(screen.queryByRole('button', { name: /Edit Patient Details/ })).not.toBeInTheDocument();
+      await userEvent.click(screen.getByTestId('action-menu-patient-1-icon'));
+
+      await userEvent.click(screen.getByRole('button', { name: /Edit Patient Details/ }));
+
+      expect(store.getActions()).toStrictEqual([
+        { type: 'tideDashboard/setEditPatientDialogIsOpen', payload: true },
+        { type: 'tideDashboard/setEditPatientDialogPatientId', payload: 'patient-1' },
+      ]);
+    });
+
+    it('dispatches the actions to open the Data Connections modal for the patient', async () => {
+      renderComponent(<MoreMenuCell patient={patient} />);
+
+      expect(screen.queryByRole('button', { name: /Bring Data into Tidepool/ })).not.toBeInTheDocument();
+      await userEvent.click(screen.getByTestId('action-menu-patient-1-icon'));
+
+      await userEvent.click(screen.getByRole('button', { name: /Bring Data into Tidepool/ }));
+
+      expect(store.getActions()).toStrictEqual([
+        { type: 'tideDashboard/setDataConnectionsModalIsOpen', payload: true },
+        { type: 'tideDashboard/setDataConnectionsModalPatientId', payload: 'patient-1' },
+      ]);
+    });
+  });
 });
