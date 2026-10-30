@@ -8,7 +8,7 @@ import { setOffset } from './tideDashboardSlice';
 
 import { LIMIT } from './useTideDashboardPatients';
 
-const PaginationController = ({ total }) => {
+const PaginationController = ({ total, resolvedOffset }) => {
   const dispatch = useDispatch();
   const offset = useSelector(state => state.blip.tideDashboard.offset);
 
@@ -17,7 +17,7 @@ const PaginationController = ({ total }) => {
   return (
     <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr', borderBottom: `1px solid ${vizColors.gray10}` }}>
       <Flex sx={{ alignItems: 'flex-end', padding: '0 0 24px 12px' }}>
-        <PatientCount offset={offset} limit={LIMIT} total={total} />
+        <PatientCount offset={resolvedOffset ?? offset} limit={LIMIT} total={total} />
       </Flex>
       <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
         <PageControls
