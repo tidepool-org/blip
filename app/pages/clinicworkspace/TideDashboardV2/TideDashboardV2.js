@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { Redirect, useLocation, useHistory } from 'react-router-dom';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box } from 'theme-ui';
 
@@ -18,18 +19,20 @@ import useTideDashboardPatients from './useTideDashboardPatients';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
-import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
+import PatientDrawerController from './PatientDrawerController';
 import EditPatientDialogController from './modals/EditPatientDialogController';
 import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
+import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const TideDashboardV2 = ({ api }) => {
-  const { search } = useLocation();
   const { t } = useTranslation();
+  const { search, pathname } = useLocation();
+  const history = useHistory();
 
   usePruneInvalidFilters();
 
@@ -62,6 +65,15 @@ const TideDashboardV2 = ({ api }) => {
     </>
   );
 
+  const handleClickRow = (patient) => {
+    if (!patient.id) return;
+
+    const params = new URLSearchParams(search);
+    params.set('drawerPatientId', patient.id);
+    params.set('drawerTab', OVERVIEW_TAB_INDEX);
+    history.replace({ pathname, search: params.toString() });
+  };
+
   const patients = data?.data || [];
   const total = data?.meta?.count || 0;
 
@@ -91,10 +103,12 @@ const TideDashboardV2 = ({ api }) => {
         data={patients}
         emptyContentNode={emptyContentNode}
         containerProps={containerProps}
+        onClickRow={handleClickRow}
       />
 
       <PaginationController total={total} resolvedOffset={resolvedOffset} />
 
+      <PatientDrawerController api={api} patients={patients} />
       <EditPatientDialogController api={api} patients={patients} />
       <DataConnectionsDialogController patients={patients}/>
     </>

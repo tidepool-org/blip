@@ -6,7 +6,7 @@ import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
 const { bankersRound } = vizUtils.stat;
 const { getTimezoneFromTimePrefs } = vizUtils.datetime;
-import { MS_IN_HOUR } from '../../../../core/constants';
+import { MS_IN_HOUR } from '../../../core/constants';
 
 import getReportDaysText from '../getReportDaysText';
 

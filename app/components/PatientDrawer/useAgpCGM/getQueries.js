@@ -2,8 +2,8 @@ import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
 const { commonStats } = vizUtils.stat;
 
-import utils from '../../../../core/utils';
-import { DEFAULT_GLYCEMIC_RANGES } from '../../../../core/glycemicRangesUtils';
+import utils from '../../../core/utils';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../../core/glycemicRangesUtils';
 
 const getQueries = (
   data,
