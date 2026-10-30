@@ -87,6 +87,7 @@ const initialState = {
     editingMessageThread: Object.assign({}, working),
     fetchingPatient: Object.assign({}, working),
     fetchingPatientData: Object.assign({}, working),
+    fetchingUploadRecords: Object.assign({}, working),
     fetchingPatients: Object.assign({}, working),
     fetchingAssociatedAccounts: Object.assign({}, working),
     fetchingPendingReceivedInvites: Object.assign({}, working),
