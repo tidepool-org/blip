@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.60.0":
-  version: 1.60.0
-  resolution: "@tidepool/viz@npm:1.60.0"
+"@tidepool/viz@npm:1.60.1-rc.1":
+  version: 1.60.1-rc.1
+  resolution: "@tidepool/viz@npm:1.60.1-rc.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: a4332597943996f5cbcaca1e419ce21ec7d5326833fa286cc2c86dfb200a8d18498ed69ae123c6422081c6ff7ab26ce960d2abe349ae9cb4976b97bf88f4b8a7
+  checksum: d5f87313bcbd42c50011bab4354d067f39dcc2780bf223908612dbe9b21c893fbaf94fe9b7df3579b865d5ac69b3300ebbe118022408336b8338875f4caeba82
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.60.0
+    "@tidepool/viz": 1.60.1-rc.1
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
