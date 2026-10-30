@@ -15,15 +15,13 @@ import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
-const tableContainerProps = { sx: { containerType: 'inline-size' } };
-
 const TideDashboardV2 = () => {
   const { search } = useLocation();
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
 
   const { isAuthorized, isUnauthorized } = useAuthorizationGate();
-  const { data, isError } = useTideDashboardPatients();
+  const { data, currentData, isFetching, isError } = useTideDashboardPatients();
 
   // Sync category to data fetching resolution; prevents visual glitch due to
   // category updating view before the API call resolves and updates it again
@@ -51,6 +49,9 @@ const TideDashboardV2 = () => {
   const patients = data?.data || [];
   const total = data?.meta?.count || 0;
 
+  const isDataStale = isFetching && !currentData;
+  const containerProps = { sx: { containerType: 'inline-size', opacity: isDataStale ? 0.25 : 1 } };
+
   return (
     <>
       <FilterByCategory />
@@ -63,7 +64,7 @@ const TideDashboardV2 = () => {
         columns={tableColumns}
         data={patients}
         emptyContentNode={emptyContentNode}
-        containerProps={tableContainerProps}
+        containerProps={containerProps}
       />
 
       <PaginationController total={total} resolvedOffset={resolvedOffset} />
