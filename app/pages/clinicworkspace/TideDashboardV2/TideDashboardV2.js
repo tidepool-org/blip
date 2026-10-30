@@ -20,6 +20,7 @@ const tableContainerProps = { sx: { containerType: 'inline-size' } };
 const TideDashboardV2 = () => {
   const { search } = useLocation();
   const category = useSelector(state => state.blip.tideDashboard.category);
+  const offset = useSelector(state => state.blip.tideDashboard.offset);
 
   const { isAuthorized, isUnauthorized } = useAuthorizationGate();
   const { data, isError } = useTideDashboardPatients();
@@ -27,6 +28,7 @@ const TideDashboardV2 = () => {
   // Sync category to data fetching resolution; prevents visual glitch due to
   // category updating view before the API call resolves and updates it again
   const resolvedCategory = data?.category || category;
+  const resolvedOffset = data?.offset ?? offset;
 
   const tableColumns = useTableColumns(resolvedCategory);
   const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
@@ -64,7 +66,7 @@ const TideDashboardV2 = () => {
         containerProps={tableContainerProps}
       />
 
-      <PaginationController total={total} />
+      <PaginationController total={total} resolvedOffset={resolvedOffset} />
     </>
   );
 };
