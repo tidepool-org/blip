@@ -15,6 +15,8 @@ import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
+const tableContainerProps = { sx: { containerType: 'inline-size', transition: 'all 0.1s' } };
+
 const TideDashboardV2 = () => {
   const { search } = useLocation();
   const category = useSelector(state => state.blip.tideDashboard.category);
@@ -50,7 +52,7 @@ const TideDashboardV2 = () => {
   const total = data?.meta?.count || 0;
 
   const isDataStale = isFetching && !currentData;
-  const containerProps = { sx: { containerType: 'inline-size', opacity: isDataStale ? 0.25 : 1 } };
+  const containerProps = { sx: { ...tableContainerProps.sx, opacity: isDataStale ? 0.25 : 1 } };
 
   return (
     <>
