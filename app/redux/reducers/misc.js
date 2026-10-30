@@ -31,6 +31,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
+    case types.FETCH_UPLOAD_RECORDS_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.LOGIN_FAILURE:
     case types.SIGNUP_FAILURE:
