@@ -2180,7 +2180,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
+export const mergeProps = (stateProps, dispatchProps, ownProps) => {
   const carelink = utils.getCarelink(ownProps.location);
   const dexcom = utils.getDexcom(ownProps.location);
   const medtronic = utils.getMedtronic(ownProps.location);
@@ -2209,8 +2209,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
         cbgFilter,
       };
       if(chartType === 'settings') {
+        // The settings' upload records are looked up by uploadId in async.fetchPatientData once the pump settings arrive
         _.extend(fetchOptions, {
-          type: 'pumpSettings,upload',
+          type: 'pumpSettings',
           initial: false,
           startDate: undefined,
           endDate: undefined,

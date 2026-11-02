@@ -916,7 +916,6 @@
   "Something went wrong while fetching received invitations to others' care teams.": "Algo salió mal al buscar las invitaciones recibidas para los equipos de atención de otros.",
   "Something went wrong while fetching the devices list.": "",
   "Something went wrong while fetching the server time.  Falling back to local machine time": "Un problème est survenu en tentant de récupérer l'heure du serveur. Retour au temps machine local",
-  "Something went wrong while fetching upload records for the current patient.": "",
   "Something went wrong while fetching user.": "Algo salió mal al buscar el usuario.",
   "Something went wrong while fetching your data sources.": "Algo salió mal al buscar sus fuentes de datos.",
   "Something went wrong while fetching your prescriptions.": "",

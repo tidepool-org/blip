@@ -19,6 +19,9 @@ import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 
+// Upload record lookups in flight at once, a courtesy to the backend rather than a browser limit
+const UPLOAD_FETCH_CONCURRENCY = 5;
+
 // Exported as a mutable reference to allow location to be swapped in tests
 export const _win = { location: window.location };
 
@@ -1045,6 +1048,7 @@ export function fetchPatientData(api, options, id) {
   }
 
   let latestPumpSettings;
+  let uploadRecordsIncomplete = false;
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
@@ -1146,12 +1150,6 @@ export function fetchPatientData(api, options, id) {
           errors.teamNotes
         ));
       }
-      if (errors.uploads) {
-        dispatch(sync.fetchPatientDataFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS, errors.uploads),
-          errors.uploads
-        ));
-      }
     }
 
     function handleFetchSuccess(data, patientId, options) {
@@ -1182,6 +1180,58 @@ export function fetchPatientData(api, options, id) {
       }
     }
 
+    // Upload records that the fetched data references but does not include: a continuous dataset
+    // (e.g. Loop) created before the fetched range, or old pump uploads behind the Devices view's
+    // full settings history. Failed requests are dropped; the data loads without those records,
+    // and uploadRecordsIncomplete raises a dismissible error.
+    function fetchMissingUploadRecords(data, cb) {
+      const referencedIds = _.uniq(_.compact(_.map(data, 'uploadId')));
+      const fetchedIds = _.map(_.filter(data, { type: 'upload' }), 'uploadId');
+      const missingIds = _.difference(referencedIds, fetchedIds);
+
+      if (!missingIds.length) return cb([]);
+
+      // A few records: one request each by uploadId.
+      if (missingIds.length <= UPLOAD_FETCH_CONCURRENCY) return fetchUploadRecordsById(missingIds, cb);
+
+      // Many records: an upload record is dated at the upload, so one read from the earliest datum
+      // that references a missing record finds every upload made since. A continuous dataset created
+      // before that is still missing afterwards and is looked up by uploadId.
+      const earliestTime = _.min(_.compact(_.map(_.filter(data, d => _.includes(missingIds, d.uploadId)), 'time')));
+
+      fetchUploadRecordsByDate(earliestTime, (records) => {
+        const found = _.filter(records, r => _.includes(missingIds, r.uploadId));
+        const stillMissingIds = _.difference(missingIds, _.map(found, 'uploadId'));
+
+        // Many still missing means the dated read likely failed; looking each up could flood a failing API
+        if (stillMissingIds.length > UPLOAD_FETCH_CONCURRENCY) {
+          uploadRecordsIncomplete = true;
+          return cb(found);
+        }
+
+        fetchUploadRecordsById(stillMissingIds, (rest) => cb([...found, ...rest]));
+      });
+    }
+
+    // One request per uploadId (the API takes a single id); batch if it gains multi-id support.
+    function fetchUploadRecordsById(uploadIds, cb) {
+      async.mapLimit(uploadIds, UPLOAD_FETCH_CONCURRENCY, (uploadId, done) => {
+        api.patientData.get(id, { type: 'upload', uploadId }, (err, records) => {
+          if (err) uploadRecordsIncomplete = true;
+          done(null, err ? [] : records);
+        });
+      }, (err, records) => cb(_.flatten(records)));
+    }
+
+    // medtronic: true tells tide-whisperer to skip its Medtronic data-source filter, which hides
+    // Medtronic direct uploads that overlap Loop data. The filter can't exclude an upload record,
+    // but on a dated upload read it makes the query planner scan the whole upload-id index for
+    // users with Medtronic Loop data. Lookups by uploadId never get the filter; datum fetches need it.
+    function fetchUploadRecordsByDate(startDate, cb) {
+      const endDate = moment.utc().add(1, 'days').toISOString();
+      api.patientData.get(id, { type: 'upload', startDate, endDate, medtronic: true }, (err, records) => cb(err ? [] : records));
+    }
+
     function fetchData(options) {
       dispatch(sync.fetchPatientDataRequest(id));
 
@@ -1192,12 +1242,6 @@ export function fetchPatientData(api, options, id) {
           end: options.endDate,
         })),
       };
-
-      // Upload records are fetched undated, since a continuous dataset (e.g. Loop) is created once
-      // and keeps receiving data, so its record can predate the fetched range by any amount
-      if (options.initial) {
-        fetchers.uploads = api.patientData.get.bind(api, id, { type: 'upload' });
-      }
 
       async.parallel(async.reflectAll(fetchers), (err, results) => {
         const resultsErr = _.mapValues(results, ({error}) => error);
@@ -1210,7 +1254,6 @@ export function fetchPatientData(api, options, id) {
         else {
           const combinedData = [
             ...resultsVal.patientData,
-            ...(resultsVal.uploads || []),
             ...resultsVal.teamNotes,
           ];
 
@@ -1220,7 +1263,14 @@ export function fetchPatientData(api, options, id) {
             combinedData.push(latestPumpSettings);
           }
 
-          handleFetchSuccess(combinedData, id, options);
+          fetchMissingUploadRecords(combinedData, (uploadRecords) => {
+            handleFetchSuccess([...combinedData, ...uploadRecords], id, options);
+
+            // No apiError, so the banner shows this message rather than the generic one for its status
+            if (uploadRecordsIncomplete) {
+              dispatch(sync.fetchUploadRecordsFailure(createActionError(ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS)));
+            }
+          });
         }
       });
     };
