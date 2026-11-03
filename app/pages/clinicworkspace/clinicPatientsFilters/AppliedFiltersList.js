@@ -100,6 +100,7 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, on
 
   return (
     <ActiveFiltersTray
+      patientCount={clinic?.fetchedPatientCount || 0}
       hasSearchActive={hasSearchActive}
       filters={activeFilters}
       onRemoveFilter={handleRemoveFilter}
