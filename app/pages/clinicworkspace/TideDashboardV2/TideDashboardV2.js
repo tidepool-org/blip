@@ -13,7 +13,7 @@ import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
-import * as ErrorMessages from '../../../redux/constants/errorMessages';
+import FetchError from './FetchError';
 
 const tableContainerProps = { sx: { containerType: 'inline-size', transition: 'all 0.1s' } };
 
@@ -33,20 +33,13 @@ const TideDashboardV2 = () => {
   const tableColumns = useTableColumns(resolvedCategory);
   const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
 
-  if (isUnauthorized) {
-    return <Redirect to={{ pathname: '/clinic-workspace/patients', search }} />;
-  }
+  if (isUnauthorized) return <Redirect to={{ pathname: '/clinic-workspace/patients', search }} />;
 
-  if (!isAuthorized || !data) return null;
+  if (!isAuthorized) return null;
 
-  if (isError) return (
-    <>
-      <FilterByCategory />
-      <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
-        {ErrorMessages.ERR_FETCHING_TIDE_DASHBOARD_PATIENTS}
-      </Flex>
-    </>
-  );
+  if (isError) return <FetchError />;
+
+  if (!data) return null;
 
   const patients = data?.data || [];
   const total = data?.meta?.count || 0;
