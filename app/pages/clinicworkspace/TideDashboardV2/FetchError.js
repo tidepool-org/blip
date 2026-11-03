@@ -1,7 +1,7 @@
 import React from 'react';
 import { Flex } from 'theme-ui';
 
-import FilterByCategory from './FilterByCategory';
+import FilterByCategory from './filters/FilterByCategory';
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
 const FetchError = () => (
