@@ -7,7 +7,7 @@ import noop from 'lodash/noop';
 import ActiveFiltersTray from '../../components/filters/ActiveFiltersTray';
 import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../../components/ClearFilterButtons';
 import { Box } from 'theme-ui';
-import { setClinicSitesFilter, setPatientTagsFilter } from '../tideDashboardFiltersSlice';
+import { setClinicSitesFilter, setPatientTagsFilter, resetTideDashboardOptionalFilters } from '../tideDashboardFiltersSlice';
 import { setOffset } from '../tideDashboardSlice';
 
 export const getPatientQueryState = (patientTags, clinicSites) => {
@@ -28,8 +28,7 @@ const AppliedFiltersList = ({ patientCount = 0 }) => {
   const activeFilters = { lastDataType: 'cgm', lastData, clinicSites, patientTags };
 
   const handleResetFilters = () => {
-    dispatch(setPatientTagsFilter([]));
-    dispatch(setClinicSitesFilter([]));
+    dispatch(resetTideDashboardOptionalFilters());
     dispatch(setOffset(0));
   };
 

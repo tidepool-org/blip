@@ -25,6 +25,15 @@ const tideDashboardFiltersSlice = createSlice({
     setSummaryPeriodFilter: (state, action) => {
       state.summaryPeriod = action.payload;
     },
+    resetTideDashboardOptionalFilters: (state) => {
+      const initialState = getInitialState();
+
+      return {
+        ...initialState,
+        lastData: state.lastData,
+        summaryPeriod: state.summaryPeriod,
+      };
+    },
     resetTideDashboardFilters: () => getInitialState(),
   },
   extraReducers: (builder) => {
@@ -40,6 +49,7 @@ export const {
   setPatientTagsFilter,
   setClinicSitesFilter,
   setSummaryPeriodFilter,
+  resetTideDashboardOptionalFilters,
   resetTideDashboardFilters,
 } = tideDashboardFiltersSlice.actions;
 
