@@ -12,7 +12,6 @@ const tideDashboardFiltersSlice = createSlice({
   name: 'tideDashboardFilters',
   initialState: getInitialState(),
   reducers: {
-    setTideDashboardFilters: (_state, action) => action.payload || getInitialState(),
     setLastDataFilter: (state, action) => {
       state.lastData = action.payload;
     },
@@ -44,7 +43,6 @@ const tideDashboardFiltersSlice = createSlice({
 });
 
 export const {
-  setTideDashboardFilters,
   setLastDataFilter,
   setPatientTagsFilter,
   setClinicSitesFilter,
