@@ -6,7 +6,6 @@
 /* global afterEach */
 
 import configureStore from '@app/redux/store/configureStore.prod';
-import { setTideDashboardFilters } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
 
 describe('configureStore.prod', () => {
   const api = {
@@ -28,8 +27,7 @@ describe('configureStore.prod', () => {
     // Log in and select a clinic
     const store = configureStore(api);
     store.dispatch({ type: 'FETCH_USER_SUCCESS', payload: { user: { userid: 'user456' } } });
-    store.dispatch({ type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } });
-    store.dispatch(setTideDashboardFilters({ patientTags: ['tag1'], summaryPeriod: '7d' }));
+    store.dispatch({ type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123', tideDashboardFilters: { patientTags: ['tag1'], summaryPeriod: '7d' } } });
 
     jest.advanceTimersByTime(1200); // subscriber is throttled to 1 second
 
