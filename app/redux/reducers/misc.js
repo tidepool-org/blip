@@ -1096,6 +1096,17 @@ export const clinicMRNsForPatientFormValidation = (state = initialState.clinicMR
   }
 };
 
+export const tideDashboardFiltersIsHydrated = (state = initialState.tideDashboardFiltersIsHydrated, action) => {
+  switch(action.type) {
+    case types.SELECT_CLINIC_SUCCESS:
+      return true;
+    case types.LOGOUT_REQUEST:
+      return false;
+    default:
+      return state;
+  }
+};
+
 export const selectedClinicId = (state = initialState.selectedClinicId, action) => {
   switch(action.type) {
     case types.SELECT_CLINIC_SUCCESS:
