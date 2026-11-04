@@ -22,6 +22,7 @@ import data from './data';
 import patientListFilters from './patientListFilters';
 import tideDashboard from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 import tideDashboardFilters from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
+import isFiltersHydrated from './isFiltersHydratedSlice';
 
 import {
   bgPrefs,
@@ -55,7 +56,6 @@ import {
   smartOnFhirData,
   clinics,
   selectedClinicId,
-  tideDashboardFiltersIsHydrated,
   pendingSentClinicianInvites,
   pendingReceivedClinicianInvites,
   clinicFlowActive,
@@ -99,7 +99,6 @@ export default combineReducers({
   smartOnFhirData,
   clinics,
   selectedClinicId,
-  tideDashboardFiltersIsHydrated,
   pendingSentClinicianInvites,
   pendingReceivedClinicianInvites,
   clinicFlowActive,
@@ -115,4 +114,5 @@ export default combineReducers({
   patientListFilters,
   tideDashboard,
   tideDashboardFilters,
+  isFiltersHydrated,
 });

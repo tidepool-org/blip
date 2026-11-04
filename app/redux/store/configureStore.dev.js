@@ -112,11 +112,11 @@ function _createStore(api) {
   store.subscribe(throttle(() => {
     const selectedClinicId = store.getState().blip?.selectedClinicId;
     const loggedInUserId = store.getState().blip?.loggedInUserId;
-    const tideDashboardFiltersIsHydrated = store.getState().blip?.tideDashboardFiltersIsHydrated;
+    const isFiltersHydrated = store.getState().blip?.isFiltersHydrated;
 
     saveLocalState({ selectedClinicId });
 
-    if (loggedInUserId && selectedClinicId && tideDashboardFiltersIsHydrated) {
+    if (loggedInUserId && selectedClinicId && isFiltersHydrated) {
       const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, selectedClinicId);
 
       saveLocalState(store.getState().blip?.tideDashboardFilters, tideDashboardFiltersKey);

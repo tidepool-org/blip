@@ -177,7 +177,6 @@ const initialState = {
   justConnectedDataSourceProviderName: null,
   clinics: {},
   selectedClinicId: null,
-  tideDashboardFiltersIsHydrated: false,
   pendingReceivedClinicianInvites: [],
   clinicFlowActive: false,
   keycloakConfig: {},
