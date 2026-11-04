@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import colorPalette from '../../../themes/colorPalette';
 import { Flex, Text } from 'theme-ui';
-import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
+import { resetTideDashboardOptionalFilters } from './tideDashboardFiltersSlice';
 import { setOffset } from './tideDashboardSlice';
 import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../components/ClearFilterButtons';
 import noop from 'lodash/noop';
@@ -23,7 +23,7 @@ const EmptyContentNode = () => {
   const hasActiveFilters = activeFiltersCount > 0;
 
   const handleResetFilters = () => {
-    dispatch(resetTideDashboardFilters());
+    dispatch(resetTideDashboardOptionalFilters());
     dispatch(setOffset(0));
   };
 
