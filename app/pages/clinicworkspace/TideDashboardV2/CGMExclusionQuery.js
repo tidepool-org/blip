@@ -31,6 +31,10 @@ export default class CGMExclusionQuery {
     }
   }
 
+  isDeltaParam(param) {
+    return param.endsWith('Delta');
+  }
+
   addRule(name, param, operator, value) {
     const threshold = this.getAdjustedThreshold(value, operator);
 
@@ -42,8 +46,17 @@ export default class CGMExclusionQuery {
       queryParamsForRule[rule.param] = `${compOperator}${String(rule.threshold)}`;
     }
 
+    // Negated delta filters must also match patients whose delta is null (e.g. newer
+    // patients with no previous period), or they'd be dropped from every later category.
+    // We leave out THIS rule's own param, since its query replaces any negation of it.
+    const negatedDeltaParams = Object
+      .keys(queryParamsForRule)
+      .filter(negatedParam => negatedParam !== param && this.isDeltaParam(negatedParam));
+
     // Add the new query after existing queries have been negated
     queryParamsForRule[param] = `${operator}${String(threshold)}`;
+
+    if (negatedDeltaParams.length > 0) queryParamsForRule.includeNullDeltas = negatedDeltaParams.join(',');
 
     // Store the new query params for retrieval by getQueryParams()
     this.rules[name] = { param, operator, threshold };

@@ -35,6 +35,7 @@ describe ('tideDashboardApi', () => {
         'cgm.timeInVeryLowPercent': '<0.005', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '>-0.145', // > -15%
+        includeNullDeltas: 'cgm.timeInTargetPercentDelta',
         'cgm.timeInAnyHighPercent': '>=0.245', // >= 25%
       });
     });
@@ -44,6 +45,7 @@ describe ('tideDashboardApi', () => {
         'cgm.timeInVeryLowPercent': '<0.005', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '>-0.145', // > -15%
+        includeNullDeltas: 'cgm.timeInTargetPercentDelta',
         'cgm.timeInAnyHighPercent': '<0.245', // < 25%
         'cgm.timeInVeryHighPercent': '>=0.045', // >= 5%
       });
@@ -54,6 +56,7 @@ describe ('tideDashboardApi', () => {
         'cgm.timeInVeryLowPercent': '<0.005', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '>-0.145', // > -15%
+        includeNullDeltas: 'cgm.timeInTargetPercentDelta',
         'cgm.timeInAnyHighPercent': '<0.245', // < 25%
         'cgm.timeInVeryHighPercent': '<0.045', // < 5%
         'cgm.timeCGMUsePercent': '<0.695', // < 70%
@@ -65,6 +68,7 @@ describe ('tideDashboardApi', () => {
         'cgm.timeInVeryLowPercent': '<0.005', // < 1%
         'cgm.timeInAnyLowPercent': '<0.035', // < 4%
         'cgm.timeInTargetPercentDelta': '>-0.145', // > -15%
+        includeNullDeltas: 'cgm.timeInTargetPercentDelta',
         'cgm.timeInAnyHighPercent': '<0.245', // < 25%
         'cgm.timeInVeryHighPercent': '<0.045', // < 5%
         'cgm.timeCGMUsePercent': '>=0.695', // >= 70%
