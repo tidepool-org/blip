@@ -10,8 +10,9 @@ const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
 const EditPatientDialogController = ({ api, patients }) => {
   const dispatch = useDispatch();
   const editPatientDialog = useSelector(state => state.blip.tideDashboard.editPatientDialog);
+  const { patientId, isOpen } = editPatientDialog;
 
-  const clinicPatient = patients.find(patient => patient.id === editPatientDialog.patientId);
+  const clinicPatient = patients.find(patient => patient.id === patientId);
 
   const handleCloseModal = () => dispatch(closeModals());
 
@@ -19,6 +20,8 @@ const EditPatientDialogController = ({ api, patients }) => {
     dispatch(closeModals());
     dispatch(RTKQueryApi.util.invalidateTags([TIDE_DASHBOARD_PATIENTS]));
   };
+
+  if (!isOpen) return null;
 
   return (
     <>
