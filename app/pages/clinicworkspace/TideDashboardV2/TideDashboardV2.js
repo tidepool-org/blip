@@ -21,6 +21,8 @@ import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import useAuthorizationGate from './useAuthorizationGate';
 import FetchError from './FetchError';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
+import { trackMetric } from '../../../core/metricUtils';
 
 import PatientDrawerController from './PatientDrawerController';
 import EditPatientDialogController from './modals/EditPatientDialogController';
@@ -39,6 +41,8 @@ const TideDashboardV2 = ({ api }) => {
 
   usePruneInvalidFilters();
 
+  const clinicId = useSelector(state => state.blip.selectedClinicId);
+  const pageName = useClinicMetricsPageName();
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
@@ -65,10 +69,14 @@ const TideDashboardV2 = ({ api }) => {
   const handleClickRow = (patient) => {
     if (!patient.id) return;
 
+    trackMetric('Selected PwD', { pageName });
+
     if (!isValidAgpPeriod(summaryPeriod)) {
       history.push(`/patients/${patient.id}/data/trends?dashboard=tide`);
       return;
     }
+
+    trackMetric('Opened side drawer', { clinicId, pageName, patientID: patient.id });
 
     const params = new URLSearchParams(search);
     params.set('drawerPatientId', patient.id);
