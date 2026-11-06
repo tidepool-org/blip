@@ -13,7 +13,7 @@ const DataConnectionsDialogController = ({ patients }) => {
 
   const handleClose = () => dispatch(closeModals());
 
-  if (!isOpen) return null;
+  if (!isOpen || !patient) return null;
 
   return (
     <DataConnectionsDialog
