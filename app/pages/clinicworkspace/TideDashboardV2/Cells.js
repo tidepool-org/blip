@@ -8,6 +8,8 @@ import PatientLastReviewedGenericAdapter from '../components/ReviewPatientToggle
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
+import { trackMetric } from '../../../core/metricUtils';
+
 import isUndefined from 'lodash/isUndefined';
 
 import PopoverMenu from '../../../components/elements/PopoverMenu';
@@ -21,7 +23,6 @@ import {
   setDataConnectionsModalPatientId,
 } from './tideDashboardSlice';
 
-import { tideDashboardExclusionQuery } from './tideDashboardApi';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 export const COMPACT = '@container (max-width: 1200px)';
@@ -170,13 +171,17 @@ export const MoreMenuHeader = () => {
 export const MoreMenuCell = ({ patient }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinicId = selectedClinicId;
 
   const handleOpenEditPatientDialog = () => {
+    trackMetric('Clinic - Edit patient', { clinicId, source: 'action menu' });
     dispatch(setEditPatientDialogIsOpen(true));
     dispatch(setEditPatientDialogPatientId(patient.id));
   };
 
   const handleOpenDataConnectionsModal = () => {
+    trackMetric('Clinic - Edit patient data connections', { clinicId, source: 'action menu' });
     dispatch(setDataConnectionsModalIsOpen(true));
     dispatch(setDataConnectionsModalPatientId(patient.id));
   };

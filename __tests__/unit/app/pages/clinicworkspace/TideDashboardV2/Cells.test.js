@@ -22,6 +22,7 @@ import {
   CGMUseCell,
   MoreMenuCell,
 } from '@app/pages/clinicworkspace/TideDashboardV2/Cells';
+import { trackMetric as mockTrackMetric } from '../../../../../../app/core/metricUtils';
 
 const mockStore = configureStore([thunk]);
 
@@ -64,6 +65,7 @@ describe('Cells', () => {
   };
 
   beforeEach(() => {
+    mockTrackMetric.mockClear();
     store = mockStore({
       blip: {
         selectedClinicId: 'clinic123',
@@ -207,6 +209,7 @@ describe('Cells', () => {
         { type: 'tideDashboard/setEditPatientDialogIsOpen', payload: true },
         { type: 'tideDashboard/setEditPatientDialogPatientId', payload: 'patient-1' },
       ]);
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Edit patient', { clinicId: 'clinic123', source: 'action menu' });
     });
 
     it('dispatches the actions to open the Data Connections modal for the patient', async () => {
@@ -221,6 +224,7 @@ describe('Cells', () => {
         { type: 'tideDashboard/setDataConnectionsModalIsOpen', payload: true },
         { type: 'tideDashboard/setDataConnectionsModalPatientId', payload: 'patient-1' },
       ]);
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Edit patient data connections', { clinicId: 'clinic123', source: 'action menu' });
     });
   });
 });
