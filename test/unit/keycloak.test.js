@@ -79,6 +79,7 @@ const makeKeycloakInstance = (overrides = {}) => ({
   },
   token: 'tokenValue',
   timeSkew: 2,
+  authenticated: true,
   updateToken: sinon.stub(),
   createLoginUrl: sinon.stub().resolves('http://keycloakauthserverurl/realms/keycloakRealm/protocol/openid-connect/auth?client_id=blip&kc_action=stubAction'),
   authServerUrl: 'http://keycloakauthserverurl',
@@ -345,6 +346,16 @@ describe('keycloak', () => {
 
       keycloakMiddleware()()(sinon.stub())(action403);
       sinon.assert.calledWithExactly(keycloakClient.updateToken, -1);
+    });
+
+    it('should not call keycloak.updateToken() for a 401 when signed out', () => {
+      keycloakClient.authenticated = false;
+      const next = sinon.stub();
+      const action401 = { type: 'SOME_ACTION', error: { status: 401 } };
+
+      keycloakMiddleware()()(next)(action401);
+      sinon.assert.notCalled(keycloakClient.updateToken);
+      sinon.assert.calledWithExactly(next, action401);
     });
   });
 

@@ -1,12 +1,14 @@
-/* global afterEach, before, chai, describe, it, sinon, after */
+/* global afterEach, chai, describe, it, jest, sinon */
 
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 
 import Footer from '../../../app/components/footer/';
+
+jest.mock('../../../app/redux/features/productInfo/productInfoApi');
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -24,71 +26,52 @@ describe('Footer', () => {
     }
   });
 
+  const renderFooter = (store = defaultStore) => render(
+    <Provider store={store}>
+      <Footer {...props} />
+    </Provider>
+  );
+
   afterEach(() => {
     props.trackMetric.resetHistory();
   });
 
   describe('render', () => {
-    it('should render four links', () => {
-      const { container } = render(
-        <Provider store={defaultStore}>
-          <Footer {...props} />
-        </Provider>
-      );
-      expect(container.querySelectorAll('a').length).to.equal(4);
+    it('should render the Get Support link and the About button', () => {
+      renderFooter();
+      const links = screen.getAllByRole('link');
+
+      expect(links.length).to.equal(1);
+      expect(links[0].id).to.equal('support');
+      expect(links[0].getAttribute('href')).to.equal('https://support.tidepool.org/');
+      expect(screen.getByRole('button', { name: 'About' }).id).to.equal('about');
     });
 
-    describe('in Smart-on-FHIR mode', () => {
-      let smartOnFhirContainer;
+    it('should render the About button without the Get Support link in Smart-on-FHIR mode', () => {
+      renderFooter(mockStore({ blip: { smartCorrelationId: 'test-correlation-id' } }));
 
-      beforeEach(() => {
-        const smartOnFhirStore = mockStore({
-          blip: {
-            smartCorrelationId: 'test-correlation-id'
-          }
-        });
-        const { container } = render(
-          <Provider store={smartOnFhirStore}>
-            <Footer {...props} />
-          </Provider>
-        );
-        smartOnFhirContainer = container;
-      });
-
-      it('should not render social media links', () => {
-        // Should not find Twitter and Facebook links
-        expect(smartOnFhirContainer.querySelector('a#twitter')).to.be.null;
-        expect(smartOnFhirContainer.querySelector('a#facebook')).to.be.null;
-      });
-
-      it('should still render version info', () => {
-        expect(smartOnFhirContainer.querySelector('.Version')).to.not.be.null;
-      });
+      expect(screen.queryByRole('button', { name: 'About' })).to.not.be.null;
+      expect(screen.queryByRole('link', { name: 'Get Support' })).to.be.null;
     });
   });
 
   describe('interactions', () => {
-    const links = [
-      { id: 'twitter', metric: 'Twitter' },
-      { id: 'facebook', metric: 'Facebook' },
-      { id: 'support', metric: 'Support' },
-      { id: 'legal', metric: 'PP and TOU' }
-    ];
+    it('the Get Support link should fire the trackMetric function when clicked', () => {
+      renderFooter();
 
-    for (const link of links) {
-      it(`a#${link.id} should fire the trackMetric function when clicked`, () => {
-        const { container } = render(
-          <Provider store={defaultStore}>
-            <Footer {...props} />
-          </Provider>
-        );
-        const linkEl = container.querySelector(`#${link.id}`);
-        expect(linkEl).to.not.be.null;
-        expect(props.trackMetric.callCount).to.equal(0);
-        fireEvent.click(linkEl);
-        expect(props.trackMetric.callCount).to.equal(1);
-        expect(props.trackMetric.firstCall.args[0]).to.equal(`Clicked Footer ${link.metric}`);
-      });
-    }
+      fireEvent.click(screen.getByRole('link', { name: 'Get Support' }));
+      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.firstCall.args[0]).to.equal('Clicked Footer Support');
+    });
+
+    it('the About button should fire the trackMetric function and open the About dialog', () => {
+      renderFooter();
+      expect(screen.queryByRole('heading', { name: 'About Tidepool' })).to.be.null;
+
+      fireEvent.click(screen.getByRole('button', { name: 'About' }));
+      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.firstCall.args[0]).to.equal('Clicked Footer About');
+      expect(screen.queryByRole('heading', { name: 'About Tidepool' })).to.not.be.null;
+    });
   });
 });
