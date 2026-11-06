@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import cloneDeep from 'lodash/cloneDeep';
@@ -62,7 +63,11 @@ describe('Cells', () => {
   let store;
 
   const renderComponent = (cell) => {
-    render(<Provider store={store}>{cell}</Provider>);
+    render(
+      <MemoryRouter initialEntries={['/clinic-workspace/tide-dashboard']}>
+        <Provider store={store}>{cell}</Provider>
+      </MemoryRouter>
+    );
   };
 
   beforeEach(() => {
@@ -283,7 +288,7 @@ describe('Cells', () => {
         { type: 'tideDashboard/setEditPatientDialogIsOpen', payload: true },
         { type: 'tideDashboard/setEditPatientDialogPatientId', payload: 'patient-1' },
       ]);
-      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Edit patient', { clinicId: 'clinic123', source: 'action menu' });
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Edit patient', { clinicId: 'clinic123', source: 'action menu', pageName: 'TIDE Dashboard' });
     });
 
     it('dispatches the actions to open the Data Connections modal for the patient', async () => {
@@ -298,7 +303,7 @@ describe('Cells', () => {
         { type: 'tideDashboard/setDataConnectionsModalIsOpen', payload: true },
         { type: 'tideDashboard/setDataConnectionsModalPatientId', payload: 'patient-1' },
       ]);
-      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Edit patient data connections', { clinicId: 'clinic123', source: 'action menu' });
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Edit patient data connections', { clinicId: 'clinic123', source: 'action menu', pageName: 'TIDE Dashboard' });
     });
   });
 });
