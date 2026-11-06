@@ -1,20 +1,17 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as actions from '../../../../redux/actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
-import Button from '../../../../components/elements/Button';
-import moment from 'moment';
-import PatientLastReviewed from '../../../clinicworkspace/components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
+import Button from '../../../components/elements/Button';
+import PatientLastReviewed from './PatientLastReviewed';
 import CGMClipboardButton from './CGMClipboardButton';
-import api from '../../../../core/api';
 import { map, keys } from 'lodash';
-import copyIcon from '../../../../core/icons/copyIcon.svg';
-import viewIcon from '../../../../core/icons/viewIcon.svg';
-import { trackMetric } from '../../../../core/metricUtils';
+import copyIcon from '../../../core/icons/copyIcon.svg';
+import viewIcon from '../../../core/icons/viewIcon.svg';
+import { trackMetric } from '../../../core/metricUtils';
 
 export const OVERVIEW_TAB_INDEX = 0;
 export const STACKED_DAILY_TAB_INDEX = 1;
@@ -32,18 +29,14 @@ const tabs = {
   },
 };
 
-const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
+const MenuBar = ({ patient, onClose, onSelectTab, selectedTab }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const patient = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]);
   const pdf = useSelector(state => state.blip.pdf); // IMPORTANT: Data taken from Redux PDF slice
 
-  useEffect(() => {
-    // DOB field in Patient object may not be populated in TIDE Dashboard, so we need to refetch
-    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patientId));
-  }, []);
+  const { id: patientId, fullName, birthDate } = patient || {};
 
   const handleViewData = () => {
     dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide&drawerTab=${selectedTab}`));
@@ -60,8 +53,6 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
     trackMetric(tabs[tabIndex]?.metric, { clinicId: selectedClinicId });
     onSelectTab(tabIndex);
   }
-
-  const { fullName, birthDate } = patient || {};
 
   return (
     <Box px={4} pt={4} sx={{ position: 'sticky', top: 0, bg: 'white', zIndex: 1 }}>
@@ -92,7 +83,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
               {t('Last Reviewed')}
             </Text>
 
-            <PatientLastReviewed patient={patient} onReview={handleReviewSuccess} />
+            {!!patient && <PatientLastReviewed patient={patient} onReview={handleReviewSuccess} />}
           </Flex>
         </Flex>
       </Flex>
@@ -140,7 +131,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
 }
 
 MenuBar.propTypes = {
-  patientId: PropTypes.string.isRequired,
+  patient: PropTypes.object.isRequired,
   onClose: PropTypes.func.isRequired,
   onSelectTab: PropTypes.func.isRequired,
   selectedTab: PropTypes.number.isRequired,
