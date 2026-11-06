@@ -61,7 +61,6 @@ const useCategoryHeaderCopy = (category) => {
         title: t('Meeting Targets'),
         label: '',
       };
-    case CATEGORY.DEFAULT:
     default:
       return { title: '', label: '' };
   }

@@ -46,6 +46,8 @@ const buildColumnTypes = (t, category, thresholds) => ({
     title: t('Avg Glucose'),
     field: 'avgGlucose',
     align: 'center',
+    sortBy: 'averageGlucoseMmol',
+    sortable: true,
     titleComponent: () => <AvgGlucoseHeader />,
     render: patient => <AvgGlucoseCell patient={patient} />,
   },
@@ -59,6 +61,8 @@ const buildColumnTypes = (t, category, thresholds) => ({
     title: t('% Change in TIR'),
     field: 'changeInTIR',
     align: 'center',
+    sortBy: 'timeInTargetPercentDelta',
+    sortable: true,
     titleComponent: () => <ChangeTIRHeader />,
     render: patient => <ChangeTIRCell patient={patient} />,
   },
@@ -66,42 +70,56 @@ const buildColumnTypes = (t, category, thresholds) => ({
     title: `${t('% Time')} < ${thresholds.veryLowThreshold}`,
     field: 'timeInVeryLow',
     align: 'center',
+    sortBy: 'timeInVeryLowPercent',
+    sortable: true,
     render: patient => <TimeInVeryLowPercentCell patient={patient} />,
   },
   timeInAnyLow: {
     title: `${t('% Time')} < ${thresholds.targetLowerBound}`,
     field: 'timeInAnyLow',
     align: 'center',
+    sortBy: 'timeInAnyLowPercent',
+    sortable: true,
     render: patient => <TimeInAnyLowPercentCell patient={patient} />,
   },
   timeInVeryHigh: {
     title: `${t('% Time')} > ${thresholds.veryHighThreshold}`,
     field: 'timeInVeryHigh',
     align: 'center',
+    sortBy: 'timeInVeryHighPercent',
+    sortable: true,
     render: patient => <TimeInVeryHighPercentCell patient={patient} />,
   },
   timeInAnyHigh: {
     title: `${t('% Time')} > ${thresholds.targetUpperBound}`,
     field: 'timeInAnyHigh',
     align: 'center',
+    sortBy: 'timeInAnyHighPercent',
+    sortable: true,
     render: patient => <TimeInAnyHighPercentCell patient={patient} />,
   },
   timeInTarget: {
     title: `${t('% TIR')} ${thresholds.targetLowerBound}-${thresholds.targetUpperBound}`,
     field: 'timeInTarget',
     align: 'center',
+    sortBy: 'timeInTargetPercent',
+    sortable: true,
     render: patient => <TimeInTargetPercentCell patient={patient} />,
   },
   gmi: {
     title: t('GMI'),
     field: 'gmi',
     align: 'center',
+    sortBy: 'glucoseManagementIndicator',
+    sortable: true,
     render: patient => <GMICell patient={patient} />,
   },
   cgmUse: {
     title: t('CGM Use'),
     field: 'cgmUse',
     align: 'center',
+    sortBy: 'timeCGMUsePercent',
+    sortable: true,
     render: patient => <CGMUseCell patient={patient} />,
   },
   tags: {
@@ -126,25 +144,13 @@ const buildColumnTypes = (t, category, thresholds) => ({
 });
 
 const getColumnSet = (columnTypes) => ({
-  default: [
-    columnTypes.patientDetails,
-    columnTypes.flag,
-    columnTypes.avgGlucose,
-    columnTypes.timeInRangeBarChart,
-    columnTypes.changeInTIR,
-    columnTypes.gmi,
-    columnTypes.cgmUse,
-    columnTypes.tags,
-    columnTypes.lastReviewed,
-    columnTypes.moreMenu,
-  ],
   low: [
     columnTypes.patientDetails,
     columnTypes.avgGlucose,
     columnTypes.timeInVeryLow,
     columnTypes.timeInAnyLow,
-    columnTypes.timeInTarget,
     columnTypes.timeInRangeBarChart,
+    columnTypes.timeInTarget,
     columnTypes.changeInTIR,
     columnTypes.tags,
     columnTypes.lastReviewed,
@@ -153,10 +159,10 @@ const getColumnSet = (columnTypes) => ({
   high: [
     columnTypes.patientDetails,
     columnTypes.avgGlucose,
-    columnTypes.timeInVeryHigh,
     columnTypes.timeInAnyHigh,
-    columnTypes.timeInTarget,
+    columnTypes.timeInVeryHigh,
     columnTypes.timeInRangeBarChart,
+    columnTypes.timeInTarget,
     columnTypes.changeInTIR,
     columnTypes.tags,
     columnTypes.lastReviewed,
@@ -165,8 +171,8 @@ const getColumnSet = (columnTypes) => ({
   dropInTIR: [
     columnTypes.patientDetails,
     columnTypes.avgGlucose,
-    columnTypes.timeInTarget,
     columnTypes.timeInRangeBarChart,
+    columnTypes.timeInTarget,
     columnTypes.changeInTIR,
     columnTypes.gmi,
     columnTypes.cgmUse,
@@ -178,8 +184,8 @@ const getColumnSet = (columnTypes) => ({
     columnTypes.patientDetails,
     columnTypes.cgmUse,
     columnTypes.avgGlucose,
-    columnTypes.timeInTarget,
     columnTypes.timeInRangeBarChart,
+    columnTypes.timeInTarget,
     columnTypes.changeInTIR,
     columnTypes.gmi,
     columnTypes.tags,
@@ -190,6 +196,7 @@ const getColumnSet = (columnTypes) => ({
     columnTypes.patientDetails,
     columnTypes.avgGlucose,
     columnTypes.timeInRangeBarChart,
+    columnTypes.timeInTarget,
     columnTypes.changeInTIR,
     columnTypes.gmi,
     columnTypes.cgmUse,
@@ -218,7 +225,6 @@ const useTableColumns = (category) => {
     const columnSet = getColumnSet(columnTypes);
 
     switch(category) {
-      case CATEGORY.DEFAULT: return columnSet.default;
       case CATEGORY.VERY_LOW: return columnSet.low;
       case CATEGORY.ANY_LOW: return columnSet.low;
       case CATEGORY.DROP_IN_TIR: return columnSet.dropInTIR;
@@ -226,7 +232,7 @@ const useTableColumns = (category) => {
       case CATEGORY.VERY_HIGH: return columnSet.high;
       case CATEGORY.LOW_CGM_WEAR: return columnSet.lowCgmWear;
       case CATEGORY.TARGET: return columnSet.target;
-      default: return columnSet.default;
+      default: return columnSet.target;
     }
   }, [category, clinicBgUnits, t]);
 
