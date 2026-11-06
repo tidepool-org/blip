@@ -46,19 +46,21 @@ const socialLinkSx = {
 const strongTextSx = { color: 'blue80' };
 const secondaryTextSx = { fontSize: 1, color: 'blueGreyLight' };
 
-export const AboutDialog = ({ open, onClose, version, trackMetric }) => {
+export const AboutDialog = ({ open, onClose, version, trackMetric, showLinks = true }) => {
   const { t } = useTranslation();
   const { data, isFetching, isError } = useGetProductInfoQuery(undefined, { skip: !open });
 
+  // A response without a UDI counts as a failed lookup
+  const hasError = isError || (!isFetching && data !== undefined && !data?.udi);
   // The hook keeps the previous response while refetching or after a failure
-  const info = !isFetching && !isError ? data : undefined;
-  const isLoading = isFetching && !isError;
+  const info = isFetching || hasError ? undefined : data;
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
+  // Unmounted while closed, so its link ids exist only while About is open
   return (
-    <Dialog id="aboutDialog" aria-labelledby="dialog-title" maxWidth="md" open={open} onClose={onClose}>
+    <Dialog id="aboutDialog" aria-labelledby="about-dialog-title" maxWidth="md" open={open} onClose={onClose} keepMounted={false}>
       <DialogTitle onClose={onClose}>
-        <MediumTitle id="dialog-title">{t('About Tidepool')}</MediumTitle>
+        <MediumTitle id="about-dialog-title">{t('About Tidepool')}</MediumTitle>
       </DialogTitle>
 
       <DialogContent divider={false} minWidth={640} sx={{ maxWidth: '640px' }}>
@@ -116,7 +118,7 @@ export const AboutDialog = ({ open, onClose, version, trackMetric }) => {
               </>
             )}
 
-            {isLoading && (
+            {isFetching && (
               <Flex aria-busy="true" sx={{ flexDirection: 'column', gap: 2, px: [3, null, 4], py: 3 }}>
                 <Text aria-live="polite" sx={visuallyHiddenSx}>{t('Loading…')}</Text>
                 {SKELETON_BARS.map((bar, i) => (bar ? (
@@ -132,7 +134,7 @@ export const AboutDialog = ({ open, onClose, version, trackMetric }) => {
               </Flex>
             )}
 
-            {isError && (
+            {hasError && (
               <Flex role="alert" sx={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, p: 4, textAlign: 'center' }}>
                 <Flex sx={{ alignItems: 'center', justifyContent: 'center', width: '44px', height: '44px', borderRadius: 'full', bg: 'red05', color: 'feedback.danger' }}>
                   <ErrorOutlineRoundedIcon aria-hidden="true" />
@@ -144,7 +146,7 @@ export const AboutDialog = ({ open, onClose, version, trackMetric }) => {
             )}
           </Flex>
 
-          <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 3 }}>
+          {showLinks && <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 3 }}>
             <Link
               href="https://tidepool.org/legal/"
               id="legal"
@@ -184,7 +186,7 @@ export const AboutDialog = ({ open, onClose, version, trackMetric }) => {
                 </svg>
               </Link>
             </Flex>
-          </Flex>
+          </Flex>}
         </Flex>
       </DialogContent>
     </Dialog>
@@ -196,6 +198,7 @@ AboutDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   version: PropTypes.string,
   trackMetric: PropTypes.func.isRequired,
+  showLinks: PropTypes.bool,
 };
 
 export default AboutDialog;

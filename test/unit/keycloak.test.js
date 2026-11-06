@@ -89,12 +89,15 @@ const makeKeycloakInstance = (overrides = {}) => ({
 });
 
 describe('keycloak', () => {
+  // A new URL per test makes updateKeycloakConfig build a fresh instance
+  let setupId = 0;
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockKeycloakCtor.mockReset();
     const instance = makeKeycloakInstance();
     mockKeycloakCtor.mockImplementation(() => instance);
-    updateKeycloakConfig({ url: `someUrl-${Date.now()}`, realm: 'realm' }, {});
+    updateKeycloakConfig({ url: `someUrl-${++setupId}`, realm: 'realm' }, {});
   });
 
   afterEach(() => {

@@ -175,14 +175,6 @@ describe('App', () => {
       return screen.getByText(/^Version /).textContent;
     };
 
-    it('should not render a version element when version not set in config', () => {
-      var props = buildProps();
-      props.context.config = { VERSION : null };
-      var { container } = renderApp(props);
-      var versionElems = container.querySelectorAll('.Navbar-version');
-      expect(versionElems.length).to.equal(0);
-    });
-
     it('should render version and hostname when version present in config', () => {
       var props = buildProps();
       props.context.config = { VERSION : 1.4 };

@@ -54,6 +54,7 @@ const Footer = ({ version, location, trackMetric }) => {
         onClose={() => setAboutOpen(false)}
         version={version}
         trackMetric={trackMetric}
+        showLinks={shouldDisplayFooterLinks}
       />
     </Flex>
   );

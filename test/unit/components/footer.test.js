@@ -53,6 +53,14 @@ describe('Footer', () => {
       expect(screen.queryByRole('button', { name: 'About' })).to.not.be.null;
       expect(screen.queryByRole('link', { name: 'Get Support' })).to.be.null;
     });
+
+    it('should hide the About dialog links in Smart-on-FHIR mode', () => {
+      renderFooter(mockStore({ blip: { smartCorrelationId: 'test-correlation-id' } }));
+
+      fireEvent.click(screen.getByRole('button', { name: 'About' }));
+      expect(screen.queryByRole('heading', { name: 'About Tidepool' })).to.not.be.null;
+      expect(screen.queryAllByRole('link')).to.have.length(0);
+    });
   });
 
   describe('interactions', () => {
@@ -66,7 +74,7 @@ describe('Footer', () => {
 
     it('the About button should fire the trackMetric function and open the About dialog', () => {
       renderFooter();
-      expect(screen.queryByRole('heading', { name: 'About Tidepool' })).to.be.null;
+      expect(screen.queryByText('About Tidepool')).to.be.null;
 
       fireEvent.click(screen.getByRole('button', { name: 'About' }));
       expect(props.trackMetric.callCount).to.equal(1);

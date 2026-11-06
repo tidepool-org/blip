@@ -66,6 +66,13 @@ describe('AboutDialog', () => {
     expectVersionAndLinks();
   });
 
+  it('takes its accessible name from its own title when another dialog title is mounted', () => {
+    render(<h3 id="dialog-title">One More Step!</h3>);
+    renderDialog();
+
+    expect(screen.getByRole('dialog', { name: 'About Tidepool' })).toBeInTheDocument();
+  });
+
   it('shows the loading text and hides the previous response while refetching', () => {
     useGetProductInfoQuery.mockReturnValue({ data: UDI_RESPONSE, isFetching: true, isError: false });
     renderDialog();
@@ -82,6 +89,17 @@ describe('AboutDialog', () => {
     expect(screen.getByText('Unable to load release information.')).toBeInTheDocument();
     expectApiRowsAbsent();
     expectVersionAndLinks();
+  });
+
+  it.each([
+    ['without a udi', { ...UDI_RESPONSE, udi: undefined }],
+    ['with an empty body', null],
+  ])('shows the unavailable text for a successful response %s', (_label, data) => {
+    useGetProductInfoQuery.mockReturnValue({ data, isFetching: false, isError: false });
+    renderDialog();
+
+    expect(screen.getByText('Unable to load release information.')).toBeInTheDocument();
+    expectApiRowsAbsent();
   });
 
   it('calls onClose from the close icon', async () => {
