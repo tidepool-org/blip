@@ -8,18 +8,17 @@ import { ThemeProvider } from 'theme-ui';
 import '@app/core/language';
 
 import theme from '@app/themes/baseTheme';
-import ActiveFiltersTray from '@app/pages/clinicworkspace/components/ActiveFiltersTray';
-import { defaultFilterState, SPECIAL_FILTER_STATES } from '@app/pages/clinicworkspace/useClinicPatientsFilters';
+import ActiveFiltersTray from '@app/pages/clinicworkspace/components/filters/ActiveFiltersTray';
+import { defaultFilterState } from '@app/pages/clinicworkspace/useClinicPatientsFilters';
 
 const mockStore = configureStore([thunk]);
 
-const buildState = ({ fetchedPatientCount = 5 } = {}) => ({
+const buildState = () => ({
   blip: {
     selectedClinicId: 'clinic123',
     clinics: {
       'clinic123': {
         id: 'clinic123',
-        fetchedPatientCount,
         patientTags: [
           { id: 'tag1', name: 'Tag One' },
           { id: 'tag2', name: 'Tag Two' },
@@ -35,37 +34,42 @@ const buildState = ({ fetchedPatientCount = 5 } = {}) => ({
 
 const renderTray = ({
   filters = defaultFilterState,
+  patientCount = 0,
   hasSearchActive = false,
   onRemoveFilter = jest.fn(),
   state = buildState(),
 } = {}) => {
   const store = mockStore(state);
 
-  const utils = render(
+  const ui = (props = {}) => (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <ActiveFiltersTray
           filters={filters}
+          patientCount={patientCount}
           hasSearchActive={hasSearchActive}
           onRemoveFilter={onRemoveFilter}
+          {...props}
         />
       </ThemeProvider>
     </Provider>
   );
 
-  return { ...utils, onRemoveFilter };
+  const utils = render(ui());
+
+  return { ...utils, ui, onRemoveFilter };
 };
 
 describe('ActiveFiltersTray', () => {
   describe('patient count header', () => {
-    it('renders the fetched patient count', () => {
-      renderTray({ state: buildState({ fetchedPatientCount: 5 }) });
+    it('renders the patient count', () => {
+      renderTray({ patientCount: 5 });
 
       expect(screen.getByText('Showing 5 patients')).toBeInTheDocument();
     });
 
     it('notes the count reflects the search when a search is active', () => {
-      renderTray({ hasSearchActive: true, state: buildState({ fetchedPatientCount: 5 }) });
+      renderTray({ hasSearchActive: true, patientCount: 5 });
 
       expect(screen.getByText('Showing 5 patients that match your search')).toBeInTheDocument();
     });
@@ -107,6 +111,22 @@ describe('ActiveFiltersTray', () => {
 
       expect(screen.getByText('visiting')).toBeInTheDocument();
       expect(screen.getByText('Site Alpha')).toBeInTheDocument();
+    });
+  });
+
+  describe('required filters', () => {
+    it('renders a required filter without its remove icon', () => {
+      const { ui, rerender } = renderTray({
+        filters: { ...defaultFilterState, lastData: 14, lastDataType: 'cgm' },
+      });
+
+      // Removable by default: the chip renders with its remove icon
+      expect(screen.getByLabelText('Remove CGM data within 14 days filter')).toBeInTheDocument();
+
+      // Marking the filter required keeps the chip but drops the remove icon
+      rerender(ui({ requiredFilters: { lastData: true } }));
+      expect(screen.getByText('CGM data within 14 days')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Remove CGM data within 14 days filter')).not.toBeInTheDocument();
     });
   });
 
