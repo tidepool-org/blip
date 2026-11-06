@@ -5,6 +5,7 @@ import { Box, Text } from 'theme-ui';
 import { MGDL_UNITS } from '../../../core/constants';
 
 import PatientLastReviewedGenericAdapter from '../components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
@@ -171,17 +172,18 @@ export const MoreMenuHeader = () => {
 export const MoreMenuCell = ({ patient }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinicId = selectedClinicId;
+  const clinicId = useSelector(state => state.blip.selectedClinicId);
+  const pageName = useClinicMetricsPageName();
+  const source = 'action menu';
 
   const handleOpenEditPatientDialog = () => {
-    trackMetric('Clinic - Edit patient', { clinicId, source: 'action menu' });
+    trackMetric('Clinic - Edit patient', { clinicId, pageName, source });
     dispatch(setEditPatientDialogIsOpen(true));
     dispatch(setEditPatientDialogPatientId(patient.id));
   };
 
   const handleOpenDataConnectionsModal = () => {
-    trackMetric('Clinic - Edit patient data connections', { clinicId, source: 'action menu' });
+    trackMetric('Clinic - Edit patient data connections', { clinicId, pageName, source });
     dispatch(setDataConnectionsModalIsOpen(true));
     dispatch(setDataConnectionsModalPatientId(patient.id));
   };
