@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import { colors as vizColors  } from '@tidepool/viz';
@@ -7,12 +7,24 @@ import { MGDL_UNITS } from '../../../core/constants';
 import { colors } from '../../../themes/baseTheme';
 
 import PatientLastReviewedGenericAdapter from '../components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
+import { trackMetric } from '../../../core/metricUtils';
 import { CATEGORY } from './tideDashboardSlice';
 import isUndefined from 'lodash/isUndefined';
 
+import PopoverMenu from '../../../components/elements/PopoverMenu';
+import EditIcon from '@material-ui/icons/EditRounded';
+import DataInIcon from '../../../core/icons/DataInIcon.svg';
+
+import {
+  setEditPatientDialogIsOpen,
+  setEditPatientDialogPatientId,
+  setDataConnectionsModalIsOpen,
+  setDataConnectionsModalPatientId,
+} from './tideDashboardSlice';
 
 import { tideDashboardExclusionQuery } from './tideDashboardApi';
 import { useFlags } from 'launchdarkly-react-client-sdk';
@@ -235,7 +247,56 @@ export const MoreMenuHeader = () => {
   return <Box aria-label={t('More Options')}></Box>;
 };
 
-export const MoreMenuCell = () => <></>; // TEMPORARY
+export const MoreMenuCell = ({ patient }) => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const clinicId = useSelector(state => state.blip.selectedClinicId);
+  const pageName = useClinicMetricsPageName();
+  const source = 'action menu';
+
+  const handleOpenEditPatientDialog = () => {
+    trackMetric('Clinic - Edit patient', { clinicId, pageName, source });
+    dispatch(setEditPatientDialogIsOpen(true));
+    dispatch(setEditPatientDialogPatientId(patient.id));
+  };
+
+  const handleOpenDataConnectionsModal = () => {
+    trackMetric('Clinic - Edit patient data connections', { clinicId, pageName, source });
+    dispatch(setDataConnectionsModalIsOpen(true));
+    dispatch(setDataConnectionsModalPatientId(patient.id));
+  };
+
+  return (
+    <PopoverMenu
+      id={`action-menu-${patient?.id}`}
+      data-testid={`action-menu-${patient?.id}-icon`}
+      items={[{
+        icon: EditIcon,
+        iconLabel: t('Edit Patient Details'),
+        iconPosition: 'left',
+        id: `edit-${patient?.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleOpenEditPatientDialog();
+        },
+        text: t('Edit Patient Details'),
+      }, {
+        iconSrc: DataInIcon,
+        iconLabel: t('Bring Data into Tidepool'),
+        iconPosition: 'left',
+        id: `edit-data-connections-${patient?.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleOpenDataConnectionsModal();
+        },
+        text: t('Bring Data into Tidepool'),
+      }]}
+      sx={{ position: 'relative', left: '-2px' }}
+    />
+  );
+};
 
 export const PatientLastReviewedCell = ({ patient }) => {
   return <PatientLastReviewedGenericAdapter patient={patient} />;

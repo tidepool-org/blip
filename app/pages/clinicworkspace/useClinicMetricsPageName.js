@@ -12,6 +12,10 @@ const useClinicMetricsPageName = () => {
     return 'Population Health';
   }
 
+  if (/^\/patients\/[^/]+\/data(\/|$)/.test(pathname)) {
+    return 'Patient Data';
+  }
+
   return 'Unknown';
 };
 
