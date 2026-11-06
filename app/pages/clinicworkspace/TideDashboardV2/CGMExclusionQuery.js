@@ -68,4 +68,8 @@ export default class CGMExclusionQuery {
   getQueryParams(name) {
     return this.queryParams[name] || {};
   }
+
+  getRule(name) {
+    return this.rules[name] || {};
+  }
 };
