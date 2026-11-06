@@ -25,6 +25,7 @@ import FetchError from './FetchError';
 import PatientDrawerController from './PatientDrawerController';
 import EditPatientDialogController from './modals/EditPatientDialogController';
 import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
+import { isValidAgpPeriod } from '../../../components/PatientDrawer';
 import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
@@ -64,6 +65,11 @@ const TideDashboardV2 = ({ api }) => {
 
   const handleClickRow = (patient) => {
     if (!patient.id) return;
+
+    if (!isValidAgpPeriod(summaryPeriod)) {
+      history.push(`/patients/${patient.id}/data/trends?dashboard=tide`);
+      return;
+    }
 
     const params = new URLSearchParams(search);
     params.set('drawerPatientId', patient.id);
