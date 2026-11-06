@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import DataConnectionsDialog from '../../../../components/datasources/DataConnectionsDialog';
+import { RTKQueryApi } from '../../../../redux/api/baseApi';
 import { closeModals } from '../tideDashboardSlice';
+import { tagTypes } from '../tideDashboardApi';
+const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
 
 const DataConnectionsDialogController = ({ patients }) => {
   const dispatch = useDispatch();
@@ -13,6 +16,10 @@ const DataConnectionsDialogController = ({ patients }) => {
 
   const handleClose = () => dispatch(closeModals());
 
+  const handlePatientUpdated = useCallback(() => {
+    dispatch(RTKQueryApi.util.invalidateTags([TIDE_DASHBOARD_PATIENTS]));
+  }, [dispatch]);
+
   if (!isOpen || !patient) return null;
 
   return (
@@ -20,6 +27,7 @@ const DataConnectionsDialogController = ({ patients }) => {
       open={isOpen}
       patient={patient}
       onClose={handleClose}
+      onPatientUpdated={handlePatientUpdated}
     />
   );
 };

@@ -37,6 +37,7 @@ export const DataConnectionsDialog = (props) => {
     open,
     onClose,
     onBack,
+    onPatientUpdated,
     patient,
     shownProviders,
   } = props;
@@ -89,8 +90,9 @@ export const DataConnectionsDialog = (props) => {
 
   const handleEditPatientEmailComplete = useCallback(() => {
     fetchPatientDetails();
+    onPatientUpdated();
     setShowPatientEmailDialog(false);
-  }, [fetchPatientDetails, setShowPatientEmailDialog]);
+  }, [fetchPatientDetails, onPatientUpdated, setShowPatientEmailDialog]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = updatingClinicPatient;
@@ -181,7 +183,7 @@ export const DataConnectionsDialog = (props) => {
             )}
           </Box>
 
-          <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} />
+          <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} onPatientUpdated={onPatientUpdated} />
           <Divider mb={3} />
 
           {!!selectedClinicId && (
@@ -250,6 +252,7 @@ export const DataConnectionsDialog = (props) => {
 DataConnectionsDialog.propTypes = {
   onBack: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
+  onPatientUpdated: PropTypes.func,
   open: PropTypes.bool,
   patient: PropTypes.object.isRequired,
   shownProviders: PropTypes.arrayOf(PropTypes.oneOf(availableProviders)),
@@ -258,6 +261,7 @@ DataConnectionsDialog.propTypes = {
 
 DataConnectionsDialog.defaultProps = {
   onClose: noop,
+  onPatientUpdated: noop,
   trackMetric: noop,
 };
 

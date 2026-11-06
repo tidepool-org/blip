@@ -408,6 +408,7 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
 
 export const DataConnections = (props) => {
   const {
+    onPatientUpdated,
     patient,
     shownProviders,
     trackMetric,
@@ -508,6 +509,7 @@ export const DataConnections = (props) => {
 
   const handleUpdatePatientComplete = useCallback(() => {
     fetchPatientDetails();
+    onPatientUpdated();
     setShowPatientEmailDialog(false);
     setProcessingEmailUpdate(false);
     setPatientUpdates({});
@@ -527,6 +529,7 @@ export const DataConnections = (props) => {
     activeHandler,
     dispatch,
     fetchPatientDetails,
+    onPatientUpdated,
   ]);
 
   const handleResendDataSourceConnectEmailOpen = useCallback(() => {
@@ -566,10 +569,11 @@ export const DataConnections = (props) => {
 
     if (selectedClinicId) {
       fetchPatientDetails();
+      onPatientUpdated();
     } else {
       if (!fetchingDataSources?.inProgress) dispatch(actions.async.fetchDataSources(api));
     }
-  }, [fetchPatientDetails, selectedClinicId, fetchingDataSources?.inProgress, dispatch]);
+  }, [fetchPatientDetails, onPatientUpdated, selectedClinicId, fetchingDataSources?.inProgress, dispatch]);
 
   const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
   const previousAuthorizedDataSource = usePrevious(authorizedDataSource);
@@ -716,6 +720,7 @@ const userDataSourceShape = {
 
 DataConnections.propTypes = {
   ...BoxProps,
+  onPatientUpdated: PropTypes.func,
   patient: PropTypes.shape({
     dataSources: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])
   }),
@@ -724,6 +729,7 @@ DataConnections.propTypes = {
 };
 
 DataConnections.defaultProps = {
+  onPatientUpdated: noop,
   shownProviders: availableProviders,
   trackMetric: noop,
 };
