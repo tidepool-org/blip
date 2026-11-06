@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
+import { createMemoryHistory } from 'history';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import isEqual from 'lodash/isEqual';
@@ -206,12 +207,13 @@ const server = setupServer(
 
 describe('TideDashboardV2', () => {
   let store;
+  let history;
 
   const renderComponent = () => render(
     <Provider store={store}>
-      <MemoryRouter initialEntries={['/clinic-workspace/tide-dashboard']}>
+      <Router history={history}>
         <TideDashboardV2 />
-      </MemoryRouter>
+      </Router>
     </Provider>
   );
 
@@ -219,6 +221,7 @@ describe('TideDashboardV2', () => {
 
   beforeEach(() => {
     store = setupStore({ blip: { selectedClinicId: 'clinic123' } }, { blip: blipReducer });
+    history = createMemoryHistory({ initialEntries: ['/clinic-workspace/tide-dashboard'] });
   });
 
   afterEach(() => {
