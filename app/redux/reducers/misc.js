@@ -764,11 +764,6 @@ export const clinics = (state = initialState.clinics, action) => {
       const patient = _.get(action.payload, 'patient');
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
-
-      if (!state[clinicId].patients) {
-        return state;
-      }
-
       let fetchedPatientCount = state[clinicId].fetchedPatientCount;
 
       // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
@@ -776,14 +771,15 @@ export const clinics = (state = initialState.clinics, action) => {
       const existingSortIndex = state[clinicId]?.patients?.[patientId]?.sortIndex || -1;
 
       if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) {
-        fetchedPatientCount++;
+        fetchedPatientCount = (fetchedPatientCount || 0) + 1;
       }
 
       return update(state, {
         [clinicId]: {
-          patients: {
-            [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } }
-          },
+          patients: { $set: {
+            ...state[clinicId].patients,
+            [patientId]: { ...patient, sortIndex: existingSortIndex },
+          } },
           fetchedPatientCount: { $set: fetchedPatientCount },
         },
       });
