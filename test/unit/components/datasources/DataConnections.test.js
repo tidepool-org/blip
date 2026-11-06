@@ -801,10 +801,10 @@ describe('DataConnections', () => {
         },
       });
 
-      const tree = (store) => (
+      const tree = (store, props = {}) => (
         <Provider store={store}>
           <ToastProvider>
-            <DataConnections {...defaultProps} patient={clinicPatients.dataConnectionUnset} />
+            <DataConnections {...defaultProps} {...props} patient={clinicPatients.dataConnectionUnset} />
           </ToastProvider>
         </Provider>
       );
@@ -835,6 +835,33 @@ describe('DataConnections', () => {
         await waitFor(() => {
           expect(dexcomBtn()?.classList.contains('processing')).to.not.equal(true);
         });
+      });
+
+      it('calls onPatientUpdated once the patient update completes and again once the connect request completes', () => {
+        const onPatientUpdated = sinon.stub();
+        const { rerender } = render(tree(storeWith({}), { onPatientUpdated }));
+
+        fireEvent.click(document.querySelector('#data-connection-dexcom .action'));
+
+        // phase 1: updateClinicPatient in progress, then completed
+        rerender(tree(storeWith({ updatingClinicPatient: { inProgress: true, completed: false } }), { onPatientUpdated }));
+        sinon.assert.notCalled(onPatientUpdated);
+
+        rerender(tree(storeWith({ updatingClinicPatient: { inProgress: false, completed: true } }), { onPatientUpdated }));
+        sinon.assert.calledOnce(onPatientUpdated);
+
+        // phase 2: connect request in progress, then completed
+        rerender(tree(storeWith({
+          updatingClinicPatient: { inProgress: false, completed: true },
+          sendingPatientDataProviderConnectRequest: { inProgress: true, completed: false },
+        }), { onPatientUpdated }));
+        sinon.assert.calledOnce(onPatientUpdated);
+
+        rerender(tree(storeWith({
+          updatingClinicPatient: { inProgress: false, completed: true },
+          sendingPatientDataProviderConnectRequest: { inProgress: false, completed: true },
+        }), { onPatientUpdated }));
+        sinon.assert.calledTwice(onPatientUpdated);
       });
     });
 
