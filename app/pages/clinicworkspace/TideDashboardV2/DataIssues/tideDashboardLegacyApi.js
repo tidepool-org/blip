@@ -1,5 +1,7 @@
+import without from 'lodash/without';
 import { RTKQueryApi } from '../../../../redux/api/baseApi';
 import { tagTypes } from '../tideDashboardApi';
+import { SPECIAL_FILTER_STATES } from '../../useClinicPatientsFilters';
 
 // This file isolates legacy TIDE Dashboard API calls (the V1
 // `/v1/clinics/:clinicId/tide_report` endpoint) so they are not entangled with
@@ -10,8 +12,11 @@ import { tagTypes } from '../tideDashboardApi';
 const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
 
 export const buildGetTideReportParams = (period, lastData, lastDataCutoff, tags = [], sites = [], categories = []) => {
-  const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
-  const formattedSites = sites.length > 0 ? sites.join(',') : undefined;
+  const validTags = without(tags, ...SPECIAL_FILTER_STATES.ZERO_TAGS);
+  const validSites = without(sites, ...SPECIAL_FILTER_STATES.ZERO_SITES);
+
+  const formattedTags = validTags.length > 0 ? validTags.join(',') : undefined;
+  const formattedSites = validSites.length > 0 ? validSites.join(',') : undefined;
   const formattedCategories = categories.length > 0 ? categories.join(',') : undefined;
 
   return {
