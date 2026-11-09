@@ -68,7 +68,7 @@ const DataIssues = ({ api }) => {
       title: t('Patient Details'),
       field: 'fullName',
       align: 'left',
-      render: patient => <PatientCell patient={patient} />,
+      render: patient => <PatientCell patient={patient} showEmail={true} />,
     },
     {
       title: t('Dexcom Connection Status'),
