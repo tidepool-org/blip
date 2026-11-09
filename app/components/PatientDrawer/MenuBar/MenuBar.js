@@ -59,7 +59,7 @@ const MenuBar = ({ patient, onClose, onSelectTab, selectedTab }) => {
       <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center', minHeight: '30px' }}>
         <Flex sx={{ justifyContent: 'flex-start', gap: 2, alignItems: 'flex-end' }}>
           <Text
-            data-testid="patient-name"
+            data-testid="drawer-patient-name"
             sx={{ color: vizColors.purple90, fontWeight: 'bold', fontSize: 2, lineHeight: 0 }}
           >
             {fullName}
