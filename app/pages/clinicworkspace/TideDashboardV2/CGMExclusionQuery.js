@@ -31,12 +31,29 @@ export default class CGMExclusionQuery {
     }
   }
 
+  // The query compares raw values, but the view rounds them half to even, i.e. .5 rounds
+  // to the nearest even number (0.5% -> 0%, 3.5% -> 4%). So a value exactly on the cutoff
+  // only matches if it rounds into the category: X >= 4% queries X >= 3.5%, X >= 1% queries X > 0.5%
+  getHalfEvenOperator(value, operator) {
+    const percent = Math.round(value * 100);
+    const isEven = percent % 2 === 0;
+    if (isEven) return operator;
+
+    switch (true) {
+      case operator === '>=': return '>';
+      case operator === '<=': return '<';
+      case operator === '>':  return '>=';
+      case operator === '<':  return '<=';
+    }
+  }
+
   isDeltaParam(param) {
     return param.endsWith('Delta');
   }
 
   addRule(name, param, operator, value) {
     const threshold = this.getAdjustedThreshold(value, operator);
+    const adjustedOperator = this.getHalfEvenOperator(value, operator);
 
     const queryParamsForRule = {};
 
@@ -54,12 +71,12 @@ export default class CGMExclusionQuery {
       .filter(negatedParam => negatedParam !== param && this.isDeltaParam(negatedParam));
 
     // Add the new query after existing queries have been negated
-    queryParamsForRule[param] = `${operator}${String(threshold)}`;
+    queryParamsForRule[param] = `${adjustedOperator}${String(threshold)}`;
 
     if (negatedDeltaParams.length > 0) queryParamsForRule.includeNullDeltas = negatedDeltaParams.join(',');
 
     // Store the new query params for retrieval by getQueryParams()
-    this.rules[name] = { param, operator, threshold };
+    this.rules[name] = { param, operator: adjustedOperator, threshold };
     this.queryParams[name] = queryParamsForRule;
 
     return this;
