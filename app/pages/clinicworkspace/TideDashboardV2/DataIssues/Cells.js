@@ -42,7 +42,10 @@ export const DexcomConnectionStatusCell = ({ patient, onOpenDataConnectionsModal
     'unknown',
   ], dexcomConnectState);
 
-  const handleOpenDataConnectionsModal = () => onOpenDataConnectionsModal(patient.id);
+  const handleOpenDataConnectionsModal = (event) => {
+    event?.stopPropagation();
+    onOpenDataConnectionsModal(patient.id);
+  };
 
   const StatusBadge = () => (
     <Pill
@@ -104,7 +107,7 @@ export const DaysSinceLastDataCell = ({ patient }) => {
 };
 
 export const PatientLastReviewedCell = ({ patient }) => {
-  return <Box>
+  return <Box onClick={event => event.stopPropagation()}>
     <PatientLastReviewedGenericAdapter patient={patient} />
   </Box>;
 };
