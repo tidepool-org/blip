@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
@@ -24,6 +25,8 @@ import EditPatientDialogController from './EditPatientDialogController';
 import DataConnectionsDialogController from './DataConnectionsDialogController';
 import { useGetPatientFromClinicQuery } from './tideDashboardLegacyApi';
 import Icon from '../../../../components/elements/Icon';
+import useClinicMetricsPageName from '../../useClinicMetricsPageName';
+import { trackMetric } from '../../../../core/metricUtils';
 
 const usePatientFromClinic = (patientId) => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
@@ -38,6 +41,8 @@ const usePatientFromClinic = (patientId) => {
 
 const DataIssues = ({ api }) => {
   const { t } = useTranslation();
+  const history = useHistory();
+  const pageName = useClinicMetricsPageName();
   const { patients } = useTideReportNoDataPatients();
 
   const [activePatientId, setActivePatientId] = useState(null);
@@ -55,6 +60,13 @@ const DataIssues = ({ api }) => {
   const handleOpenDataConnectionsModal = (patientId) => {
     setActivePatientId(patientId);
     setIsDataConnectionsModalOpen(true);
+  };
+
+  const handleClickRow = (patient) => {
+    if (!patient.id) return;
+
+    trackMetric('Selected PwD', { pageName });
+    history.push(`/patients/${patient.id}/data/trends?dashboard=tide`);
   };
 
   const handleCloseModals = () => {
@@ -150,6 +162,7 @@ const DataIssues = ({ api }) => {
             data={patients}
             emptyContentNode={<EmptyContentNode />}
             containerProps={{ sx: { containerType: 'inline-size' } }}
+            onClickRow={handleClickRow}
           />
         </Box>
       </Box>

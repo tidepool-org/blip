@@ -1,7 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
+import { createMemoryHistory } from 'history';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import isEqual from 'lodash/isEqual';
@@ -65,24 +67,30 @@ const server = setupServer(
 
     return HttpResponse.json(tideReportResponse);
   }),
+  http.get('http://app.tidepool.test/v1/clinics/clinic123/patients/patient-1', () => (
+    HttpResponse.json(tideReportResponse.results.noData[0].patient)
+  )),
 );
 
 describe('DataIssues', () => {
   let store;
+  let history;
 
   const api = { clinics: { getPatientFromClinic: jest.fn() } };
 
   const renderComponent = () => render(
     <Provider store={store}>
-      <MemoryRouter initialEntries={['/dashboard/tide']}>
+      <Router history={history}>
         <DataIssues api={api} />
-      </MemoryRouter>
+      </Router>
     </Provider>
   );
 
   beforeAll(() => server.listen());
 
   beforeEach(() => {
+    history = createMemoryHistory({ initialEntries: ['/dashboard/tide'] });
+
     store = setupStore({
       blip: {
         selectedClinicId: 'clinic123',
@@ -120,5 +128,20 @@ describe('DataIssues', () => {
 
     // Tags resolve against the clinic's patient tags
     expect(screen.getByText('Tag 8')).toBeInTheDocument();
+  });
+
+  it('opens the trends view when a patient row is clicked, but not when an action within the row is clicked', async () => {
+    renderComponent();
+
+    expect(await screen.findByText('No Data Patient 1')).toBeInTheDocument();
+
+    // Opening the Data Connections modal from the Dexcom status does not navigate away
+    await userEvent.click(within(screen.getByTestId('tideDashboardDataIssuesTable-row-0')).getByRole('button', { name: 'View' }));
+    expect(history.location.pathname).toBe('/dashboard/tide');
+
+    // Unlike the main table, rows always open trends rather than the patient drawer
+    await userEvent.click(screen.getByTestId('tideDashboardDataIssuesTable-row-0-fullName'));
+    expect(history.location.pathname).toBe('/patients/patient-1/data/trends');
+    expect(history.location.search).toBe('?dashboard=tide');
   });
 });
