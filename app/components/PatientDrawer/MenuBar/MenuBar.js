@@ -6,7 +6,7 @@ import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 import Button from '../../../components/elements/Button';
-import PatientLastReviewed from './PatientLastReviewed';
+import PatientLastReviewedGenericAdapter from '../../../pages/clinicworkspace/components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
 import CGMClipboardButton from './CGMClipboardButton';
 import { map, keys } from 'lodash';
 import copyIcon from '../../../core/icons/copyIcon.svg';
@@ -83,7 +83,9 @@ const MenuBar = ({ patient, onClose, onSelectTab, selectedTab }) => {
               {t('Last Reviewed')}
             </Text>
 
-            {!!patient && <PatientLastReviewed patient={patient} onReview={handleReviewSuccess} />}
+            { !!patient &&
+              <PatientLastReviewedGenericAdapter patient={patient} onReview={handleReviewSuccess} />
+            }
           </Flex>
         </Flex>
       </Flex>
