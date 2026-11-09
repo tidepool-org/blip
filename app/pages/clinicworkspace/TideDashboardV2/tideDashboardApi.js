@@ -6,11 +6,11 @@ import CGMExclusionQuery from './CGMExclusionQuery';
 // rules, ensuring patients appear in at most one category.
 //
 export const tideDashboardExclusionQuery = new CGMExclusionQuery()
-  .addRule(CATEGORY.VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.01)         // queries >=0.005
+  .addRule(CATEGORY.VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.01)         // queries >0.005
   .addRule(CATEGORY.ANY_LOW, 'cgm.timeInAnyLowPercent', '>=', 0.04)           // queries >=0.035
-  .addRule(CATEGORY.DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=', -0.15) // queries <=-0.145
-  .addRule(CATEGORY.ANY_HIGH, 'cgm.timeInAnyHighPercent', '>=', 0.25)         // queries >=0.245
-  .addRule(CATEGORY.VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=', 0.05)       // queries >=0.045
+  .addRule(CATEGORY.DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=', -0.15) // queries <-0.145
+  .addRule(CATEGORY.ANY_HIGH, 'cgm.timeInAnyHighPercent', '>=', 0.25)         // queries >0.245
+  .addRule(CATEGORY.VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=', 0.05)       // queries >0.045
   .addRule(CATEGORY.LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<', 0.70)         // queries <0.695
   .addRule(CATEGORY.TARGET, 'cgm.timeCGMUsePercent', '>=', 0.70);             // queries >=0.695 and overwrites previous
 
