@@ -17,6 +17,7 @@ const EditPatientDialogController = ({ api, isOpen, patient, onClose }) => {
 
   const handleEditSuccess = () => {
     dispatch(RTKQueryApi.util.invalidateTags([TIDE_DASHBOARD_PATIENTS]));
+    onClose();
     setToast({ variant: 'success', message: t('You have successfully updated a patient.') });
   };
 
