@@ -31,17 +31,20 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 
 export const COMPACT = '@container (max-width: 1200px)';
 
-export const PatientCell = ({ patient }) => {
+export const PatientCell = ({ patient, showEmail = false }) => {
   const { t } = useTranslation();
 
-  const { fullName, birthDate, mrn } = patient || {};
+  const { fullName, birthDate, mrn, email } = patient || {};
 
-  return <Box sx={{ gap: 0, marginRight: -2 }}>
+  return <Box sx={{ gap: 0, marginRight: -2, minHeight: '54px' }}>
     <Box sx={{ fontSize: 0, whiteSpace: 'nowrap', fontWeight: 'medium' }}>{fullName}</Box>
+    <Box sx={{ fontSize: 0, whiteSpace: 'nowrap', fontStyle: 'italic' }}>
+      {(showEmail && email) ? email : ''}
+    </Box>
     <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>
       {birthDate ? `${t('DOB:')} ${birthDate}` : ''}
     </Box>
-    <Box sx={{ minHeight: '18px', fontSize: 0, whiteSpace: 'nowrap' }}>
+    <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>
       {mrn ? t('MRN: {{mrn}}', { mrn: mrn }) : ''}
     </Box>
   </Box>;
