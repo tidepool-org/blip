@@ -32,8 +32,7 @@ const tideReportResponse = {
       patient: {
         id: 'patient-1',
         fullName: 'No Data Patient 1',
-        birthDate: '2001-01-01',
-        mrn: 'mrn-001',
+        email: 'patient-1@test.test',
         tags: ['tag8'],
         dataSources: [{ providerName: 'dexcom', state: 'error', modifiedTime: '2025-05-01T00:00:00.000Z' }],
       },
@@ -43,8 +42,7 @@ const tideReportResponse = {
       patient: {
         id: 'patient-2',
         fullName: 'No Data Patient 2',
-        birthDate: '2002-02-02',
-        mrn: 'mrn-002',
+        email: 'patient-2@test.test',
       },
       lastData: moment.utc().subtract(12, 'days').toISOString(),
     }],
@@ -113,8 +111,7 @@ describe('DataIssues', () => {
     expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
 
     expect(screen.getByText('No Data Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('DOB: 2001-01-01')).toBeInTheDocument();
-    expect(screen.getByText('MRN: mrn-001')).toBeInTheDocument();
+    expect(screen.getByText('patient-1@test.test')).toBeInTheDocument();
     expect(screen.getByText('No Data Patient 2')).toBeInTheDocument();
 
     // The Dexcom connection status resolves from each patient's data sources
