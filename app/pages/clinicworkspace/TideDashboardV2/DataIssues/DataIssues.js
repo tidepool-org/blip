@@ -57,10 +57,10 @@ const DataIssues = ({ api }) => {
     setIsEditPatientDialogOpen(true);
   }, []);
 
-  const handleOpenDataConnectionsModal = (patientId) => {
+  const handleOpenDataConnectionsModal = useCallback(patientId => {
     setActivePatientId(patientId);
     setIsDataConnectionsModalOpen(true);
-  };
+  }, []);
 
   const handleClickRow = (patient) => {
     if (!patient.id) return;

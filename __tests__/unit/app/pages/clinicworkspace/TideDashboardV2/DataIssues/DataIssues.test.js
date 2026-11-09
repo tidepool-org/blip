@@ -130,6 +130,37 @@ describe('DataIssues', () => {
     expect(screen.getByText('Tag 8')).toBeInTheDocument();
   });
 
+  it('omits the zero tags and zero sites filters from the tide report query', async () => {
+    server.use(
+      http.get('http://app.tidepool.test/v1/clinics/clinic123/tide_report', ({ request }) => {
+        const searchParams = Object.fromEntries(new URL(request.url).searchParams);
+
+        const anticipatedQuery = {
+          period: '30d',
+          lastData: '14',
+          lastDataCutoff: '2025-05-23T00:00:00.000Z',
+          categories: 'meetingTargets',
+        };
+
+        if (!isEqual(searchParams, anticipatedQuery)) throw new Error('Unexpected tide report query');
+
+        return HttpResponse.json(tideReportResponse);
+      }),
+    );
+
+    store = setupStore({
+      blip: {
+        selectedClinicId: 'clinic123',
+        clinics: { clinic123: { id: 'clinic123', patientTags: [{ id: 'tag8', name: 'Tag 8' }] } },
+        tideDashboardFilters: { lastData: 14, patientTags: ['_'], clinicSites: ['_'], summaryPeriod: '30d' },
+      },
+    }, { blip: blipReducer });
+
+    renderComponent();
+
+    expect(await screen.findByText('Device Issues (2)')).toBeInTheDocument();
+  });
+
   it('opens the trends view when a patient row is clicked, but not when an action within the row is clicked', async () => {
     renderComponent();
 
