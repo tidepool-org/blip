@@ -31,7 +31,7 @@ import { trackMetric } from '../../../../core/metricUtils';
 const usePatientFromClinic = (patientId) => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
-  const { data: patient } = useGetPatientFromClinicQuery(
+  const { currentData: patient } = useGetPatientFromClinicQuery(
     { clinicId: selectedClinicId, patientId },
     { skip: !selectedClinicId || !patientId }
   );
