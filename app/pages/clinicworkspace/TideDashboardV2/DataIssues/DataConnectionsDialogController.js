@@ -13,6 +13,8 @@ const DataConnectionsDialogController = ({ isOpen, patient, onClose }) => {
     dispatch(RTKQueryApi.util.invalidateTags([TIDE_DASHBOARD_PATIENTS]));
   }, [dispatch]);
 
+  if (!isOpen || !patient) return null;
+
   return (
     <DataConnectionsDialog
       open={isOpen && !!patient}
