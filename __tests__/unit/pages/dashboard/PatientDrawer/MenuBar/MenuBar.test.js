@@ -87,7 +87,7 @@ describe('MenuBar Component', () => {
     it('should display patient name and birthdate', () => {
       renderMenuBar();
 
-      expect(screen.getByTestId('patient-name')).toHaveTextContent('Zhilei Zhang');
+      expect(screen.getByTestId('drawer-patient-name')).toHaveTextContent('Zhilei Zhang');
       expect(screen.getByTestId('patient-birthdate')).toHaveTextContent('DOB: 1990-01-15');
     });
 
