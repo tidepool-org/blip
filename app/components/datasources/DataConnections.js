@@ -332,10 +332,11 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   }
 };
 
-export const resolveConnectState = (patient, providerName, isLoggedInUser = false) => {
+export const resolveConnectState = (patient, providerName, now = moment.utc().toISOString()) => {
   const dataSource = getCurrentDataSourceForProvider(patient, providerName);
-  const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
-  const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
+  const connectStateUI = getConnectStateUI(patient, undefined, providerName);
+  const inviteExpired = !!dataSource?.expirationTime
+    && moment.utc(dataSource.expirationTime).isBefore(now);
 
   let connectState;
 
@@ -344,12 +345,8 @@ export const resolveConnectState = (patient, providerName, isLoggedInUser = fals
       ? dataSource.state
       : 'unknown';
 
-    if (includes(['pending', 'pendingReconnect'], connectState)) {
-      if (inviteExpired) {
-        connectState = 'pendingExpired';
-      } else if (connectStateUI[connectState].inviteJustSent) {
-        connectState = 'inviteJustSent';
-      }
+    if (includes(['pending', 'pendingReconnect'], connectState) && inviteExpired) {
+      connectState = 'pendingExpired';
     }
   } else {
     connectState = 'noPendingConnections';
@@ -376,7 +373,11 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
   }
 
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
-  const connectState = resolveConnectState(patient, providerName, isLoggedInUser);
+  let connectState = resolveConnectState(patient, providerName);
+
+  if (includes(['pending', 'pendingReconnect'], connectState) && connectStateUI[connectState]?.inviteJustSent) {
+    connectState = 'inviteJustSent';
+  }
 
   const { color, icon, message, text, handler } = connectStateUI[connectState];
 
