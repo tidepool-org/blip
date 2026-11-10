@@ -6,6 +6,7 @@ import { colors as vizColors  } from '@tidepool/viz';
 import { MGDL_UNITS } from '../../../core/constants';
 import { colors } from '../../../themes/baseTheme';
 
+import PatientLastReviewedGenericAdapter from '../components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
@@ -236,6 +237,10 @@ export const MoreMenuHeader = () => {
 
 export const MoreMenuCell = () => <></>; // TEMPORARY
 
+export const PatientLastReviewedCell = ({ patient }) => {
+  return <PatientLastReviewedGenericAdapter patient={patient} />;
+};
+
 export default {
   PatientCell,
   NumericTemplateCell,
@@ -246,4 +251,5 @@ export default {
   GMICell,
   CGMUseCell,
   FlagCell,
+  PatientLastReviewedCell,
 };
