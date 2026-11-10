@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import cloneDeep from 'lodash/cloneDeep';
@@ -23,6 +24,7 @@ import {
   FlagCell,
   MoreMenuCell,
 } from '@app/pages/clinicworkspace/TideDashboardV2/Cells';
+import { trackMetric as mockTrackMetric } from '../../../../../../app/core/metricUtils';
 
 const mockStore = configureStore([thunk]);
 
@@ -61,10 +63,15 @@ describe('Cells', () => {
   let store;
 
   const renderComponent = (cell) => {
-    render(<Provider store={store}>{cell}</Provider>);
+    render(
+      <MemoryRouter initialEntries={['/clinic-workspace/tide-dashboard']}>
+        <Provider store={store}>{cell}</Provider>
+      </MemoryRouter>
+    );
   };
 
   beforeEach(() => {
+    mockTrackMetric.mockClear();
     store = mockStore({
       blip: {
         selectedClinicId: 'clinic123',
@@ -265,6 +272,38 @@ describe('Cells', () => {
       // The current dashboard category wins
       expect(screen.getByText('Low')).toBeInTheDocument();
       expect(screen.queryByText('Very Low')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('MoreMenuCell', () => {
+    it('dispatches the actions to open the Edit Patient dialog for the patient', async () => {
+      renderComponent(<MoreMenuCell patient={patient} />);
+
+      expect(screen.queryByRole('button', { name: /Edit Patient Details/ })).not.toBeInTheDocument();
+      await userEvent.click(screen.getByTestId('action-menu-patient-1-icon'));
+
+      await userEvent.click(screen.getByRole('button', { name: /Edit Patient Details/ }));
+
+      expect(store.getActions()).toStrictEqual([
+        { type: 'tideDashboard/setEditPatientDialogIsOpen', payload: true },
+        { type: 'tideDashboard/setEditPatientDialogPatientId', payload: 'patient-1' },
+      ]);
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Edit patient', { clinicId: 'clinic123', source: 'action menu', pageName: 'TIDE Dashboard' });
+    });
+
+    it('dispatches the actions to open the Data Connections modal for the patient', async () => {
+      renderComponent(<MoreMenuCell patient={patient} />);
+
+      expect(screen.queryByRole('button', { name: /Bring Data into Tidepool/ })).not.toBeInTheDocument();
+      await userEvent.click(screen.getByTestId('action-menu-patient-1-icon'));
+
+      await userEvent.click(screen.getByRole('button', { name: /Bring Data into Tidepool/ }));
+
+      expect(store.getActions()).toStrictEqual([
+        { type: 'tideDashboard/setDataConnectionsModalIsOpen', payload: true },
+        { type: 'tideDashboard/setDataConnectionsModalPatientId', payload: 'patient-1' },
+      ]);
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Edit patient data connections', { clinicId: 'clinic123', source: 'action menu', pageName: 'TIDE Dashboard' });
     });
   });
 });

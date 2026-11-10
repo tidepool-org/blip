@@ -202,6 +202,36 @@ describe('DataConnectionsDialog', () => {
     expect(document.getElementById('data-connections-open-email-modal')).to.be.null;
   });
 
+  it('should call onPatientUpdated once a patient update completes', () => {
+    cleanup();
+    const onPatientUpdated = sinon.stub();
+
+    const storeWith = (updatingClinicPatient) => mockStore({
+      blip: {
+        ...fetchedDataState.blip,
+        working: { ...fetchedDataState.blip.working, updatingClinicPatient },
+      },
+    });
+
+    const tree = (store) => (
+      <Provider store={store}>
+        <ToastProvider>
+          <DataConnectionsDialog {...defaultProps} onPatientUpdated={onPatientUpdated} />
+        </ToastProvider>
+      </Provider>
+    );
+
+    const { rerender } = render(tree(storeWith(defaultWorkingState)));
+
+    // Patient update in progress
+    rerender(tree(storeWith({ inProgress: true, completed: false, notification: null })));
+    sinon.assert.notCalled(onPatientUpdated);
+
+    // Patient update completes
+    rerender(tree(storeWith({ inProgress: false, completed: true, notification: null })));
+    sinon.assert.calledTwice(onPatientUpdated);
+  });
+
   it('should call onBack when the dialog back button is clicked', () => {
     const backButton = document.querySelector('[aria-label="dialog back button"]');
     expect(backButton).to.not.be.null;

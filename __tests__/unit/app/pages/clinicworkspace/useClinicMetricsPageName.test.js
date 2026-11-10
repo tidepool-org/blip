@@ -21,4 +21,9 @@ describe('useClinicMetricsPageName', () => {
   it('returns TIDE Dashboard arg', () => {
     expect(renderPageNameHook('/clinic-workspace/tide-dashboard')).toBe('TIDE Dashboard');
   });
+
+  it('returns Patient Data arg', () => {
+    expect(renderPageNameHook('/patients/abc123/data')).toBe('Patient Data');
+    expect(renderPageNameHook('/patients/abc123/data/daily')).toBe('Patient Data');
+  });
 });
