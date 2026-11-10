@@ -41,9 +41,8 @@ const tableContainerProps = {
     containerType: 'inline-size',
     transition: 'all 0.1s',
 
-    // Sort is fixed per category, so the sort labels are not interactive
-    '.MuiTableSortLabel-root': { cursor: 'default' },
-    '.MuiTableSortLabel-root:not(.MuiTableSortLabel-active):hover .MuiTableSortLabel-icon': { opacity: 0 },
+    // Sort is fixed per category, so the sort label is not interactive
+    '.MuiTableSortLabel-root': { cursor: 'default', interactivity: 'inert' },
   },
 };
 

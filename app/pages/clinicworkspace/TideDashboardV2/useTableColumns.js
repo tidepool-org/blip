@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { CATEGORY } from './tideDashboardSlice';
+import { getDefaultSort } from './tideDashboardApi';
 import { MGDL_UNITS } from '../../../core/constants';
 import mapValues from 'lodash/mapValues';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -29,6 +30,8 @@ import {
 
 import TagListCell from '../components/TagListCell';
 
+const isSortedBy = (category, sortBy) => getDefaultSort(category).substring(1) === sortBy;
+
 const buildColumnTypes = (t, category, thresholds) => ({
   patientDetails: {
     title: t('Patient Details'),
@@ -47,7 +50,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'avgGlucose',
     align: 'center',
     sortBy: 'averageGlucoseMmol',
-    sortable: true,
+    sortable: isSortedBy(category, 'averageGlucoseMmol'),
     titleComponent: () => <AvgGlucoseHeader />,
     render: patient => <AvgGlucoseCell patient={patient} />,
   },
@@ -62,7 +65,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'changeInTIR',
     align: 'center',
     sortBy: 'timeInTargetPercentDelta',
-    sortable: true,
+    sortable: isSortedBy(category, 'timeInTargetPercentDelta'),
     titleComponent: () => <ChangeTIRHeader />,
     render: patient => <ChangeTIRCell patient={patient} />,
   },
@@ -71,7 +74,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'timeInVeryLow',
     align: 'center',
     sortBy: 'timeInVeryLowPercent',
-    sortable: true,
+    sortable: isSortedBy(category, 'timeInVeryLowPercent'),
     render: patient => <TimeInVeryLowPercentCell patient={patient} />,
   },
   timeInAnyLow: {
@@ -79,7 +82,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'timeInAnyLow',
     align: 'center',
     sortBy: 'timeInAnyLowPercent',
-    sortable: true,
+    sortable: isSortedBy(category, 'timeInAnyLowPercent'),
     render: patient => <TimeInAnyLowPercentCell patient={patient} />,
   },
   timeInVeryHigh: {
@@ -87,7 +90,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'timeInVeryHigh',
     align: 'center',
     sortBy: 'timeInVeryHighPercent',
-    sortable: true,
+    sortable: isSortedBy(category, 'timeInVeryHighPercent'),
     render: patient => <TimeInVeryHighPercentCell patient={patient} />,
   },
   timeInAnyHigh: {
@@ -95,7 +98,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'timeInAnyHigh',
     align: 'center',
     sortBy: 'timeInAnyHighPercent',
-    sortable: true,
+    sortable: isSortedBy(category, 'timeInAnyHighPercent'),
     render: patient => <TimeInAnyHighPercentCell patient={patient} />,
   },
   timeInTarget: {
@@ -103,7 +106,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'timeInTarget',
     align: 'center',
     sortBy: 'timeInTargetPercent',
-    sortable: true,
+    sortable: isSortedBy(category, 'timeInTargetPercent'),
     render: patient => <TimeInTargetPercentCell patient={patient} />,
   },
   gmi: {
@@ -111,7 +114,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'gmi',
     align: 'center',
     sortBy: 'glucoseManagementIndicator',
-    sortable: true,
+    sortable: isSortedBy(category, 'glucoseManagementIndicator'),
     render: patient => <GMICell patient={patient} />,
   },
   cgmUse: {
@@ -119,7 +122,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     field: 'cgmUse',
     align: 'center',
     sortBy: 'timeCGMUsePercent',
-    sortable: true,
+    sortable: isSortedBy(category, 'timeCGMUsePercent'),
     render: patient => <CGMUseCell patient={patient} />,
   },
   tags: {
