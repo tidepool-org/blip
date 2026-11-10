@@ -1,5 +1,5 @@
 import React, { useRef, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
@@ -15,25 +15,24 @@ const { getLocalizedCeiling } = vizUtils.datetime;
 import tidelineBlip from 'tideline/plugins/blip';
 const chartDailyFactory = tidelineBlip.oneday;
 
-import { MS_IN_DAY } from '../../../core/constants';
+import { MS_IN_DAY } from '../../core/constants';
 import { NoPatientData } from './Overview';
 import { STATUS } from './useAgpCGM';
-import { Body1, Body2 } from '../../../components/elements/FontStyles';
-import Button from '../../../components/elements/Button';
+import { Body1, Body2 } from '../../components/elements/FontStyles';
+import Button from '../../components/elements/Button';
 import { STACKED_DAILY_TAB_INDEX } from './MenuBar';
-import BgLegend from '../../../components/chart/BgLegend';
+import BgLegend from '../../components/chart/BgLegend';
 
 const CHART_HEIGHT = 200;
 
-const StackedDaily = ({ patientId, agpCGMData }) => {
+const StackedDaily = ({ patient, agpCGMData }) => {
   const { t } = useTranslation();
+  const { id: patientId } = patient || {};
   const { status } = agpCGMData;
   const chartRefs = useRef([]);
   const containerRef = useRef(null);
   const [hoveredSMBG, setHoveredSMBG] = React.useState(false);
   const [hoveredCBG, setHoveredCBG] = React.useState(false);
-  const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  const patient = clinic?.patients?.[patientId];
   const dispatch = useDispatch();
   const bgPrefs = agpCGMData?.agpCGM?.query?.bgPrefs;
   const bgClasses = bgPrefs?.bgClasses;

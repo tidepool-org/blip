@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
+import { createMemoryHistory } from 'history';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import isEqual from 'lodash/isEqual';
@@ -35,6 +36,12 @@ jest.mock('@app/providers/ToastProvider', () => ({
   useToasts: jest.fn().mockReturnValue({
     set: jest.fn(),
   }),
+}));
+
+jest.mock('@app/components/PatientDrawer/useAgpCGM', () => ({
+  ...jest.requireActual('@app/components/PatientDrawer/useAgpCGM'),
+  __esModule: true,
+  default: () => ({ status: 'STATE_CLEARED' }),
 }));
 
 const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
@@ -206,12 +213,13 @@ const server = setupServer(
 
 describe('TideDashboardV2', () => {
   let store;
+  let history;
 
   const renderComponent = () => render(
     <Provider store={store}>
-      <MemoryRouter initialEntries={['/clinic-workspace/tide-dashboard']}>
+      <Router history={history}>
         <TideDashboardV2 />
-      </MemoryRouter>
+      </Router>
     </Provider>
   );
 
@@ -219,6 +227,7 @@ describe('TideDashboardV2', () => {
 
   beforeEach(() => {
     store = setupStore({ blip: { selectedClinicId: 'clinic123' } }, { blip: blipReducer });
+    history = createMemoryHistory({ initialEntries: ['/clinic-workspace/tide-dashboard'] });
   });
 
   afterEach(() => {
@@ -395,6 +404,44 @@ describe('TideDashboardV2', () => {
 
     expect(await screen.findByText('Filtered Patient 3')).toBeInTheDocument();
   }, TEST_TIMEOUT_MS);
+
+  describe('Patient Drawer', () => {
+    it('opens when a patient row is clicked and clears the drawer query when closed', async () => {
+      renderComponent();
+
+      expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
+      expect(screen.queryByTestId('drawer-patient-name')).not.toBeInTheDocument(); // Drawer not open yet
+
+      // Clicking a row opens the drawer on the Overview tab and records it in the URL
+      await userEvent.click(screen.getByText('Default Patient 1'));
+
+      // Expect div with drawer-patient-name attribute exists (drawer is open)
+      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Default Patient 1');
+
+      expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
+      expect(history.location.pathname).toBe('/clinic-workspace/tide-dashboard');
+      expect(history.location.search).toBe('?drawerPatientId=default-1&drawerTab=0');
+
+      // Closing the drawer removes the drawer params from the URL
+      await userEvent.click(screen.getByRole('button', { name: 'close' }));
+
+      expect(screen.queryByTestId('drawer-patient-name')).not.toBeInTheDocument();
+      expect(history.location.pathname).toBe('/clinic-workspace/tide-dashboard');
+      expect(history.location.search).toBe('');
+    }, TEST_TIMEOUT_MS);
+
+    it('opens the drawer on the linked tab when arriving from a drawerPatientId back-link', async () => {
+      history = createMemoryHistory({
+        initialEntries: ['/clinic-workspace/tide-dashboard?drawerPatientId=default-2&drawerTab=1'],
+      });
+
+      renderComponent();
+
+      // Expect div with drawer-patient-name attribute exists (drawer is open)
+      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Default Patient 2');
+      expect(screen.getByRole('tab', { name: 'Stacked Daily View' })).toHaveAttribute('aria-selected', 'true');
+    }, TEST_TIMEOUT_MS);
+  });
 
   describe('empty content', () => {
     beforeEach(() => {

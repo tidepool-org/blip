@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { Redirect, useLocation, useHistory } from 'react-router-dom';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box } from 'theme-ui';
 
@@ -18,25 +19,33 @@ import useTideDashboardPatients from './useTideDashboardPatients';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
-import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 import FetchError from './FetchError';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
+import { trackMetric } from '../../../core/metricUtils';
 
+import PatientDrawerController from './PatientDrawerController';
 import EditPatientDialogController from './modals/EditPatientDialogController';
 import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
+import { isValidAgpPeriod } from '../../../components/PatientDrawer';
+import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const tableContainerProps = { sx: { containerType: 'inline-size', transition: 'all 0.1s' } };
 
 const TideDashboardV2 = ({ api }) => {
-  const { search } = useLocation();
   const { t } = useTranslation();
+  const { search, pathname } = useLocation();
+  const history = useHistory();
 
   usePruneInvalidFilters();
 
+  const clinicId = useSelector(state => state.blip.selectedClinicId);
+  const pageName = useClinicMetricsPageName();
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
 
   const { isAuthorized, isUnauthorized } = useAuthorizationGate();
   const { data, currentData, isFetching, isError } = useTideDashboardPatients();
@@ -56,6 +65,24 @@ const TideDashboardV2 = ({ api }) => {
   if (isError) return <FetchError />;
 
   if (!data) return null;
+
+  const handleClickRow = (patient) => {
+    if (!patient.id) return;
+
+    trackMetric('Selected PwD', { pageName });
+
+    if (!isValidAgpPeriod(summaryPeriod)) {
+      history.push(`/patients/${patient.id}/data/trends?dashboard=tide`);
+      return;
+    }
+
+    trackMetric('Opened side drawer', { clinicId, pageName, patientID: patient.id });
+
+    const params = new URLSearchParams(search);
+    params.set('drawerPatientId', patient.id);
+    params.set('drawerTab', OVERVIEW_TAB_INDEX);
+    history.replace({ pathname, search: params.toString() });
+  };
 
   const patients = data?.data || [];
   const total = data?.meta?.count || 0;
@@ -86,10 +113,12 @@ const TideDashboardV2 = ({ api }) => {
         data={patients}
         emptyContentNode={emptyContentNode}
         containerProps={containerProps}
+        onClickRow={handleClickRow}
       />
 
       <PaginationController total={total} resolvedOffset={resolvedOffset} />
 
+      <PatientDrawerController api={api} patients={patients} />
       <EditPatientDialogController api={api} patients={patients} />
       <DataConnectionsDialogController patients={patients}/>
     </>
