@@ -44,18 +44,11 @@ jest.mock('@app/components/PatientDrawer/useAgpCGM', () => ({
   default: () => ({ status: 'STATE_CLEARED' }),
 }));
 
-const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
 const TEST_TIMEOUT_MS = 30_000;
 
 const anticipatedQueries = {
-  [DEFAULT]: {
-    offset: '0',
-    limit: '12',
-    period: '14d',
-    'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
-    'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
-  },
   [VERY_LOW]: {
     offset: '0',
     limit: '12',
@@ -63,6 +56,8 @@ const anticipatedQueries = {
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
     'cgm.timeInVeryLowPercent': '>0.005',
+    sort: '-timeInVeryLowPercent',
+    sortType: 'cgm',
   },
   [ANY_LOW]: {
     offset: '0',
@@ -72,6 +67,8 @@ const anticipatedQueries = {
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '>=0.035',
+    sort: '-timeInAnyLowPercent',
+    sortType: 'cgm',
   },
   [DROP_IN_TIR]: {
     offset: '0',
@@ -82,6 +79,8 @@ const anticipatedQueries = {
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '<0.035',
     'cgm.timeInTargetPercentDelta': '<-0.145',
+    sort: '+timeInTargetPercentDelta',
+    sortType: 'cgm',
   },
   [ANY_HIGH]: {
     offset: '0',
@@ -94,6 +93,8 @@ const anticipatedQueries = {
     'cgm.timeInTargetPercentDelta': '>=-0.145',
     includeNullDeltas: 'cgm.timeInTargetPercentDelta',
     'cgm.timeInAnyHighPercent': '>0.245',
+    sort: '-timeInAnyHighPercent',
+    sortType: 'cgm',
   },
   [VERY_HIGH]: {
     offset: '0',
@@ -107,6 +108,8 @@ const anticipatedQueries = {
     includeNullDeltas: 'cgm.timeInTargetPercentDelta',
     'cgm.timeInAnyHighPercent': '<=0.245',
     'cgm.timeInVeryHighPercent': '>0.045',
+    sort: '-timeInVeryHighPercent',
+    sortType: 'cgm',
   },
   [LOW_CGM_WEAR]: {
     offset: '0',
@@ -121,6 +124,8 @@ const anticipatedQueries = {
     'cgm.timeInAnyHighPercent': '<=0.245',
     'cgm.timeInVeryHighPercent': '<=0.045',
     'cgm.timeCGMUsePercent': '<0.695',
+    sort: '+timeCGMUsePercent',
+    sortType: 'cgm',
   },
   [TARGET]: {
     offset: '0',
@@ -135,23 +140,24 @@ const anticipatedQueries = {
     'cgm.timeInAnyHighPercent': '<=0.245',
     'cgm.timeInVeryHighPercent': '<=0.045',
     'cgm.timeCGMUsePercent': '>=0.695',
+    sort: '-timeInTargetPercent',
+    sortType: 'cgm',
   },
-  'DEFAULT_WITH_FILTERS': {
+  'VERY_LOW_WITH_FILTERS': {
     offset: '0',
     limit: '12',
     period: '30d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    'cgm.timeInVeryLowPercent': '>0.005',
     tags: 'tag8',
     sites: 'site9',
+    sort: '-timeInVeryLowPercent',
+    sortType: 'cgm',
   },
 };
 
 const datasets = {
-  [DEFAULT]: [
-    { id: 'default-1', fullName: 'Default Patient 1', birthDate: '2001-01-01' },
-    { id: 'default-2', fullName: 'Default Patient 2', birthDate: '2002-02-02' },
-  ],
   [VERY_LOW]: [
     { id: 'very-low-1', fullName: 'Very Low Patient 1', birthDate: '2003-03-03' },
     { id: 'very-low-2', fullName: 'Very Low Patient 2', birthDate: '2004-04-04' },
@@ -180,7 +186,7 @@ const datasets = {
     { id: 'target-1', fullName: 'Meeting Targets Patient 1', birthDate: '2015-03-15' },
     { id: 'target-2', fullName: 'Meeting Targets Patient 2', birthDate: '2016-04-16' },
   ],
-  'DEFAULT_WITH_FILTERS': [
+  'VERY_LOW_WITH_FILTERS': [
     { id: 'filtered-3', fullName: 'Filtered Patient 3', birthDate: '2001-01-01' },
   ],
 };
@@ -245,28 +251,9 @@ describe('TideDashboardV2', () => {
 
     const table = await screen.findByTestId('tideDashboardPatientsTable');
 
-    // All Patients is the pre-selected category
-    expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
-
-    expect(screen.getByRole('radio', { name: /All Patients/ })).toBeChecked();
-    expect(screen.getByText('Default Patient 2')).toBeInTheDocument();
-    expect(screen.getByText('DOB: 2001-01-01')).toBeInTheDocument();
-
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
-    expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Flag/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
-
-    // Selecting Very Low fetches and shows the Very Low cohort
-    await userEvent.click(screen.getByRole('radio', { name: /Very Low/ }));
+    // Very Low is the pre-selected category
     expect(await screen.findByText('Very Low Patient 1')).toBeInTheDocument();
+
     expect(screen.getByRole('radio', { name: /Very Low/ })).toBeChecked();
     expect(screen.getByText('Very Low Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Default Patient 1')).not.toBeInTheDocument();
@@ -276,8 +263,8 @@ describe('TideDashboardV2', () => {
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time < 70/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
@@ -295,8 +282,8 @@ describe('TideDashboardV2', () => {
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time < 54/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time < 70/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
@@ -312,8 +299,8 @@ describe('TideDashboardV2', () => {
     expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
@@ -331,10 +318,10 @@ describe('TideDashboardV2', () => {
     expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time > 180/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
@@ -350,10 +337,10 @@ describe('TideDashboardV2', () => {
     expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Time > 180/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
@@ -370,8 +357,8 @@ describe('TideDashboardV2', () => {
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
@@ -385,10 +372,11 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Meeting Targets Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low CGM Wear Patient 1')).not.toBeInTheDocument();
 
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(9);
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
     expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
     expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
@@ -415,18 +403,18 @@ describe('TideDashboardV2', () => {
     it('opens when a patient row is clicked and clears the drawer query when closed', async () => {
       renderComponent();
 
-      expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
+      expect(await screen.findByText('Very Low Patient 1')).toBeInTheDocument();
       expect(screen.queryByTestId('drawer-patient-name')).not.toBeInTheDocument(); // Drawer not open yet
 
       // Clicking a row opens the drawer on the Overview tab and records it in the URL
-      await userEvent.click(screen.getByText('Default Patient 1'));
+      await userEvent.click(screen.getByText('Very Low Patient 1'));
 
       // Expect div with drawer-patient-name attribute exists (drawer is open)
-      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Default Patient 1');
+      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Very Low Patient 1');
 
       expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
       expect(history.location.pathname).toBe('/clinic-workspace/tide-dashboard');
-      expect(history.location.search).toBe('?drawerPatientId=default-1&drawerTab=0');
+      expect(history.location.search).toBe('?drawerPatientId=very-low-1&drawerTab=0');
 
       // Closing the drawer removes the drawer params from the URL
       await userEvent.click(screen.getByRole('button', { name: 'close' }));
@@ -438,13 +426,13 @@ describe('TideDashboardV2', () => {
 
     it('opens the drawer on the linked tab when arriving from a drawerPatientId back-link', async () => {
       history = createMemoryHistory({
-        initialEntries: ['/clinic-workspace/tide-dashboard?drawerPatientId=default-2&drawerTab=1'],
+        initialEntries: ['/clinic-workspace/tide-dashboard?drawerPatientId=very-low-2&drawerTab=1'],
       });
 
       renderComponent();
 
       // Expect div with drawer-patient-name attribute exists (drawer is open)
-      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Default Patient 2');
+      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Very Low Patient 2');
       expect(screen.getByRole('tab', { name: 'Stacked Daily View' })).toHaveAttribute('aria-selected', 'true');
     }, TEST_TIMEOUT_MS);
   });
