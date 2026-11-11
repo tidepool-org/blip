@@ -149,7 +149,7 @@ const anticipatedQueries = {
     period: '30d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
-    'cgm.timeInVeryLowPercent': '>=0.005',
+    'cgm.timeInVeryLowPercent': '>0.005',
     tags: 'tag8',
     sites: 'site9',
     sort: '-timeInVeryLowPercent',
@@ -403,18 +403,18 @@ describe('TideDashboardV2', () => {
     it('opens when a patient row is clicked and clears the drawer query when closed', async () => {
       renderComponent();
 
-      expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
+      expect(await screen.findByText('Very Low Patient 1')).toBeInTheDocument();
       expect(screen.queryByTestId('drawer-patient-name')).not.toBeInTheDocument(); // Drawer not open yet
 
       // Clicking a row opens the drawer on the Overview tab and records it in the URL
-      await userEvent.click(screen.getByText('Default Patient 1'));
+      await userEvent.click(screen.getByText('Very Low Patient 1'));
 
       // Expect div with drawer-patient-name attribute exists (drawer is open)
-      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Default Patient 1');
+      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Very Low Patient 1');
 
       expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
       expect(history.location.pathname).toBe('/clinic-workspace/tide-dashboard');
-      expect(history.location.search).toBe('?drawerPatientId=default-1&drawerTab=0');
+      expect(history.location.search).toBe('?drawerPatientId=very-low-1&drawerTab=0');
 
       // Closing the drawer removes the drawer params from the URL
       await userEvent.click(screen.getByRole('button', { name: 'close' }));
@@ -426,13 +426,13 @@ describe('TideDashboardV2', () => {
 
     it('opens the drawer on the linked tab when arriving from a drawerPatientId back-link', async () => {
       history = createMemoryHistory({
-        initialEntries: ['/clinic-workspace/tide-dashboard?drawerPatientId=default-2&drawerTab=1'],
+        initialEntries: ['/clinic-workspace/tide-dashboard?drawerPatientId=very-low-2&drawerTab=1'],
       });
 
       renderComponent();
 
       // Expect div with drawer-patient-name attribute exists (drawer is open)
-      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Default Patient 2');
+      expect(await screen.findByTestId('drawer-patient-name')).toHaveTextContent('Very Low Patient 2');
       expect(screen.getByRole('tab', { name: 'Stacked Daily View' })).toHaveAttribute('aria-selected', 'true');
     }, TEST_TIMEOUT_MS);
   });
