@@ -182,8 +182,8 @@ export default ({
         borderColor: colors.pinks[13],
       },
       '&:disabled': {
-        backgroundColor: colors.coral,
-        borderColor: colors.coral,
+        backgroundColor: colors.lightestGrey,
+        borderColor: colors.lightestGrey,
         color: colors.text.primaryDisabled,
       },
     },
