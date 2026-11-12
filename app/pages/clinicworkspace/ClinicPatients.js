@@ -68,7 +68,6 @@ import { TagList } from '../../components/elements/Tag';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
-import PatientForm from '../../components/clinic/PatientForm';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm, { exportRpmReport } from '../../components/clinic/RpmReportConfigForm';
@@ -95,7 +94,6 @@ import { useIsFirstRender, useLocalStorage, usePrevious, useScrollToTop } from '
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
 import {
-  patientSchema as validationSchema,
   clinicSiteSchema,
   clinicPatientTagSchema,
   lastDataFilterOptions,
@@ -114,6 +112,9 @@ import DataConnectionsDialog from '../../components/datasources/DataConnectionsD
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
+
+import AddPatientDialog from './clinicPatientsDialogs/AddPatientDialog';
+import EditPatientDialog from './clinicPatientsDialogs/EditPatientDialog';
 import FilterByTags from './clinicPatientsFilters/FilterByTags';
 import FilterBySites from './clinicPatientsFilters/FilterBySites';
 import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';
@@ -535,7 +536,6 @@ export const ClinicPatients = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const pdf = useSelector((state) => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
   const isClinicAdmin = useIsClinicAdmin();
@@ -558,7 +558,6 @@ export const ClinicPatients = (props) => {
   const [selectedClinicSite, setSelectedClinicSite] = useState(null);
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [patientFormContext, setPatientFormContext] = useState();
   const [rpmReportFormContext, setRpmReportFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
   const [clinicSiteFormContext, setClinicSiteFormContext] = useState();
@@ -581,8 +580,6 @@ export const ClinicPatients = (props) => {
   const showPatientListExportUI = isClinicAdmin && !!clinic?.entitlements?.exportPatientList;
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
-
-  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const defaultPatientFetchOptions = useMemo(
     () => {
@@ -652,22 +649,20 @@ export const ClinicPatients = (props) => {
     });
   }, searchDebounceMs), [patientFetchOptions, searchDebounceMs]);
 
-  const {
-    fetchingPatientFromClinic,
-    fetchingPatientsForClinic,
-    deletingPatientFromClinic,
-    updatingClinicPatient,
-    creatingClinicCustodialAccount,
-    sendingPatientUploadReminder,
-    creatingClinicSite,
-    updatingClinicSite,
-    creatingClinicPatientTag,
-    updatingClinicPatientTag,
-    deletingClinicSite,
-    deletingClinicPatientTag,
-    fetchingTideDashboardPatients,
-    fetchingRpmReportPatients,
-  } = useSelector((state) => state.blip.working);
+  const fetchingPatientFromClinic = useSelector((state) => state.blip.working.fetchingPatientFromClinic);
+  const fetchingPatientsForClinic = useSelector((state) => state.blip.working.fetchingPatientsForClinic);
+  const deletingPatientFromClinic = useSelector((state) => state.blip.working.deletingPatientFromClinic);
+  const updatingClinicPatient = useSelector((state) => state.blip.working.updatingClinicPatient);
+  const creatingClinicCustodialAccount = useSelector((state) => state.blip.working.creatingClinicCustodialAccount);
+  const sendingPatientUploadReminder = useSelector((state) => state.blip.working.sendingPatientUploadReminder);
+  const creatingClinicSite = useSelector((state) => state.blip.working.creatingClinicSite);
+  const updatingClinicSite = useSelector((state) => state.blip.working.updatingClinicSite);
+  const creatingClinicPatientTag = useSelector((state) => state.blip.working.creatingClinicPatientTag);
+  const updatingClinicPatientTag = useSelector((state) => state.blip.working.updatingClinicPatientTag);
+  const deletingClinicSite = useSelector((state) => state.blip.working.deletingClinicSite);
+  const deletingClinicPatientTag = useSelector((state) => state.blip.working.deletingClinicPatientTag);
+  const fetchingTideDashboardPatients = useSelector((state) => state.blip.working.fetchingTideDashboardPatients);
+  const fetchingRpmReportPatients = useSelector((state) => state.blip.working.fetchingRpmReportPatients);
 
   const { patientListSearchTextInput, isPatientListVisible } = useSelector(({ blip }) => blip.patientListFilters);
 
@@ -712,7 +707,6 @@ export const ClinicPatients = (props) => {
     }
 
     setTimeout(() => {
-      setPatientFormContext(null);
       setSelectedPatient(null);
     });
   }, [
@@ -1153,22 +1147,6 @@ export const ClinicPatients = (props) => {
     setShowAddPatientDialog(true);
   }
 
-  const handleAddPatientConfirm = useCallback(() => {
-    trackMetric('Clinic - Add patient confirmed', { clinicId: selectedClinicId });
-    patientFormContext?.handleSubmit();
-  }, [patientFormContext, selectedClinicId, trackMetric]);
-
-  const handleEditPatientConfirm = useCallback(() => {
-    trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
-    const updatedTags = [...(patientFormContext?.values?.tags || [])];
-    const existingTags = [...(selectedPatient?.tags || [])];
-
-    if (!isEqual(updatedTags.sort(), existingTags.sort())) {
-      trackMetric(prefixPopHealthMetric('Edit patient tags confirm'), { clinicId: selectedClinicId });
-    }
-    patientFormContext?.handleSubmit();
-  }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
-
   function handleConfigureTideDashboard() {
     if (validateTideConfig(tideDashboardConfig[localConfigKey], patientTags)) {
       trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
@@ -1258,10 +1236,6 @@ export const ClinicPatients = (props) => {
     dispatch(actions.async.sendPatientUploadReminder(api, selectedClinicId, selectedPatient?.id));
   }, [api, dispatch, prefixPopHealthMetric, selectedClinicId, selectedPatient?.id, trackMetric]);
 
-  function handlePatientFormChange(formikContext) {
-    setPatientFormContext({ ...formikContext });
-  }
-
   function handleTideDashboardConfigFormChange(formikContext) {
     setTideDashboardFormContext({ ...formikContext });
   }
@@ -1322,11 +1296,11 @@ export const ClinicPatients = (props) => {
     setActiveSort,
   ]);
 
-  function handleClearSearch() {
+  const handleClearSearch = useCallback(() => {
     dispatch(actions.sync.setPatientListSearchTextInput(''));
     setLoading(true);
     debounceSearch('');
-  }
+  }, [debounceSearch, dispatch]);
 
   const handlePageChange = useCallback((event, page) => {
     setPatientFetchOptions({
@@ -1335,10 +1309,10 @@ export const ClinicPatients = (props) => {
     });
   }, [patientFetchOptions]);
 
-  function handleResetFilters() {
+  const handleResetFilters = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Clear all filters'), { clinicId: selectedClinicId });
     setActiveFilters(defaultFilterState);
-  }
+  }, [prefixPopHealthMetric, selectedClinicId, setActiveFilters, trackMetric]);
 
   const handleRemovePatient = useCallback(() => {
     trackMetric('Clinic - Remove patient confirmed', { clinicId: selectedClinicId });
@@ -1924,110 +1898,20 @@ export const ClinicPatients = (props) => {
   }, [handleDeleteClinicPatientTagConfirm, handleCloseClinicPatientTagUpdateDialog, selectedPatientTag?.name, showDeleteClinicPatientTagDialog, t]);
 
   const renderAddPatientDialog = useCallback(() => {
+    if (!showAddPatientDialog) return null;
+
     return (
-      <Dialog
-        id="addPatient"
-        aria-labelledby="dialog-title"
-        open={showAddPatientDialog}
-        onClose={handleCloseOverlays}
-      >
-        <DialogTitle onClose={handleCloseOverlays}>
-          <MediumTitle id="dialog-title">{t('Add New Patient Account')}</MediumTitle>
-        </DialogTitle>
-
-        <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} searchDebounceMs={searchDebounceMs} action="create" />
-        </DialogContent>
-
-        <DialogActions>
-          <Button id="addPatientCancel" variant="textSecondary" onClick={handleCloseOverlays}>
-            {t('Cancel')}
-          </Button>
-          <Button
-            id="addPatientConfirm"
-            variant="primary"
-            onClick={handleAddPatientConfirm}
-            processing={creatingClinicCustodialAccount.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
-          >
-            {t('Add Patient')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddPatientDialog api={api} onClose={handleCloseOverlays} />
     );
-  }, [
-    api,
-    creatingClinicCustodialAccount.inProgress,
-    handleAddPatientConfirm,
-    mrnSettings,
-    existingMRNs,
-    patientFormContext?.values,
-    showAddPatientDialog,
-    t,
-    trackMetric
-  ]);
+  }, [api, showAddPatientDialog, handleCloseOverlays]);
 
   const renderEditPatientDialog = useCallback(() => {
+    if (!showEditPatientDialog || !selectedPatient) return null;
+
     return (
-      <Dialog
-        id="editPatient"
-        aria-labelledby="dialog-title"
-        open={showEditPatientDialog}
-        onClose={handleCloseOverlays}
-      >
-        <DialogTitle onClose={() => {
-          trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
-          handleCloseOverlays()
-        }}>
-          <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
-        </DialogTitle>
-
-        <DialogContent>
-          <PatientForm
-            api={api}
-            trackMetric={trackMetric}
-            onFormChange={handlePatientFormChange}
-            patient={selectedPatient}
-            searchDebounceMs={searchDebounceMs}
-            action="edit"
-          />
-        </DialogContent>
-
-        <DialogActions>
-          <Button id="editPatientCancel" variant="textSecondary" onClick={() => {
-            trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'Patients list' });
-            handleCloseOverlays()
-          }}>
-            {t('Cancel')}
-          </Button>
-
-          <Button
-            id="editPatientConfirm"
-            variant="primary"
-            onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
-          >
-            {t('Save Changes')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <EditPatientDialog api={api} patient={selectedPatient} onClose={handleCloseOverlays} />
     );
-  }, [
-    api,
-    handleEditPatientConfirm,
-    mrnSettings,
-    existingMRNs,
-    handleCloseOverlays,
-    patientFormContext,
-    searchDebounceMs,
-    selectedClinicId,
-    selectedPatient,
-    showEditPatientDialog,
-    t,
-    trackMetric,
-    updatingClinicPatient.inProgress
-  ]);
+  }, [api, showEditPatientDialog, selectedPatient, handleCloseOverlays]);
 
   const renderTideDashboardConfigDialog = useCallback(() => {
     return (
@@ -3104,12 +2988,25 @@ export const ClinicPatients = (props) => {
     },
   }), [data?.length, showSummaryData]);
 
+  const patientQueryState = useMemo(
+    () => getPatientQueryState(activeFilters, patientListSearchTextInput),
+    [activeFilters, patientListSearchTextInput]
+  );
+
+  const emptyContentNode = useMemo(() => (
+    <EmptyContentNode patientQueryState={patientQueryState}>
+      <ClearFilterButtons
+        patientQueryState={patientQueryState}
+        onClearSearch={handleClearSearch}
+        onResetFilters={handleResetFilters}
+      />
+    </EmptyContentNode>
+  ), [patientQueryState, handleClearSearch, handleResetFilters]);
+
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
-
-    const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
 
     return (
       <Box>
@@ -3133,15 +3030,7 @@ export const ClinicPatients = (props) => {
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
           onClickRow={handleClickPatient}
-          emptyContentNode={
-            <EmptyContentNode patientQueryState={patientQueryState}>
-              <ClearFilterButtons
-                patientQueryState={patientQueryState}
-                onClearSearch={handleClearSearch}
-                onResetFilters={handleResetFilters}
-              />
-            </EmptyContentNode>
-          }
+          emptyContentNode={emptyContentNode}
         />
 
         {pageCount > 1 && (
@@ -3165,7 +3054,11 @@ export const ClinicPatients = (props) => {
     columns,
     data,
     defaultPatientFetchOptions.sort,
+    emptyContentNode,
+    handleClearSearch,
+    handleClickPatient,
     handlePageChange,
+    handleResetFilters,
     handleSortChange,
     loading,
     patientFetchOptions,
