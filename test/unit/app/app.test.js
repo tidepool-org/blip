@@ -10,8 +10,12 @@
 var React = require('react');
 var _ = require('lodash');
 
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import mutationTracker from 'object-invariant-test-helper';
+
+jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
+jest.mock('../../../app/redux/features/clinicians/cliniciansApi');
+jest.mock('../../../app/redux/features/productInfo/productInfoApi');
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
@@ -166,47 +170,36 @@ describe('App', () => {
       expect(footer).to.be.ok;
     });
 
-    it('should not render a version element when version not set in config', () => {
-      var props = buildProps();
-      props.context.config = { VERSION : null };
-      var { container } = renderApp(props);
-      var versionElems = container.querySelectorAll('.Navbar-version');
-      expect(versionElems.length).to.equal(0);
-    });
+    const aboutVersionText = () => {
+      fireEvent.click(screen.getByRole('button', { name: 'About' }));
+      return screen.getByText(/^Version /).textContent;
+    };
 
     it('should render version and hostname when version present in config', () => {
       var props = buildProps();
       props.context.config = { VERSION : 1.4 };
-      var { container } = renderApp(props);
-      var versionElems = container.querySelectorAll('.Version');
-      expect(versionElems.length).to.equal(1);
-      expect(versionElems[0].textContent).to.equal('v1.4-localhost');
+      renderApp(props);
+      expect(aboutVersionText()).to.equal('Version 1.4-localhost');
     });
 
     it('should include api environment in version when available', () => {
       var props = buildProps();
       props.context.config = { VERSION : 1.4, API_HOST: 'qa2.development.tidepool.org' };
-      var { container } = renderApp(props);
-      var versionElems = container.querySelectorAll('.Version');
-      expect(versionElems.length).to.equal(1);
-      expect(versionElems[0].textContent).to.equal('v1.4-localhost-qa2');
+      renderApp(props);
+      expect(aboutVersionText()).to.equal('Version 1.4-localhost-qa2');
     });
 
     it('should not include the hostname in version if it matches api environment', () => {
       var props = buildProps();
       props.context.config = { VERSION : 1.4, API_HOST: 'localhost.tidepool.org' };
-      var { container } = renderApp(props);
-      var versionElems = container.querySelectorAll('.Version');
-      expect(versionElems.length).to.equal(1);
-      expect(versionElems[0].textContent).to.equal('v1.4-localhost');
+      renderApp(props);
+      expect(aboutVersionText()).to.equal('Version 1.4-localhost');
     });
 
     it('should not include hostname or api environment in version for production environment', () => {      var props = buildProps();
       props.context.config = { VERSION : 1.4, API_HOST: 'app.tidepool.org' };
-      var { container } = renderApp(props);
-      var versionElems = container.querySelectorAll('.Version');
-      expect(versionElems.length).to.equal(1);
-      expect(versionElems[0].textContent).to.equal('v1.4');
+      renderApp(props);
+      expect(aboutVersionText()).to.equal('Version 1.4');
     });
   });
 

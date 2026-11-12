@@ -50,6 +50,10 @@ personUtils.isClinicianAccount = (user) => {
   return _.intersection(userRoles, ['clinic', 'migrated_clinic', 'clinician']).length > 0 || !!user?.isClinicMember;
 };
 
+personUtils.isSSOAccount = (user) => {
+  return _.includes(_.get(user, 'roles', []), 'brokered');
+};
+
 personUtils.hasClinicRole = (user) => {
   return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
 }

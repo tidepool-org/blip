@@ -349,7 +349,7 @@ export const DataDonationConsentDialog = (props) => {
       <DialogActions>
         <Button
           className="dataDonationConsentCancel"
-          variant="secondary"
+          variant="textSecondary"
           onClick={onClose}
         >
           {t('Cancel')}

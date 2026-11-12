@@ -83,7 +83,6 @@ export default (state = initialWorkingState, action) => {
     case types.SET_MEMBER_PERMISSIONS_REQUEST:
     case types.UPDATE_PATIENT_REQUEST:
     case types.UPDATE_PATIENT_BG_UNITS_REQUEST:
-    case types.UPDATE_USER_REQUEST:
     case types.VERIFY_CUSTODIAL_REQUEST:
     case types.GENERATE_PDF_REQUEST:
     case types.DATA_WORKER_ADD_DATA_REQUEST:
@@ -286,7 +285,6 @@ export default (state = initialWorkingState, action) => {
     case types.SET_MEMBER_PERMISSIONS_SUCCESS:
     case types.UPDATE_PATIENT_SUCCESS:
     case types.UPDATE_PATIENT_BG_UNITS_SUCCESS:
-    case types.UPDATE_USER_SUCCESS:
     case types.VERIFY_CUSTODIAL_SUCCESS:
     case types.GENERATE_PDF_SUCCESS:
     case types.REMOVE_GENERATED_PDFS:
@@ -449,6 +447,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
+    case types.FETCH_UPLOAD_RECORDS_FAILURE:
     case types.FETCH_PATIENTS_FAILURE:
     case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
     case types.CREATE_PRESCRIPTION_FAILURE:
@@ -482,7 +481,6 @@ export default (state = initialWorkingState, action) => {
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_PATIENT_BG_UNITS_FAILURE:
-    case types.UPDATE_USER_FAILURE:
     case types.VERIFY_CUSTODIAL_FAILURE:
     case types.GENERATE_PDF_FAILURE:
     case types.DATA_WORKER_ADD_DATA_FAILURE:

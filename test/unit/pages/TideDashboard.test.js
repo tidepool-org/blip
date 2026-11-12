@@ -1,6 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within, cleanup } from '@testing-library/react';
 import { mountWithProviders } from '../../utils/mountWithProviders';
+
+jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
+jest.mock('../../../app/redux/features/clinicians/cliniciansApi');
 import moment from 'moment-timezone';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -17,7 +20,7 @@ import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import DataConnections from '../../../app/components/datasources/DataConnections';
-import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../../app/components/datasources/DataConnectionsDialog';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import api from '../../../app/core/api';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';

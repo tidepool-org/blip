@@ -111,11 +111,12 @@ const StyledDialogContent = styled(Box)`
   }
 `;
 
-export function DialogContent({ sx = {}, ...props }) {
+export function DialogContent({ sx = {}, divider, dividers, minWidth, ...props }) {
   return <StyledDialogContent
     p={4}
     sx={{
-      borderBottom: props.divider ? borders.dividerDarkThin : 'unset',
+      borderBottom: divider ? borders.dividerDarkThin : 'unset',
+      ...(minWidth != null && { minWidth: typeof minWidth === 'number' ? `${minWidth}px` : minWidth }),
       [`@media screen and (max-width: ${breakpoints[1]})`]: { minWidth: '100vw' },
       ...sx,
     }}
@@ -126,6 +127,7 @@ export function DialogContent({ sx = {}, ...props }) {
 DialogContent.propTypes = {
   ...BoxProps,
   divider: PropTypes.bool,
+  minWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 DialogContent.defaultProps = {
@@ -188,6 +190,8 @@ const StyledDialog = styled(MuiDialog)`
       margin: 0;
       height: 100%;
       max-height: 100%;
+      width: 100%;
+      max-width: 100%;
     }
   }
 

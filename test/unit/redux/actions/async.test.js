@@ -3093,237 +3093,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('updateUser', () => {
-      it('should trigger UPDATE_USER_SUCCESS and it should call updateUser once for a successful request', () => {
-        let loggedInUserId = 400;
-        let currentUser = {
-          profile: {
-            name: 'Joe Bloggs',
-            age: 29
-          },
-          password: 'foo',
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe'
-        };
-
-        let formValues = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-        };
-
-        let updatingUser = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          preferences: {},
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe'
-        };
-
-        let userUpdates = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          preferences: {},
-          password: 'foo'
-        };
-
-        let updatedUser = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe',
-          password: 'foo'
-        };
-
-        let api = {
-          user: {
-            put: sinon.stub().callsArgWith(1, null, updatedUser)
-          }
-        };
-
-        let initialStateForTest = _.merge({}, initialState, { allUsersMap: { [loggedInUserId] : currentUser }, loggedInUserId: loggedInUserId });
-
-        let expectedActions = [
-          { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
-          { type: 'UPDATE_USER_SUCCESS', payload: { userId: loggedInUserId, updatedUser: updatedUser } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip : initialStateForTest });
-        store.dispatch(async.updateUser(api, formValues));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.put.calledWith(userUpdates)).to.be.true;
-        expect(trackMetric.calledWith('Updated Account')).to.be.true;
-      });
-
-      it('should trigger UPDATE_USER_FAILURE and it should call updateUser once for a failed request', () => {
-        let loggedInUserId = 400;
-        let currentUser = {
-          profile: {
-            name: 'Joe Bloggs',
-            age: 29
-          },
-          password: 'foo',
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe'
-        };
-
-        let formValues = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          }
-        };
-
-        let updatingUser = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          preferences: {},
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe'
-        };
-
-        let userUpdates = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          preferences: {},
-          password: 'foo'
-        };
-        let api = {
-          user: {
-            put: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
-          }
-        };
-
-        let err = new Error(ErrorMessages.ERR_UPDATING_USER);
-        err.status = 500;
-
-        let initialStateForTest = _.merge({}, initialState, { allUsersMap: { [loggedInUserId] : currentUser }, loggedInUserId: loggedInUserId });
-
-        let expectedActions = [
-          { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
-          { type: 'UPDATE_USER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'}} }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip : initialStateForTest });
-        store.dispatch(async.updateUser(api, formValues));
-
-        const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER });
-        expectedActions[1].error = actions[1].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.put.calledWith(userUpdates)).to.be.true;
-      });
-
-      it('should trigger UPDATE_USER_FAILURE and it should call updateUser once for a failed request (409)', () => {
-        let loggedInUserId = 400;
-        let currentUser = {
-          profile: {
-            name: 'Joe Bloggs',
-            age: 29,
-          },
-          password: 'foo',
-          emails: ['joe@bloggs.com'],
-          username: 'Joe',
-        };
-
-        let formValues = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30,
-          },
-        };
-
-        let updatingUser = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30,
-          },
-          preferences: {},
-          emails: ['joe@bloggs.com'],
-          username: 'Joe',
-        };
-
-        let userUpdates = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30,
-          },
-          preferences: {},
-          password: 'foo',
-        };
-        let api = {
-          user: {
-            put: sinon
-              .stub()
-              .callsArgWith(1, { status: 409, body: 'Conflict!' }),
-          },
-        };
-
-        let err = new Error(ErrorMessages.ERR_UPDATING_USER_EMAIL_IN_USE);
-        err.status = 409;
-
-        let initialStateForTest = _.merge({}, initialState, {
-          allUsersMap: { [loggedInUserId]: currentUser },
-          loggedInUserId: loggedInUserId,
-        });
-
-        let expectedActions = [
-          {
-            type: 'UPDATE_USER_REQUEST',
-            payload: { userId: loggedInUserId, updatingUser: updatingUser },
-          },
-          {
-            type: 'UPDATE_USER_FAILURE',
-            error: err,
-            meta: { apiError: { status: 409, body: 'Conflict!' } },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialStateForTest });
-        store.dispatch(async.updateUser(api, formValues));
-
-        const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({
-          message: ErrorMessages.ERR_UPDATING_USER_EMAIL_IN_USE,
-        });
-        expectedActions[1].error = actions[1].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.put.calledWith(userUpdates)).to.be.true;
-      });
-    });
-
     describe('requestPasswordReset', () => {
       it('should trigger REQUEST_PASSWORD_RESET_SUCCESS and it should call requestPasswordReset once for a successful request', () => {
         const email = 'foo@bar.com';
@@ -4006,7 +3775,7 @@ describe('Actions', () => {
         ];
 
         uploadRecord = [
-          { type: 'upload', id: 'upload123', uploadId: '_upload123', time: '2018-01-15T00:00:00.000Z'}
+          { type: 'upload', id: 'upload123', uploadId: 'upload123', time: '2018-01-15T00:00:00.000Z' }
         ];
 
         teamNotes = [
@@ -4222,6 +3991,111 @@ describe('Actions', () => {
             'dosingDecision.reason': 'normalBolus,simpleBolus,watchBolus,oneButtonBolus',
           }).callCount).to.equal(1);
         });
+
+        it('should not request upload records without an uploadId', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, router: { location: { pathname: `data/${patientId}` } } });
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match(opts => opts.type === 'upload' && !opts.uploadId && !opts.startDate, 'undated upload read'));
+        });
+
+        it('should request each missing upload record by uploadId once', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, router: { location: { pathname: `data/${patientId}` } } });
+
+          api.patientData.get = sinon.stub().callsArgWith(2, null, [
+            ...patientData,
+            { id: 29, uploadId: 'upload123', type: 'smbg', time: '2018-01-02T00:00:00.000Z' },
+          ]);
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          expect(api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'upload123' }).callCount).to.equal(1);
+          sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match({ uploadId: '_upload789' }));
+        });
+
+        it('should not request upload records already in the fetched data', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, router: { location: { pathname: `data/${patientId}` } } });
+
+          api.patientData.get = sinon.stub().callsArgWith(2, null, [
+            ...patientData,
+            { type: 'upload', id: 'upload123', uploadId: 'upload123', time: '2018-01-15T00:00:00.000Z' },
+          ]);
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match.has('uploadId'));
+          expect(_.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' })).to.exist;
+        });
+
+        it('should include looked-up upload records in the DATA_WORKER_ADD_DATA_REQUEST payload', () => {
+          api.patientData = {
+            get: sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, patientData)
+              .onThirdCall().callsArgWith(2, null, uploadRecord),
+          };
+
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, router: { location: { pathname: `data/${patientId}` } } });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
+          expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...teamNotes, ...uploadRecord]));
+        });
+
+        context('more than five upload records are missing', () => {
+          let settings;
+          let uploads;
+          let datedRead;
+
+          beforeEach(() => {
+            settings = _.map(_.range(1, 7), i => ({ id: `ps${i}`, uploadId: `up${i}`, type: 'pumpSettings', time: `2018-0${i}-01T00:00:00.000Z` }));
+            uploads = _.map(settings, s => ({ type: 'upload', id: s.uploadId, uploadId: s.uploadId, time: s.time }));
+            datedRead = sinon.match({ type: 'upload', startDate: sinon.match.string, endDate: sinon.match.string, medtronic: true });
+
+            api.patientData.get = sinon.stub().callsArgWith(2, null, [...patientData, ...settings]);
+            api.patientData.get.withArgs(patientId, datedRead).callsArgWith(2, null, [{ type: 'upload', id: 'other', uploadId: 'other' }, ...uploads.slice(0, 5)]);
+            api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'up6' }).callsArgWith(2, null, [uploads[5]]);
+            api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'upload123' }).callsArgWith(2, null, uploadRecord);
+          });
+
+          it('should read upload records by date without the Medtronic data-source filter, then look up only those still missing', () => {
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, router: { location: { pathname: `data/${patientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            expect(api.patientData.get.withArgs(patientId, datedRead).callCount).to.equal(1);
+            expect(api.patientData.get.withArgs(patientId, datedRead).firstCall.args[1].startDate).to.equal('2018-01-01T00:00:00.000Z');
+            expect(api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'up6' }).callCount).to.equal(1);
+            sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match({ uploadId: 'up1' }));
+
+            const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
+            expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes, ...uploads.slice(0, 5), ...uploadRecord, uploads[5]]));
+          });
+
+          it('should not look up missing upload records by uploadId and should trigger FETCH_UPLOAD_RECORDS_FAILURE when the dated read fails', () => {
+            api.patientData.get.withArgs(patientId, datedRead).callsArgWith(2, { status: 500 }, null);
+
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, router: { location: { pathname: `data/${patientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            sinon.assert.neverCalledWith(api.patientData.get, patientId, sinon.match.has('uploadId'));
+            const addDataAction = _.find(store.getActions(), { type: 'DATA_WORKER_ADD_DATA_REQUEST' });
+            expect(addDataAction.payload.data).to.equal(JSON.stringify([...patientData, ...settings, ...teamNotes]));
+            expect(_.last(store.getActions()).type).to.equal('FETCH_UPLOAD_RECORDS_FAILURE');
+          });
+        });
       });
 
       context('handleFetchSuccess', () => {
@@ -4231,12 +4105,10 @@ describe('Actions', () => {
 
         context('fetching data for current patient in view', () => {
           it('should trigger FETCH_PATIENT_DATA_SUCCESS and DATA_WORKER_ADD_DATA_REQUEST', () => {
-            options.getPumpSettingsUploadRecordById = 'upload123';
-
             api.patientData = {
               get: sinon.stub()
                 .onFirstCall().callsArgWith(2, null, patientData)
-                .onSecondCall().callsArgWith(2, null, [ uploadRecord ]),
+                .onSecondCall().callsArgWith(2, null, uploadRecord)
             };
 
             let expectedActions = [
@@ -4246,7 +4118,7 @@ describe('Actions', () => {
                 type: 'DATA_WORKER_ADD_DATA_REQUEST',
                 meta: { WebWorker: true, worker: 'data', id: patientId },
                 payload: {
-                  data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
+                  data: JSON.stringify([...patientData, ...teamNotes, ...uploadRecord]),
                   fetchedCount: 6,
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
@@ -4268,7 +4140,17 @@ describe('Actions', () => {
             const actions = store.getActions();
             expect(actions).to.eql(expectedActions);
             expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.patientData.get.withArgs(patientId, { type: 'upload' }).callCount).to.equal(0);
             expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          });
+
+          it('should request missing upload records on non-initial fetches', () => {
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, router: { location: { pathname: `data/${patientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            expect(api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'upload123' }).callCount).to.equal(1);
           });
         });
 
@@ -4279,6 +4161,7 @@ describe('Actions', () => {
             api.patientData = {
               get: sinon.stub()
                 .onFirstCall().callsArgWith(2, null, patientData)
+                .onSecondCall().callsArgWith(2, null, uploadRecord)
             };
 
             let expectedActions = [
@@ -4288,8 +4171,8 @@ describe('Actions', () => {
                 type: 'DATA_WORKER_ADD_DATA_REQUEST',
                 meta: { WebWorker: true, worker: 'data', id: patientId },
                 payload: {
-                  data: JSON.stringify([...patientData, ...teamNotes]),
-                  fetchedCount: 5,
+                  data: JSON.stringify([...patientData, ...teamNotes, ...uploadRecord]),
+                  fetchedCount: 6,
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   oneMinCgmFetchedUntil: '2018-01-01T00:00:00.000Z',
@@ -4371,28 +4254,15 @@ describe('Actions', () => {
           expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to latest pump settings upload call returning error', () => {
+        it('should still add the patient data and trigger FETCH_UPLOAD_RECORDS_FAILURE without a status when an upload record lookup fails', () => {
           options.initial = true;
 
           api.patientData = {
             get: sinon.stub()
               .onFirstCall().callsArgWith(2, null, patientData)
-              .onSecondCall().callsArgWith(2, null, _.reject(patientData, { type: 'pumpSettings' }))
+              .onSecondCall().callsArgWith(2, null, patientData)
               .onThirdCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           };
-
-          let err = new Error(ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD);
-          err.status = 500;
-
-          let expectedActions = [
-            { type: 'FETCH_SERVER_TIME_REQUEST'},
-            { type: 'FETCH_SERVER_TIME_SUCCESS', payload: { serverTime } },
-            { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
-            { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
-          ];
-          _.each(expectedActions, (action) => {
-            expect(isTSA(action)).to.be.true;
-          });
 
           let store = mockStore({
             blip: initialState,
@@ -4401,11 +4271,18 @@ describe('Actions', () => {
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
-          expectedActions[3].error = actions[3].error;
-          expect(actions).to.eql(expectedActions);
-          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          expect(_.map(actions, 'type')).to.eql([
+            'FETCH_SERVER_TIME_REQUEST',
+            'FETCH_SERVER_TIME_SUCCESS',
+            'FETCH_PATIENT_DATA_REQUEST',
+            'FETCH_PATIENT_DATA_SUCCESS',
+            'DATA_WORKER_ADD_DATA_REQUEST',
+            'FETCH_UPLOAD_RECORDS_FAILURE',
+          ]);
+          expect(actions[4].payload.data).to.equal(JSON.stringify([...patientData, ...teamNotes]));
+          expect(actions[5].error.message).to.equal(ErrorMessages.ERR_FETCHING_UPLOAD_RECORDS);
+          expect(actions[5].error.status).to.be.undefined;
+          expect(api.patientData.get.withArgs(patientId, { type: 'upload', uploadId: 'upload123' }).callCount).to.equal(1);
         });
 
         it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request due to team notes call returning error', () => {
@@ -6342,6 +6219,7 @@ describe('Actions', () => {
                   patientTags: false,
                   clinicSites: false,
                   prescriptions: false,
+                  exportPatientList: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -6563,68 +6441,6 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.deletePatientInvitation.callCount).to.equal(1);
-      });
-    });
-
-    describe('fetchClinicByShareCode', () => {
-      it('should trigger FETCH_CLINIC_SUCCESS and it should call clinics.getClinicByShareCode once for a successful request', () => {
-        let clinic = {
-          id: '5f85fbe6686e6bb9170ab5d0',
-          address: '1 Address Ln, City Zip',
-          name: 'Clinic1',
-        };
-
-        let api = {
-          clinics: {
-            getClinicByShareCode: sinon.stub().callsArgWith(1, null, clinic),
-          },
-        };
-
-        let expectedActions = [
-          { type: 'FETCH_CLINIC_REQUEST' },
-          { type: 'FETCH_CLINIC_SUCCESS', payload: {
-            clinic,
-          } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchClinicByShareCode(api, 'ABCD-EVGR-3393-J48I'));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.clinics.getClinicByShareCode.callCount).to.equal(1);
-      });
-
-      it('should trigger FETCH_CLINIC_FAILURE and it should call error once for a failed request', () => {
-        const error = {status: 500, body: 'Error!'};
-        let api = {
-          clinics: {
-            getClinicByShareCode: sinon.stub().callsArgWith(1, error, null),
-          },
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_CLINIC);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_CLINIC_REQUEST' },
-          { type: 'FETCH_CLINIC_FAILURE', error: err, meta: { apiError: error } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchClinicByShareCode(api, 'ABCD-EVGR-3393-J48I'));
-
-        const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINIC });
-        expectedActions[1].error = actions[1].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.clinics.getClinicByShareCode.callCount).to.equal(1);
       });
     });
 
@@ -6911,6 +6727,7 @@ describe('Actions', () => {
                   patientTags: false,
                   clinicSites: false,
                   prescriptions: false,
+                  exportPatientList: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -7127,6 +6944,7 @@ describe('Actions', () => {
                   patientTags: false,
                   clinicSites: false,
                   prescriptions: false,
+                  exportPatientList: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -8076,6 +7894,7 @@ describe('Actions', () => {
                   patientTags: false,
                   clinicSites: false,
                   prescriptions: false,
+                  exportPatientList: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -9077,6 +8896,7 @@ describe('Actions', () => {
                   patientTags: false,
                   clinicSites: false,
                   prescriptions: false,
+                  exportPatientList: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -9706,6 +9526,7 @@ describe('Actions', () => {
                   patientTags: false,
                   clinicSites: false,
                   prescriptions: false,
+                  exportPatientList: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -9782,6 +9603,7 @@ describe('Actions', () => {
                   patientTags: false,
                   clinicSites: false,
                   prescriptions: false,
+                  exportPatientList: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,

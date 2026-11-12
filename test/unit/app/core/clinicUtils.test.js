@@ -111,6 +111,7 @@ describe('clinicUtils', function() {
         patientTags: false,
         clinicSites: false,
         prescriptions: false,
+        exportPatientList: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -140,6 +141,7 @@ describe('clinicUtils', function() {
         patientTags: false,
         clinicSites: false,
         prescriptions: false,
+        exportPatientList: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -169,6 +171,7 @@ describe('clinicUtils', function() {
         patientTags: false,
         clinicSites: false,
         prescriptions: false,
+        exportPatientList: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -198,6 +201,7 @@ describe('clinicUtils', function() {
         patientTags: false,
         clinicSites: false,
         prescriptions: false,
+        exportPatientList: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -229,6 +233,7 @@ describe('clinicUtils', function() {
         patientTags: false,
         clinicSites: false,
         prescriptions: false,
+        exportPatientList: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -254,6 +259,7 @@ describe('clinicUtils', function() {
         patientTags: false,
         clinicSites: false,
         prescriptions: false,
+        exportPatientList: true,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -279,6 +285,7 @@ describe('clinicUtils', function() {
         patientTags: true,
         clinicSites: true,
         prescriptions: false,
+        exportPatientList: true,
         rpmReport: false,
         summaryDashboard: true,
         tideDashboard: false,
@@ -304,6 +311,7 @@ describe('clinicUtils', function() {
         patientTags: true,
         clinicSites: true,
         prescriptions: false,
+        exportPatientList: true,
         rpmReport: false,
         summaryDashboard: true,
         tideDashboard: false,
@@ -329,6 +337,7 @@ describe('clinicUtils', function() {
         patientTags: true,
         clinicSites: true,
         prescriptions: false,
+        exportPatientList: true,
         rpmReport: false,
         summaryDashboard: true,
         tideDashboard: false,
@@ -354,6 +363,7 @@ describe('clinicUtils', function() {
         patientTags: true,
         clinicSites: true,
         prescriptions: false,
+        exportPatientList: true,
         rpmReport: true,
         summaryDashboard: true,
         tideDashboard: true,
@@ -379,6 +389,7 @@ describe('clinicUtils', function() {
         patientTags: true,
         clinicSites: true,
         prescriptions: false,
+        exportPatientList: true,
         rpmReport: true,
         summaryDashboard: true,
         tideDashboard: false,
@@ -404,6 +415,7 @@ describe('clinicUtils', function() {
         patientTags: true,
         clinicSites: true,
         prescriptions: false,
+        exportPatientList: true,
         rpmReport: true,
         summaryDashboard: true,
         tideDashboard: true,
@@ -429,6 +441,7 @@ describe('clinicUtils', function() {
         patientTags: true,
         clinicSites: true,
         prescriptions: false,
+        exportPatientList: true,
         rpmReport: true,
         summaryDashboard: true,
         tideDashboard: true,
@@ -689,6 +702,40 @@ describe('clinicUtils', function() {
         limitFeedback: undefined,
         limitResolutionLink: undefined,
       });
+    });
+  });
+
+  describe('getPatientTags / getPatientSites', () => {
+    const clinic = {
+      patientTags: [{ id: 't10', name: 'Type 10' }, { id: 'tb', name: 'Banana' }, { id: 't2', name: 'Type 2' }, { id: 'ta', name: 'apple' }, { id: 'tx', name: 'Unassigned' }],
+      sites: [{ id: 'sw', name: 'west campus' }, { id: 's10', name: 'Clinic 10' }, { id: 's2', name: 'Clinic 2' }, { id: 'sx', name: 'Unassigned' }],
+    };
+
+    const clinicPatient = {
+      tags: ['t10', 'tb', 't2', 'ta', 'deleted'],
+      sites: [{ id: 'sw' }, { id: 's10' }, { id: 's2' }, { id: 'deleted' }],
+    };
+
+    it('should return the patient\'s tags from the clinic catalogue, sorted alphabetically by name', () => {
+      expect(clinicUtils.getPatientTags(clinic, clinicPatient)).to.eql([
+        { id: 'ta', name: 'apple' },
+        { id: 'tb', name: 'Banana' },
+        { id: 't2', name: 'Type 2' },
+        { id: 't10', name: 'Type 10' },
+      ]);
+    });
+
+    it('should return the patient\'s sites from the clinic catalogue, sorted alphabetically by name', () => {
+      expect(clinicUtils.getPatientSites(clinic, clinicPatient)).to.eql([
+        { id: 's2', name: 'Clinic 2' },
+        { id: 's10', name: 'Clinic 10' },
+        { id: 'sw', name: 'west campus' },
+      ]);
+    });
+
+    it('should return empty arrays without a clinic or clinic patient', () => {
+      expect(clinicUtils.getPatientTags(undefined, clinicPatient)).to.eql([]);
+      expect(clinicUtils.getPatientSites(clinic, undefined)).to.eql([]);
     });
   });
 

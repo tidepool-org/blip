@@ -7,7 +7,7 @@ import tidepoolApi from '../../core/api';
 
 const fallbackSessionTrace = uuidv4();
 
-const RETRY_COUNT = 2;
+export const RETRY_COUNT = 2;
 
 export const getSessionTrace = () => {
   // To ensure that all requests from Blip have the same trace-session token, we inject
@@ -40,6 +40,7 @@ const baseQuery = fetchBaseQuery({
 
 export const RTKQueryApi = createApi({
   reducerPath: 'api',
+  tagTypes: ['MfaStatus'],
   baseQuery: retry(
     baseQuery,
     { maxRetries: RETRY_COUNT },

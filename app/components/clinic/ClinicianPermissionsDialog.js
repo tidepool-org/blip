@@ -76,7 +76,7 @@ const ClinicianPermissionsDialog = props => {
       <DialogActions>
         <Button
           id="confirmDialogCancel"
-          variant="secondary"
+          variant="textSecondary"
           onClick={onClose}
         >
           {t('Close')}

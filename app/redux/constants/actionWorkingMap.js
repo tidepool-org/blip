@@ -32,6 +32,9 @@ export default (type) => {
     case types.FETCH_PATIENT_DATA_FAILURE:
       return 'fetchingPatientData';
 
+    case types.FETCH_UPLOAD_RECORDS_FAILURE:
+      return 'fetchingUploadRecords';
+
     case types.FETCH_PATIENTS_REQUEST:
     case types.FETCH_PATIENTS_SUCCESS:
     case types.FETCH_PATIENTS_FAILURE:
@@ -200,11 +203,6 @@ export default (type) => {
     case types.UPDATE_PATIENT_BG_UNITS_SUCCESS:
     case types.UPDATE_PATIENT_BG_UNITS_FAILURE:
       return 'updatingPatientBgUnits';
-
-    case types.UPDATE_USER_REQUEST:
-    case types.UPDATE_USER_SUCCESS:
-    case types.UPDATE_USER_FAILURE:
-      return 'updatingUser';
 
     case types.VERIFY_CUSTODIAL_REQUEST:
     case types.VERIFY_CUSTODIAL_SUCCESS:

@@ -63,7 +63,7 @@ const AddPatientDialog = ({
       </DialogContent>
 
       <DialogActions>
-        <Button id="addPatientCancel" variant="secondary" onClick={handleClose}>
+        <Button id="addPatientCancel" variant="textSecondary" onClick={handleClose}>
           {t('Cancel')}
         </Button>
         <Button

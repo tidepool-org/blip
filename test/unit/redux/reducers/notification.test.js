@@ -233,21 +233,6 @@ describe('notification', () => {
     });
   });
 
-  describe('updateUserFailure', () => {
-    it('should build a notification', () => {
-      let action = actions.sync.updateUserFailure(ERR);
-
-      let state = reducer(initialState, action);
-
-      expect(state).to.deep.equal({
-        key: 'updatingUser',
-        isDismissible: true,
-        link: null,
-        status: null
-      });
-    });
-  });
-
   describe('fetchUserFailure', () => {
     it('should build a notification', () => {
       let action = actions.sync.fetchUserFailure(ERR);
@@ -346,6 +331,21 @@ describe('notification', () => {
 
       expect(state).to.deep.equal({
         key: 'fetchingMessageThread',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('fetchUploadRecordsFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchUploadRecordsFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingUploadRecords',
         isDismissible: true,
         link: null,
         status: null

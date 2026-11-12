@@ -55,7 +55,6 @@ describe('ClinicAdmin', () => {
   let store;
   let defaultProps = {
     trackMetric: sinon.stub(),
-    t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
         getCliniciansFromClinic: sinon.stub(),
@@ -180,6 +179,7 @@ describe('ClinicAdmin', () => {
           clinicians: {
             clinicianUserId123: {
               roles: ['CLINIC_ADMIN', 'PRESCRIBER'],
+              securityProfile: { mfaEnabled: true, mfaEnabledTime: '2026-04-01T12:34:56Z' },
             },
             clinicianUserId456: {
               roles: ['CLINIC_ADMIN', 'PRESCRIBER'],
@@ -188,6 +188,7 @@ describe('ClinicAdmin', () => {
               id: 'clinicianUserId456',
               createdTime: '2021-10-06T18:00:00Z',
               updatedTime: '2021-10-06T18:00:00Z',
+              securityProfile: { mfaEnabled: false, mfaEnabledTime: null },
             },
             clinicianUserId789InviteId: {
               roles: ['CLINIC_MEMBER'],
@@ -410,6 +411,8 @@ describe('ClinicAdmin', () => {
           'Pending?',
           'Created',
           'Updated',
+          '2FA Enabled',
+          '2FA Enabled On',
         ],
         [
           '"John Doe"',
@@ -418,6 +421,8 @@ describe('ClinicAdmin', () => {
           'False',
           '2021-10-05 18:00:00 UTC',
           '2021-10-05 18:00:00 UTC',
+          'True',
+          '2026-04-01 12:34:56 UTC',
         ],
         [
           '"Jane Smith"',
@@ -426,6 +431,8 @@ describe('ClinicAdmin', () => {
           'False',
           '2021-10-06 18:00:00 UTC',
           '2021-10-06 18:00:00 UTC',
+          'False',
+          '',
         ],
         [
           '""',
@@ -434,6 +441,8 @@ describe('ClinicAdmin', () => {
           'True',
           '2021-10-07 18:00:00 UTC',
           '2021-10-07 18:00:00 UTC',
+          'False',
+          '',
         ],
       ];
 
@@ -475,7 +484,7 @@ describe('ClinicAdmin', () => {
     it('should render a "More" icon per row', () => {
       expect(view.container.querySelector('#clinicianTable')).to.exist;
       expect(getRows(view.container)).to.have.length(3);
-      expect(getCells(view.container)).to.have.length(12);
+      expect(getCells(view.container)).to.have.length(15);
       expect(document.querySelectorAll('[aria-label="info"]')).to.have.length(3);
     });
 
@@ -656,6 +665,113 @@ describe('ClinicAdmin', () => {
       ];
       expect(errorStore.getActions()).to.eql(expectedActions);
       sinon.assert.calledWith(defaultProps.api.clinics.getCliniciansFromClinic, 'clinicID456', { limit: 1000, offset: 0 });
+    });
+  });
+
+  describe('2FA Security column', () => {
+    context('clinic admin', () => {
+      beforeEach(() => {
+        store = mockStore(fetchedMultipleAdminState);
+        view = renderClinicAdmin(store);
+      });
+
+      it('should render the Security column header', () => {
+        const header = view.container.querySelector('#clinicianTable-header-mfaEnabled');
+        expect(header).to.exist;
+        expect(header.textContent).to.contain('Security');
+      });
+
+      it('should render the lock icon + 2FA Enabled caption for an enabled clinician', () => {
+        const captions = screen.getAllByText('2FA Enabled');
+        expect(captions).to.have.length(1);
+      });
+
+      it('should render an empty Security cell for a disabled or missing-mfa clinician', () => {
+        const rows = getRows(view.container);
+        const cellsWithCaption = Array.from(rows).filter((row) => {
+          const cell = row.querySelector('[id$="-mfaEnabled"]');
+          return cell && cell.textContent.includes('2FA Enabled');
+        });
+        expect(cellsWithCaption).to.have.length(1);
+      });
+
+      it('should toggle sort order when the Security header is clicked', () => {
+        const rowsBefore = Array.from(getRows(view.container)).map((r) => r.textContent);
+
+        const header = view.container.querySelector('#clinicianTable-header-mfaEnabled');
+        const sortToggle = header.querySelector('.MuiTableSortLabel-root') || header.querySelector('.table-header-inner-cell');
+        fireEvent.click(sortToggle);
+
+        const rowsAfter = Array.from(getRows(view.container)).map((r) => r.textContent);
+        expect(rowsAfter).to.not.eql(rowsBefore);
+      });
+    });
+
+    context('non-admin clinic member', () => {
+      beforeEach(() => {
+        store = mockStore(clinicMemberState);
+        view = renderClinicAdmin(store);
+      });
+
+      it('should not render the Security column', () => {
+        const header = view.container.querySelector('#clinicianTable-header-mfaEnabled');
+        expect(header).to.not.exist;
+      });
+    });
+  });
+
+  describe('CSV export with 2FA columns', () => {
+    let createBlobSpy;
+    let createElementStub;
+    let createObjectURLStub;
+    let capturedCsv;
+
+    beforeEach(() => {
+      store = mockStore(fetchedMultipleAdminState);
+      view = renderClinicAdmin(store);
+
+      createBlobSpy = sinon.spy(window, 'Blob');
+      createElementStub = sinon.stub(document, 'createElement').returns({
+        href: '',
+        download: '',
+        click: sinon.stub(),
+      });
+      createObjectURLStub = sinon.stub(URL, 'createObjectURL').returns('mock-url');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Export List' }));
+      capturedCsv = createBlobSpy.firstCall.args[0][0];
+    });
+
+    afterEach(() => {
+      createBlobSpy.restore();
+      createElementStub.restore();
+      createObjectURLStub.restore();
+    });
+
+    it('should append 2FA Enabled and 2FA Enabled On to the header row', () => {
+      const headerRow = capturedCsv.split('\n')[0];
+      expect(headerRow).to.contain('2FA Enabled,2FA Enabled On');
+    });
+
+    it('should serialize an enabled clinician as True with a formatted timestamp', () => {
+      const lines = capturedCsv.split('\n');
+      const johnRow = lines.find((line) => line.includes('"John Doe"'));
+      expect(johnRow).to.exist;
+      expect(johnRow).to.match(/,True,2026-04-01 12:34:56 UTC$/);
+    });
+
+    it('should serialize a disabled clinician as False with an empty timestamp cell', () => {
+      const lines = capturedCsv.split('\n');
+      const janeRow = lines.find((line) => line.includes('"Jane Smith"'));
+      expect(janeRow).to.exist;
+      expect(janeRow).to.match(/,False,$/);
+    });
+
+    it('should serialize a clinician missing mfa as False with an empty timestamp cell', () => {
+      const lines = capturedCsv.split('\n');
+      const inviteRow = lines.find((line) => line.includes('clinicianUserId789@example.com'));
+      expect(inviteRow).to.exist;
+      expect(inviteRow).to.match(/,False,$/);
     });
   });
 

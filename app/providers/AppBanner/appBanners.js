@@ -5,13 +5,14 @@ import { async } from '../../redux/actions';
 import api from '../../core/api';
 import { URL_BIG_DATA_DONATION_INFO, URL_SHARE_DATA_INFO, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import { ResendDataSourceConnectRequestDialog } from '../../components/clinic/ResendDataSourceConnectRequestDialog';
-import PatientEmailModal from '../../components/datasources/PatientEmailModal';
+import PatientEmailDialog from '../../components/datasources/PatientEmailDialog';
 import { upperFirst } from 'lodash';
 
 const t = i18next.t.bind(i18next);
 
 export const pathRegexes = {
   clinicWorkspace: /^\/clinic-workspace/,
+  clinicWorkspacePatientList: /^\/clinic-workspace(\/patients)?\/?$/,
   patientData: /^\/patients\/\S+\/data/,
 };
 
@@ -296,7 +297,7 @@ export const appBanners = [
         metricProps: { source: 'none', location: 'banner' },
         handler: () => formikContext.handleSubmit(),
         modal: {
-          component: PatientEmailModal,
+          component: PatientEmailDialog,
           confirmHandlerProp: 'onSubmit',
           props: { patient },
         },
@@ -340,6 +341,33 @@ export const appBanners = [
       },
       dismiss: {
         metric: 'Send Verification banner banner dismissed',
+      },
+    }),
+  },
+
+  {
+    id: 'enable2fa',
+    variant: 'info',
+    priority: 11,
+    context: ['clinic'],
+    paths: [pathRegexes.clinicWorkspacePatientList],
+    persistInteractionForUser: true,
+    getProps: dispatch => ({
+      interactionId: 'Enable2fa',
+      label: t('Enable 2FA banner'),
+      message: t('You Can Now Secure Your Account Using Two-Factor Authentication (2FA)'),
+      show: {
+        metric: 'Enable 2FA banner displayed',
+      },
+      action: {
+        text: t('Set Up 2FA'),
+        metric: 'Enable 2FA banner clicked',
+        handler: () => dispatch(push({ pathname: '/profile', state: { openMfaSetup: true } })),
+        // Clicking through to setup shouldn't consume the banner; it stays visible until dismissed or 2FA is enabled
+        trackInteraction: false,
+      },
+      dismiss: {
+        metric: 'Enable 2FA banner dismissed',
       },
     }),
   },
