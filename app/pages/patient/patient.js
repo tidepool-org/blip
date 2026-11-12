@@ -20,7 +20,12 @@ import { withTranslation, Trans } from 'react-i18next';
 import _ from 'lodash';
 
 import personUtils from '../../core/personutils';
-import ModalOverlay from '../../components/modaloverlay';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+} from '../../components/elements/Dialog';
+import { Body1 } from '../../components/elements/FontStyles';
 import PatientInfo from './patientinfo';
 
 const Patient = withTranslation()(createReactClass({
@@ -60,8 +65,7 @@ const Patient = withTranslation()(createReactClass({
 
   getInitialState: function() {
     return {
-      showModalOverlay: false,
-      dialog: ''
+      showDeleteDialog: false,
     };
   },
 
@@ -91,7 +95,7 @@ const Patient = withTranslation()(createReactClass({
 
     if (this.props.shareOnly) {
       share = this.renderAccess();
-      modal = this.renderModalOverlay();
+      modal = this.renderDeleteDialog();
       profile = null;
     }
 
@@ -133,7 +137,7 @@ const Patient = withTranslation()(createReactClass({
     return personUtils.isSame(this.props.user, this.props.patient);
   },
 
-  renderDeleteDialog: function() {
+  renderDeleteMessage: function() {
     return (
       <Trans i18nKey="html.patient-delete-account">If you are sure you want to delete your account, <a href="mailto:support@tidepool.org?Subject=Delete%20my%20account" target="_blank" rel="noreferrer noopener">send an email</a> to support@tidepool.org and we take care of it for you.</Trans>
     );
@@ -149,8 +153,7 @@ const Patient = withTranslation()(createReactClass({
 
     var handleClick = function() {
       self.setState({
-        showModalOverlay: true,
-        dialog: self.renderDeleteDialog()
+        showDeleteDialog: true,
       });
     };
 
@@ -165,12 +168,19 @@ const Patient = withTranslation()(createReactClass({
     this.setState(this.getInitialState());
   },
 
-  renderModalOverlay: function() {
+  renderDeleteDialog: function() {
     return (
-      <ModalOverlay
-        show={this.state.showModalOverlay}
-        dialog={this.state.dialog}
-        overlayClickHandler={this.overlayClickHandler}/>
+      <Dialog
+        id="deleteAccount"
+        aria-labelledby="dialog-title"
+        open={this.state.showDeleteDialog}
+        onClose={this.overlayClickHandler}
+      >
+        <DialogTitle onClose={this.overlayClickHandler} />
+        <DialogContent>
+          <Body1 id="dialog-title">{this.renderDeleteMessage()}</Body1>
+        </DialogContent>
+      </Dialog>
     );
   },
 

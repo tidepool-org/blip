@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { components as vizComponents } from '@tidepool/viz';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,7 @@ import { Body1 } from '../elements/FontStyles';
 const { EventsInfoTooltip } = vizComponents;
 
 const EventsInfoLabel = props => {
-  const { hasAlarmEventsInView } = props;
+  const { hasAlarmEventsInView, hasSiteChangeEventsInView } = props;
   const { t } = useTranslation();
   const [showTooltip, setShowTooltip] = React.useState(false);
 
@@ -30,7 +31,7 @@ const EventsInfoLabel = props => {
         <Body1 sx={{ color: 'stat.text', fontWeight: 'bold' }}>{t('Events')}</Body1>
       </Box>
 
-      {hasAlarmEventsInView && (
+      {(hasAlarmEventsInView || hasSiteChangeEventsInView) && (
         <Flex className='events-label-tooltip' sx={{ position: 'relative', alignItems: 'center' }}>
           <Icon
             icon={InfoOutlinedIcon}
@@ -52,5 +53,10 @@ const EventsInfoLabel = props => {
 };
 
 EventsInfoLabel.displayName = 'EventsInfoLabel';
+
+EventsInfoLabel.propTypes = {
+  hasAlarmEventsInView: PropTypes.bool,
+  hasSiteChangeEventsInView: PropTypes.bool,
+};
 
 export default EventsInfoLabel;

@@ -367,7 +367,7 @@ export const ClinicianEdit = (props) => {
             <DialogActions>
               <Button
                 id="deleteDialogCancel"
-                variant="secondary"
+                variant="textSecondary"
                 onClick={handleCloseDeleteDialog}
               >
                 {deleteCancelText}
@@ -403,7 +403,7 @@ export const ClinicianEdit = (props) => {
             <DialogActions>
               <Button
                 id="confirmDialogCancel"
-                variant="secondary"
+                variant="textSecondary"
                 onClick={handleCloseConfirmDialog}
               >
                 {t('Cancel')}

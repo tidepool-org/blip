@@ -50,7 +50,7 @@ export function DisableTwoFactorConfirmDialog({ open, onClose, credentialId }) {
       </DialogContent>
 
       <DialogActions>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="textSecondary" onClick={onClose}>
           {t('Cancel')}
         </Button>
         <Button variant="primary" onClick={handleConfirm} disabled={!credentialId}>

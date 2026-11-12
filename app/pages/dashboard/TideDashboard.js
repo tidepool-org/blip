@@ -52,7 +52,7 @@ import { TagList } from '../../components/elements/Tag';
 import PatientForm from '../../components/clinic/PatientForm';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
-import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../components/datasources/DataConnectionsDialog';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -78,6 +78,7 @@ import {
   tideDashboardConfigSchema,
   lastDataFilterOptions,
   summaryPeriodOptions,
+  getPatientTags,
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
@@ -180,10 +181,10 @@ const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric,
   setShowEditPatientDialog(true);
 };
 
-const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, source) => {
+const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog, source) => {
   trackMetric('Clinic - Edit patient data connections', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
-  setShowDataConnectionsModal(true);
+  setShowDataConnectionsDialog(true);
 };
 
 const MoreMenu = React.memo(({
@@ -192,7 +193,7 @@ const MoreMenu = React.memo(({
   t,
   trackMetric,
   setSelectedPatient,
-  setShowDataConnectionsModal,
+  setShowDataConnectionsDialog,
   setShowEditPatientDialog,
 }) => {
   const handleEditPatient = useCallback(() => {
@@ -200,8 +201,8 @@ const MoreMenu = React.memo(({
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
 
   const handleEditPatientDataConnections = useCallback(() => {
-    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'action menu');
-  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
+    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog, 'action menu');
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog]);
 
   const items = useMemo(() => ([{
     icon: EditIcon,
@@ -301,7 +302,7 @@ const SortPopover = React.memo(props => {
           sortPopupFilterState.close();
         }}
       >
-        <DialogContent px={2} py={3} dividers>
+        <DialogContent px={2} py={3}>
           <RadioGroup
             id={`${id}-options`}
             name={`${id}-options`}
@@ -342,12 +343,11 @@ const TideDashboardSection = React.memo(props => {
     emptyContentNode,
     emptyText,
     patients,
-    patientTags,
     section,
     sections,
     selectedClinicId,
     setSelectedPatient,
-    setShowDataConnectionsModal,
+    setShowDataConnectionsDialog,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
@@ -356,6 +356,7 @@ const TideDashboardSection = React.memo(props => {
     trackMetric,
   } = props;
 
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const statEmptyText = '--';
 
   const dexcomConnectStateUI = React.useMemo(() => ({
@@ -425,8 +426,8 @@ const TideDashboardSection = React.memo(props => {
   }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config, selectedClinicId]);
 
   const handleEditPatientDataConnections = useCallback((patient) => {
-    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'dexcom connection status');
-  }, [setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
+    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog, 'dexcom connection status');
+  }, [setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog]);
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient, section)} sx={{ cursor: 'pointer' }}>
@@ -497,19 +498,15 @@ const TideDashboardSection = React.memo(props => {
     );
   }, []);
 
-  const renderPatientTags = useCallback(({ patient }) => {
-    const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
-
-    return (
-      <TagList
-          maxTagsVisible={4}
-          maxCharactersVisible={12}
-          popupId={`tags-overflow-${patient?.id}`}
-          tagProps={{ variant: 'compact' }}
-          tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
-      />
-    );
-  }, [patientTags]);
+  const renderPatientTags = useCallback(({ patient }) => (
+    <TagList
+        maxTagsVisible={4}
+        maxCharactersVisible={12}
+        popupId={`tags-overflow-${patient?.id}`}
+        tagProps={{ variant: 'compact' }}
+        tags={getPatientTags(clinic, patient)}
+    />
+  ), [clinic]);
 
   const renderLastReviewed = useCallback(({ patient }) => {
     return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="TIDE dashboard" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('isoWeek').toISOString()} />
@@ -553,7 +550,7 @@ const TideDashboardSection = React.memo(props => {
       t={t}
       trackMetric={trackMetric}
       setSelectedPatient={setSelectedPatient}
-      setShowDataConnectionsModal={setShowDataConnectionsModal}
+      setShowDataConnectionsDialog={setShowDataConnectionsDialog}
       setShowEditPatientDialog={setShowEditPatientDialog}
       prefixTideDashboardMetric={prefixTideDashboardMetric}
     />;
@@ -908,7 +905,7 @@ export const TideDashboard = (props) => {
   const location = useLocation();
   const history = useHistory();
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
-  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
+  const [showDataConnectionsDialog, setShowDataConnectionsDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -951,7 +948,7 @@ export const TideDashboard = (props) => {
 
   function handleCloseOverlays() {
     setShowTideDashboardConfigDialog(false);
-    setShowDataConnectionsModal(false);
+    setShowDataConnectionsDialog(false);
     setShowEditPatientDialog(false);
 
     setTimeout(() => {
@@ -989,7 +986,7 @@ export const TideDashboard = (props) => {
 
   useEffect(() => {
     // Only process detected updates if patient edit form is showing. Other child components, such as
-    // the PatientEmailModal, may also update the patient, and handle the results
+    // the PatientEmailDialog, may also update the patient, and handle the results
     if (showEditPatientDialog) {
       handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientEdited)
     }
@@ -1265,10 +1262,8 @@ export const TideDashboard = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
-          <Box mr={2}>
-            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
-          </Box>
+        <DialogTitle onClose={handleCloseOverlays}>
+          <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
         </DialogTitle>
 
         <DialogContent>
@@ -1318,7 +1313,7 @@ export const TideDashboard = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="editPatientCancel" variant="secondary" onClick={() => {
+          <Button id="editPatientCancel" variant="textSecondary" onClick={() => {
             trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'TIDE dashboard' });
             handleCloseOverlays();
           }}>
@@ -1351,9 +1346,9 @@ export const TideDashboard = (props) => {
     updatingClinicPatient.inProgress
   ]);
 
-  const renderDataConnectionsModal = useCallback(() => {
+  const renderDataConnectionsDialog = useCallback(() => {
     return (
-      <DataConnectionsModal
+      <DataConnectionsDialog
         open
         patient={selectedPatient}
         onClose={handleCloseOverlays}
@@ -1372,11 +1367,10 @@ export const TideDashboard = (props) => {
       clinicBgUnits,
       config,
       dispatch,
-      patientTags,
       sections,
       selectedClinicId,
       setSelectedPatient,
-      setShowDataConnectionsModal,
+      setShowDataConnectionsDialog,
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
       showTideDashboardPatientDrawer,
@@ -1446,7 +1440,6 @@ export const TideDashboard = (props) => {
     config,
     dispatch,
     patientGroups,
-    patientTags,
     sections,
     selectedClinicId,
     setSelectedPatient,
@@ -1474,7 +1467,7 @@ export const TideDashboard = (props) => {
       {patientGroups && renderPatientGroups()}
       {showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
-      {showDataConnectionsModal && renderDataConnectionsModal()}
+      {showDataConnectionsDialog && renderDataConnectionsDialog()}
 
       <PatientDrawer
         patientId={drawerPatientId}
