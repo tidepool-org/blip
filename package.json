@@ -4,7 +4,7 @@
     "node": "24.15.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.104.1",
+  "version": "1.105.0-rc.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose",
@@ -181,7 +181,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.43.0-web-4694-stacked-range.3",
+    "tideline": "1.43.0-rc.1",
     "tidepool-platform-client": "0.66.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
