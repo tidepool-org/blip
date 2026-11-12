@@ -378,6 +378,9 @@ export const ClinicDetails = (props) => {
 
   useEffect(() => {
       formikContext.resetForm();
+      // The component stays mounted between actions, so clear the previous
+      // action's submitting flag.
+      setSubmitting(false);
   }, [action]);
 
   const formActions = [{
@@ -505,7 +508,7 @@ export const ClinicDetails = (props) => {
               </Body1>
             </DialogContent>
             <DialogActions>
-              <Button variant="secondary" disabled={logoutPending} onClick={closeMigrationConfirmationModal}>
+              <Button variant="textSecondary" disabled={logoutPending} onClick={closeMigrationConfirmationModal}>
                 {t('Cancel')}
               </Button>
               <Button

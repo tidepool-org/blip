@@ -601,7 +601,7 @@ export const AccessManagement = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
+          <Button variant="textSecondary" onClick={() => setShowDeleteDialog(false)}>
             {t('Cancel')}
           </Button>
           <Button
@@ -639,7 +639,7 @@ export const AccessManagement = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={() => setShowResendInviteDialog(false)}>
+          <Button variant="textSecondary" onClick={() => setShowResendInviteDialog(false)}>
             {t('Cancel')}
           </Button>
           <Button

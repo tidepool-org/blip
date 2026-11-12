@@ -447,6 +447,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
+    case types.FETCH_UPLOAD_RECORDS_FAILURE:
     case types.FETCH_PATIENTS_FAILURE:
     case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
     case types.CREATE_PRESCRIPTION_FAILURE:

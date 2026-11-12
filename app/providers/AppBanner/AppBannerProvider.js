@@ -63,7 +63,7 @@ const AppBannerProvider = ({ children }) => {
   // exemption is decided on complete data rather than suppressing the banner on first load.
   const partialClinicAdminCount = filter(clinic?.clinicians, { roles: ['CLINIC_ADMIN'] }).length;
   const rosterFetchNeeded = isClinician && !isSSO && !!selectedClinicId && partialClinicAdminCount === 1 && loggedInUserIsClinicAdmin;
-  const { data: fetchedClinicians } = useGetCliniciansForClinicQuery(selectedClinicId, { skip: !rosterFetchNeeded });
+  const { currentData: fetchedClinicians } = useGetCliniciansForClinicQuery(selectedClinicId, { skip: !rosterFetchNeeded });
 
   const clinicAdminCount = fetchedClinicians
     ? filter(fetchedClinicians, { roles: ['CLINIC_ADMIN'] }).length

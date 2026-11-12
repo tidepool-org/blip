@@ -126,10 +126,7 @@ export const TagList = withTranslation()(props => {
     ...themeProps
   } = props;
 
-  const sortedTags = useMemo(() => {
-    const sortedArray = tags.toSorted((a, b) => utils.compareLabels(a.name, b.name));
-    return sortedArray;
-  }, [tags]);
+  const sortedTags = useMemo(() => utils.sortByLabel(tags), [tags]);
 
   const anchorRef = React.useRef();
   const visibleTags = [];
