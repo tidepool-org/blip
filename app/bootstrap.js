@@ -109,6 +109,7 @@ const LAUNCHDARKLY_FLAG_DEFAULTS = {
   'showTideDashboard': false,
   'showTideDashboardLastReviewed': false,
   'showTideDashboardPatientDrawer': false,
+  'showWorkspaceMerge': false,
   'tideDashboardCategories': null,
 };
 

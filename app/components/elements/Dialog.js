@@ -21,6 +21,9 @@ import {
 
 const MOBILE_BREAKPOINT = breakpoints[1];
 
+// Dialogs fill the screen at and below this width.
+export const DIALOG_FULL_SCREEN_QUERY = `@media screen and (max-width: ${MOBILE_BREAKPOINT})`;
+
 /* Dialog Title Start */
 export function DialogTitle(props) {
   const {
@@ -117,7 +120,7 @@ export function DialogContent({ sx = {}, divider, dividers, minWidth, ...props }
     sx={{
       borderBottom: divider ? borders.dividerDarkThin : 'unset',
       ...(minWidth != null && { minWidth: typeof minWidth === 'number' ? `${minWidth}px` : minWidth }),
-      [`@media screen and (max-width: ${breakpoints[1]})`]: { minWidth: '100%' },
+      [DIALOG_FULL_SCREEN_QUERY]: { minWidth: '100%' },
       ...sx,
     }}
     {...props}

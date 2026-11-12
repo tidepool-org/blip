@@ -454,6 +454,18 @@ describe('clinics', () => {
     });
   });
 
+  describe('mergeClinicSuccess', () => {
+    it('should remove the source clinic and keep the others', () => {
+      let initialStateForTest = {
+        sourceClinicId: { id: 'sourceClinicId' },
+        targetClinicId: { id: 'targetClinicId' },
+      };
+      let action = actions.sync.mergeClinicSuccess('sourceClinicId');
+      let state = reducer(initialStateForTest, action);
+      expect(state).to.eql({ targetClinicId: { id: 'targetClinicId' } });
+    });
+  });
+
   describe('deletePatientFromClinicSuccess', () => {
     it('should remove patient and decrease counts by 1', () => {
       let initialStateForTest = {

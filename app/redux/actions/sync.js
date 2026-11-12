@@ -1532,6 +1532,15 @@ export function deleteClinicianFromClinicFailure(error, apiError) {
   };
 }
 
+export function mergeClinicSuccess(sourceId) {
+  return {
+    type: ActionTypes.MERGE_CLINIC_SUCCESS,
+    payload: {
+      sourceId,
+    },
+  };
+}
+
 export function deletePatientFromClinicRequest() {
   return {
     type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_REQUEST,
