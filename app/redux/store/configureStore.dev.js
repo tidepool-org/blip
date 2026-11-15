@@ -26,12 +26,11 @@ import { connectRouter, routerMiddleware } from 'connected-react-router';
 import mutationTracker from 'redux-immutable-state-invariant';
 import qhistory from 'qhistory';
 import assign from 'lodash/assign';
-import throttle from 'lodash/throttle';
 import { stringify, parse } from 'qs';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
-import { getTideDashboardFiltersKey, loadLocalState, saveLocalState } from './localStorage';
+import { loadLocalState, persistWorkspaceStateToLocalStorage } from './localStorage';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
@@ -109,19 +108,7 @@ function _createStore(api) {
   const initialState = { blip: assign(blipState, loadLocalState()) };
   const store = createStore(reducer, initialState, enhancer(api));
 
-  store.subscribe(throttle(() => {
-    const selectedClinicId = store.getState().blip?.selectedClinicId;
-    const loggedInUserId = store.getState().blip?.loggedInUserId;
-    const isFiltersHydrated = store.getState().blip?.isFiltersHydrated;
-
-    saveLocalState({ selectedClinicId });
-
-    if (loggedInUserId && selectedClinicId && isFiltersHydrated) {
-      const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, selectedClinicId);
-
-      saveLocalState(store.getState().blip?.tideDashboardFilters, tideDashboardFiltersKey);
-    }
-  }, 1000));
+  store.subscribe(() => persistWorkspaceStateToLocalStorage(store.getState()));
 
   if (module.hot) {
     module.hot.accept('../reducers', () =>

@@ -22,11 +22,10 @@ import { connectRouter, routerMiddleware } from 'connected-react-router';
 import qhistory from 'qhistory';
 import { stringify, parse } from 'qs';
 import assign from 'lodash/assign';
-import throttle from 'lodash/throttle';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
-import { getTideDashboardFiltersKey, loadLocalState, saveLocalState } from './localStorage';
+import { loadLocalState, persistWorkspaceStateToLocalStorage } from './localStorage';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
@@ -65,19 +64,7 @@ function _createStore(api) {
   const initialState = { blip: assign(blipState, loadLocalState()) };
   const store = createStoreWithMiddleware(reducer, initialState);
 
-  store.subscribe(throttle(() => {
-    const selectedClinicId = store.getState().blip?.selectedClinicId;
-    const loggedInUserId = store.getState().blip?.loggedInUserId;
-    const isFiltersHydrated = store.getState().blip?.isFiltersHydrated;
-
-    saveLocalState({ selectedClinicId });
-
-    if (loggedInUserId && selectedClinicId && isFiltersHydrated) {
-      const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, selectedClinicId);
-
-      saveLocalState(store.getState().blip?.tideDashboardFilters, tideDashboardFiltersKey);
-    }
-  }, 1000));
+  store.subscribe(() => persistWorkspaceStateToLocalStorage(store.getState()));
 
   return store;
 }
