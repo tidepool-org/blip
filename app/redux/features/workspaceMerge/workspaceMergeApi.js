@@ -9,12 +9,12 @@ const retryCondition = (error, _args, { attempt }) =>
 
 const workspaceMergeApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Omitting sourceId asks for the single-workspace duplicates report.
+    // Without a sourceId, the single-workspace duplicates report is requested instead.
     generateMergeReport: builder.mutation({
       query: ({ targetId, sourceId }) => ({
-        url: `clinics/${targetId}/reports/merge`,
-        method: 'POST',
-        body: sourceId ? { sourceId } : {},
+        ...(sourceId
+          ? { url: `clinics/${targetId}/reports/merge`, method: 'POST', body: { sourceId } }
+          : { url: `clinics/${targetId}/reports/duplicates`, method: 'GET' }),
         responseHandler: (response) => response.blob(),
       }),
       transformResponse: (blob, meta) => ({

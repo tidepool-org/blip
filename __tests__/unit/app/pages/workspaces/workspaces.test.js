@@ -176,14 +176,17 @@ describe('Workspaces', () => {
         expect(dialogOpen('mergeWorkspacesDialog')).toBe(true);
       });
 
-      it('should request a single-workspace report with an empty body and fall back to a default filename', async () => {
-        recordRequests(reportUrl, () => new HttpResponse('xlsx-bytes', { headers: { 'content-type': XLSX_TYPE } }));
+      it('should request the duplicates report for a single workspace and fall back to a default filename', async () => {
+        server.use(http.get('http://app.tidepool.test/v1/clinics/:clinicId/reports/duplicates', ({ params }) => {
+          requests.push({ clinicId: params.clinicId });
+          return new HttpResponse('xlsx-bytes', { headers: { 'content-type': XLSX_TYPE } });
+        }));
         renderPage();
         await openDialog({ source: false });
         await userEvent.click(reportButton());
 
         await screen.findByText('Your merge report will download shortly.');
-        expect(requests).toEqual([{ clinicId: 'alpha', body: {} }]);
+        expect(requests).toEqual([{ clinicId: 'alpha' }]);
         expect(utils.downloadBlob.mock.calls[0][1]).toBe('Merge Report.xlsx');
         expect(trackMetric).toHaveBeenCalledWith('Clinic - Workspaces - Merge report', { targetId: 'alpha' });
       });
