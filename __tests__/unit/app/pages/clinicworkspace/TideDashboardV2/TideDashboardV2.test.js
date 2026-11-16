@@ -240,9 +240,8 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Default Patient 2')).toBeInTheDocument();
     expect(screen.getByText('DOB: 2001-01-01')).toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(9);
     expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /Flag/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
