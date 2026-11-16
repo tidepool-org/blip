@@ -114,7 +114,11 @@ export const TimeInAnyHighPercentCell = ({ patient, summaryPeriod }) => {
 };
 
 export const GMICell = ({ patient, summaryPeriod }) => {
-  const value = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.glucoseManagementIndicator;
+  let value = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.glucoseManagementIndicator;
+
+  if (!['14d', '30d'].includes(summaryPeriod)) {
+    value = undefined;
+  }
 
   return <NumericTemplateCell value={value} isPercent />;
 };

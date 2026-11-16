@@ -167,6 +167,24 @@ describe('Cells', () => {
 
       expect(screen.getByText('7.2 %')).toBeInTheDocument();
     });
+
+    it('hides GMI for periods < 14 days', () => {
+      const periods = { '1d': { glucoseManagementIndicator: 6.1 }, '7d': { glucoseManagementIndicator: 6.4 }, '30d': { glucoseManagementIndicator: 6.8 } };
+      const multiPeriodPatient = { summary: { cgmStats: { periods } } };
+
+      const ui = (props) => <Provider store={store}><GMICell {...props} /></Provider>;
+
+      // 1d & 7d period: hidden
+      const { rerender } = render(ui({ patient: multiPeriodPatient, summaryPeriod: '1d' }));
+      expect(screen.queryByText('6.1 %')).not.toBeInTheDocument();
+
+      rerender(ui({ patient: multiPeriodPatient, summaryPeriod: '7d' }));
+      expect(screen.queryByText('6.4 %')).not.toBeInTheDocument();
+
+      // 30d period: shown
+      rerender(ui({ patient: multiPeriodPatient, summaryPeriod: '30d' }));
+      expect(screen.getByText('6.8 %')).toBeInTheDocument();
+    });
   });
 
   describe('CGMUseCell', () => {
