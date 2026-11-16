@@ -153,74 +153,6 @@ export const ChangeTIRCell = ({ patient, summaryPeriod }) => {
   </Box>;
 };
 
-export const FlagCell = ({ patient, category = null, summaryPeriod }) => {
-  const { t } = useTranslation();
-  const period = patient?.summary?.cgmStats?.periods?.[summaryPeriod];
-
-  const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR } = CATEGORY;
-
-  const getThreshold = (category) => tideDashboardExclusionQuery.getRule(category).threshold;
-
-  if (!period) return null;
-
-  const rangeName = (() => {
-    switch(true) {
-      // Current dashboard category takes priority
-      case category === VERY_LOW: return 'veryLow';
-      case category === ANY_LOW: return 'anyLow';
-      case category === VERY_HIGH: return 'veryHigh';
-      case category === ANY_HIGH: return 'anyHigh';
-      case category === DROP_IN_TIR: return 'dropInTIR';
-      case category === LOW_CGM_WEAR: return 'lowSensorUsage';
-
-      // If no category, then read from summary
-      case period.timeInVeryLowPercent >= getThreshold(VERY_LOW): return 'veryLow';           // >=1%
-      case period.timeInAnyLowPercent >= getThreshold(ANY_LOW): return 'anyLow';              // >=4%
-      case period.timeInTargetPercentDelta <= getThreshold(DROP_IN_TIR): return 'dropInTIR';  // <=-15%
-      case period.timeInAnyHighPercent >= getThreshold(ANY_HIGH): return 'anyHigh';           // >=25%
-      case period.timeInVeryHighPercent >= getThreshold(VERY_HIGH): return 'veryHigh';        // >=5%
-      case period.timeCGMUsePercent < getThreshold(LOW_CGM_WEAR): return 'lowSensorUsage';    // <70%
-
-      default: return null;
-    }
-  })();
-
-  if (!rangeName) return null;
-
-  const flagLabels = {
-    veryLow: t('Very Low'),
-    anyLow: t('Low'),
-    veryHigh: t('Very High'),
-    anyHigh: t('High'),
-    dropInTIR: t('Drop in TIR'),
-    lowSensorUsage: t('Low CGM Wear'),
-    target: t('Meeting Targets'),
-  };
-
-  const flagColor = colors.bg[rangeName] || vizColors.gold30;
-
-  return (
-    <Flex className='tide-dashboard-flag-cell'>
-      <Flex
-        className='tide-dashboard-flag'
-        px={2} py={1} sx={{
-        backgroundColor: `${flagColor}1A`, // adding '1A' reduces opacity to 0.1
-        borderRadius: 4,
-        alignItems: 'center',
-      }}>
-          <Box
-            sx={{ borderRadius: 4, backgroundColor: flagColor, width: '12px', height: '12px' }}
-            mr={2}
-          >
-          </Box>
-          <Text sx={{ fontSize: 0, color: vizColors.black, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
-            {flagLabels[rangeName] || ''}
-          </Text>
-      </Flex>
-    </Flex>
-  );
-};
-
 export const MoreMenuHeader = () => {
   const { t } = useTranslation();
 
@@ -238,5 +170,4 @@ export default {
   ChangeTIRCell,
   GMICell,
   CGMUseCell,
-  FlagCell,
 };

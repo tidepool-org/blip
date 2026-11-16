@@ -21,7 +21,6 @@ import {
   TimeInVeryHighPercentCell,
   TimeInAnyHighPercentCell,
   TimeInTargetPercentCell,
-  FlagCell,
   MoreMenuHeader,
 } from './Cells';
 
@@ -33,12 +32,6 @@ const buildColumnTypes = (t, category, summaryPeriod, thresholds) => ({
     field: 'fullName',
     align: 'left',
     render: patient => <PatientCell patient={patient} />,
-  },
-  flag: {
-    title: t('Flag'),
-    field: 'flag',
-    align: 'center',
-    render: patient => <FlagCell category={category} summaryPeriod={summaryPeriod} patient={patient} />,
   },
   avgGlucose: {
     title: t('Avg Glucose'),
@@ -126,7 +119,6 @@ const buildColumnTypes = (t, category, summaryPeriod, thresholds) => ({
 const getColumnSet = (columnTypes) => ({
   default: [
     columnTypes.patientDetails,
-    columnTypes.flag,
     columnTypes.avgGlucose,
     columnTypes.timeInRangeBarChart,
     columnTypes.changeInTIR,
