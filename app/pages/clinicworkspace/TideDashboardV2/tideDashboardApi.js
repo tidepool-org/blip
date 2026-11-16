@@ -28,6 +28,7 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, sum
     'cgm.lastDataFrom': lastDataFrom,
     tags: formattedTags,
     sites: formattedSites,
+    omitNonStandardRanges: true,
     ...cgmQueryParams,
   };
 };
