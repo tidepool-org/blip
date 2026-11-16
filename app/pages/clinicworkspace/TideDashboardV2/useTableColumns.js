@@ -27,7 +27,7 @@ import {
 
 import TagListCell from '../components/TagListCell';
 
-const buildColumnTypes = (t, category, thresholds) => ({
+const buildColumnTypes = (t, category, summaryPeriod, thresholds) => ({
   patientDetails: {
     title: t('Patient Details'),
     field: 'fullName',
@@ -38,69 +38,69 @@ const buildColumnTypes = (t, category, thresholds) => ({
     title: t('Flag'),
     field: 'flag',
     align: 'center',
-    render: patient => <FlagCell category={category} patient={patient} />,
+    render: patient => <FlagCell category={category} summaryPeriod={summaryPeriod} patient={patient} />,
   },
   avgGlucose: {
     title: t('Avg Glucose'),
     field: 'avgGlucose',
     align: 'center',
     titleComponent: () => <AvgGlucoseHeader />,
-    render: patient => <AvgGlucoseCell patient={patient} />,
+    render: patient => <AvgGlucoseCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   timeInRangeBarChart: {
     title: t('Time in Range'),
     field: 'timeInRangeBarChart',
     align: 'center',
-    render: patient => <TimeInRangePercentBarChartCell patient={patient} />,
+    render: patient => <TimeInRangePercentBarChartCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   changeInTIR: {
     title: t('% Change in TIR'),
     field: 'changeInTIR',
     align: 'center',
     titleComponent: () => <ChangeTIRHeader />,
-    render: patient => <ChangeTIRCell patient={patient} />,
+    render: patient => <ChangeTIRCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   timeInVeryLow: {
     title: `${t('% Time')} < ${thresholds.veryLowThreshold}`,
     field: 'timeInVeryLow',
     align: 'center',
-    render: patient => <TimeInVeryLowPercentCell patient={patient} />,
+    render: patient => <TimeInVeryLowPercentCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   timeInAnyLow: {
     title: `${t('% Time')} < ${thresholds.targetLowerBound}`,
     field: 'timeInAnyLow',
     align: 'center',
-    render: patient => <TimeInAnyLowPercentCell patient={patient} />,
+    render: patient => <TimeInAnyLowPercentCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   timeInVeryHigh: {
     title: `${t('% Time')} > ${thresholds.veryHighThreshold}`,
     field: 'timeInVeryHigh',
     align: 'center',
-    render: patient => <TimeInVeryHighPercentCell patient={patient} />,
+    render: patient => <TimeInVeryHighPercentCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   timeInAnyHigh: {
     title: `${t('% Time')} > ${thresholds.targetUpperBound}`,
     field: 'timeInAnyHigh',
     align: 'center',
-    render: patient => <TimeInAnyHighPercentCell patient={patient} />,
+    render: patient => <TimeInAnyHighPercentCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   timeInTarget: {
     title: `${t('% TIR')} ${thresholds.targetLowerBound}-${thresholds.targetUpperBound}`,
     field: 'timeInTarget',
     align: 'center',
-    render: patient => <TimeInTargetPercentCell patient={patient} />,
+    render: patient => <TimeInTargetPercentCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   gmi: {
     title: t('GMI'),
     field: 'gmi',
     align: 'center',
-    render: patient => <GMICell patient={patient} />,
+    render: patient => <GMICell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   cgmUse: {
     title: t('CGM Use'),
     field: 'cgmUse',
     align: 'center',
-    render: patient => <CGMUseCell patient={patient} />,
+    render: patient => <CGMUseCell patient={patient} summaryPeriod={summaryPeriod} />,
   },
   tags: {
     title: t('Tags'),
@@ -204,7 +204,7 @@ const getFormattedThresholds = (clinicBgUnits) => {
   return mapValues(thresholds, value => value.toFixed(precision));
 };
 
-const useTableColumns = (category) => {
+const useTableColumns = (category, summaryPeriod) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
@@ -212,7 +212,7 @@ const useTableColumns = (category) => {
 
   const columns = useMemo(() => {
     const thresholds = getFormattedThresholds(clinicBgUnits);
-    const columnTypes = buildColumnTypes(t, category, thresholds);
+    const columnTypes = buildColumnTypes(t, category, summaryPeriod, thresholds);
     const columnSet = getColumnSet(columnTypes);
 
     switch(category) {
@@ -226,7 +226,7 @@ const useTableColumns = (category) => {
       case CATEGORY.TARGET: return columnSet.target;
       default: return columnSet.default;
     }
-  }, [category, clinicBgUnits, t]);
+  }, [category, summaryPeriod, clinicBgUnits, t]);
 
   return columns;
 };

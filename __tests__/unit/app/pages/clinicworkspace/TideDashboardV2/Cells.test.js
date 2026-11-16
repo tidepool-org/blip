@@ -69,7 +69,6 @@ describe('Cells', () => {
       blip: {
         selectedClinicId: 'clinic123',
         clinics: { clinic123: { id: 'clinic123', preferredBgUnits: 'mg/dL' } },
-        tideDashboardFilters: { summaryPeriod: '14d' },
       },
     });
   });
@@ -86,7 +85,7 @@ describe('Cells', () => {
 
   describe('AvgGlucoseCell', () => {
     it('renders the average glucose of the active summary period to one decimal place', () => {
-      renderComponent(<AvgGlucoseCell patient={patient} />);
+      renderComponent(<AvgGlucoseCell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('149')).toBeInTheDocument(); // averageGlucoseMmol 8.26
     });
@@ -94,7 +93,7 @@ describe('Cells', () => {
 
   describe('TimeInRangePercentBarChartCell', () => {
     it('renders a bar summary of the time spent in each range', () => {
-      renderComponent(<TimeInRangePercentBarChartCell patient={patient} />);
+      renderComponent(<TimeInRangePercentBarChartCell patient={patient} summaryPeriod="14d" />);
 
       // Ranges are labelled using the patient's glucose thresholds, in the clinic's preferred units
       expect(screen.getByText('<54')).toBeInTheDocument();
@@ -116,7 +115,7 @@ describe('Cells', () => {
 
   describe('TimeInTargetPercentCell', () => {
     it('renders the time in target as a whole percentage', () => {
-      renderComponent(<TimeInTargetPercentCell patient={patient} />);
+      renderComponent(<TimeInTargetPercentCell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('67 %')).toBeInTheDocument(); // timeInTargetPercent 0.6712
     });
@@ -124,7 +123,7 @@ describe('Cells', () => {
 
   describe('TimeInVeryLowPercentCell', () => {
     it('renders the time in very low as a whole percentage', () => {
-      renderComponent(<TimeInVeryLowPercentCell patient={patient} />);
+      renderComponent(<TimeInVeryLowPercentCell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('1 %')).toBeInTheDocument(); // timeInVeryLowPercent 0.0134
     });
@@ -132,7 +131,7 @@ describe('Cells', () => {
 
   describe('TimeInAnyLowPercentCell', () => {
     it('renders the time in any low as a whole percentage', () => {
-      renderComponent(<TimeInAnyLowPercentCell patient={patient} />);
+      renderComponent(<TimeInAnyLowPercentCell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('6 %')).toBeInTheDocument(); // timeInAnyLowPercent 0.0568
     });
@@ -140,7 +139,7 @@ describe('Cells', () => {
 
   describe('TimeInVeryHighPercentCell', () => {
     it('renders the time in very high as a whole percentage', () => {
-      renderComponent(<TimeInVeryHighPercentCell patient={patient} />);
+      renderComponent(<TimeInVeryHighPercentCell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('7 %')).toBeInTheDocument(); // timeInVeryHighPercent 0.0722
     });
@@ -148,7 +147,7 @@ describe('Cells', () => {
 
   describe('TimeInAnyHighPercentCell', () => {
     it('renders the time in any high as a whole percentage', () => {
-      renderComponent(<TimeInAnyHighPercentCell patient={patient} />);
+      renderComponent(<TimeInAnyHighPercentCell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('27 %')).toBeInTheDocument(); // timeInAnyHighPercent 0.2733
     });
@@ -156,7 +155,7 @@ describe('Cells', () => {
 
   describe('ChangeTIRCell', () => {
     it('renders the change in time in range as a bar and as a percentage', () => {
-      renderComponent(<ChangeTIRCell patient={patient} />);
+      renderComponent(<ChangeTIRCell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('15')).toBeInTheDocument(); // compact layout value
     });
@@ -164,7 +163,7 @@ describe('Cells', () => {
 
   describe('GMICell', () => {
     it('renders the glucose management indicator as a percentage', () => {
-      renderComponent(<GMICell patient={patient} />);
+      renderComponent(<GMICell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('7.2 %')).toBeInTheDocument();
     });
@@ -172,7 +171,7 @@ describe('Cells', () => {
 
   describe('CGMUseCell', () => {
     it('renders the CGM use as a whole percentage', () => {
-      renderComponent(<CGMUseCell patient={patient} />);
+      renderComponent(<CGMUseCell patient={patient} summaryPeriod="14d" />);
 
       expect(screen.getByText('93 %')).toBeInTheDocument(); // timeCGMUsePercent 0.9312
     });
@@ -204,51 +203,51 @@ describe('Cells', () => {
 
       // No flag when the summary is within every threshold
       patient = cloneDeep(meetingTargetsPatient);
-      const { container, rerender } = render(ui({ patient }));
+      const { container, rerender } = render(ui({ patient, summaryPeriod: '14d' }));
       expect(container).toBeEmptyDOMElement();
 
       // Time in very low at or above 1% flags Very Low
       patient = cloneDeep(meetingTargetsPatient);
       patient.summary.cgmStats.periods['14d'].timeInVeryLowPercent = 0.0134;
-      rerender(ui({ patient }));
+      rerender(ui({ patient, summaryPeriod: '14d' }));
       expect(screen.getByText('Very Low')).toBeInTheDocument();
 
       // Time in any low at or above 4% flags Low
       patient = cloneDeep(meetingTargetsPatient);
       patient.summary.cgmStats.periods['14d'].timeInAnyLowPercent = 0.0568;
-      rerender(ui({ patient }));
+      rerender(ui({ patient, summaryPeriod: '14d' }));
       expect(screen.getByText('Low')).toBeInTheDocument();
       expect(screen.queryByText('Very Low')).not.toBeInTheDocument();
 
       // Drop in time in target at or below -15% flags Drop in TIR
       patient = cloneDeep(meetingTargetsPatient);
       patient.summary.cgmStats.periods['14d'].timeInTargetPercentDelta = -0.1523;
-      rerender(ui({ patient }));
+      rerender(ui({ patient, summaryPeriod: '14d' }));
       expect(screen.getByText('Drop in TIR')).toBeInTheDocument();
 
       // Time in any high at or above 25% flags High
       patient = cloneDeep(meetingTargetsPatient);
       patient.summary.cgmStats.periods['14d'].timeInAnyHighPercent = 0.2733;
-      rerender(ui({ patient }));
+      rerender(ui({ patient, summaryPeriod: '14d' }));
       expect(screen.getByText('High')).toBeInTheDocument();
 
       // Time in very high at or above 5% flags Very High
       patient = cloneDeep(meetingTargetsPatient);
       patient.summary.cgmStats.periods['14d'].timeInVeryHighPercent = 0.0722;
-      rerender(ui({ patient }));
+      rerender(ui({ patient, summaryPeriod: '14d' }));
       expect(screen.getByText('Very High')).toBeInTheDocument();
 
       // CGM use below 70% flags Low CGM Wear
       patient = cloneDeep(meetingTargetsPatient);
       patient.summary.cgmStats.periods['14d'].timeCGMUsePercent = 0.65;
-      rerender(ui({ patient }));
+      rerender(ui({ patient, summaryPeriod: '14d' }));
       expect(screen.getByText('Low CGM Wear')).toBeInTheDocument();
 
       // When several thresholds are met, only the highest-priority flag shows
       patient = cloneDeep(meetingTargetsPatient);
       patient.summary.cgmStats.periods['14d'].timeInVeryLowPercent = 0.0134;
       patient.summary.cgmStats.periods['14d'].timeInAnyLowPercent = 0.0568;
-      rerender(ui({ patient }));
+      rerender(ui({ patient, summaryPeriod: '14d' }));
 
       expect(screen.getByText('Very Low')).toBeInTheDocument();
       expect(screen.queryByText('Low')).not.toBeInTheDocument();
@@ -260,7 +259,7 @@ describe('Cells', () => {
       patient.summary.cgmStats.periods['14d'].timeInVeryLowPercent = 0.0134;
       patient.summary.cgmStats.periods['14d'].timeInAnyLowPercent = 0.0568;
 
-      renderComponent(<FlagCell patient={patient} category={CATEGORY.ANY_LOW} />);
+      renderComponent(<FlagCell patient={patient} category={CATEGORY.ANY_LOW} summaryPeriod="14d" />);
 
       // The current dashboard category wins
       expect(screen.getByText('Low')).toBeInTheDocument();

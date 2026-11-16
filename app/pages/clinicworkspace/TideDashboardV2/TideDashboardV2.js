@@ -34,6 +34,7 @@ const TideDashboardV2 = () => {
 
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
 
   const { isAuthorized, isUnauthorized } = useAuthorizationGate();
   const { data, currentData, isFetching, isError } = useTideDashboardPatients();
@@ -42,8 +43,9 @@ const TideDashboardV2 = () => {
   // category updating view before the API call resolves and updates it again
   const resolvedCategory = data?.category || category;
   const resolvedOffset = data?.offset ?? offset;
+  const resolvedSummaryPeriod = data?.summaryPeriod || summaryPeriod;
 
-  const tableColumns = useTableColumns(resolvedCategory);
+  const tableColumns = useTableColumns(resolvedCategory, resolvedSummaryPeriod);
   const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
 
   if (isUnauthorized) return <Redirect to={{ pathname: '/clinic-workspace/patients', search }} />;

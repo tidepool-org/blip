@@ -57,6 +57,7 @@ const tideDashboardApi = RTKQueryApi.injectEndpoints({
         ...response,
         category: arg.category,
         offset: arg.offset,
+        summaryPeriod: arg.summaryPeriod,
       }),
       providesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
