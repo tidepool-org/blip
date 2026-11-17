@@ -49,7 +49,12 @@ const PatientLastReviewedGenericAdapter = ({
     undoPatientReviewed({ clinicId: selectedClinicId, patientId })
       .unwrap()
       .then(updatedReviews => setReviews(updatedReviews || []))
-      .catch(() => setToast({ message: ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED , variant: 'danger' }));
+      .catch(err => setToast({
+        message: err?.status === 409
+          ? ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED
+          : ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED,
+        variant: 'danger',
+      }));
   };
 
   if (!patientId) return null;
