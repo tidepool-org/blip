@@ -154,8 +154,8 @@ export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
         (isRejected(action) && action?.payload?.status === 403)
       ) {
         // on any action with a 401 or 403, we try to refresh to keycloak token to verify
-        // if the user is still logged in
-        keycloak.updateToken(-1);
+        // if the user is still logged in; signed out, there is no token to refresh
+        if (keycloak?.authenticated) keycloak.updateToken(-1);
       }
       break;
   }
