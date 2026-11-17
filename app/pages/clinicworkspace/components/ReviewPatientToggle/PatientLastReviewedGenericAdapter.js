@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import moment from 'moment-timezone';
 import noop from 'lodash/noop';
@@ -65,8 +66,20 @@ const PatientLastReviewedGenericAdapter = ({
   );
 };
 
+const propTypes = {
+  patient: PropTypes.shape({
+    id: PropTypes.string,
+    reviews: PropTypes.array,
+  }),
+  recentlyReviewedThresholdDate: PropTypes.string,
+  onReview: PropTypes.func,
+};
+
 const PatientLastReviewedGenericAdapterWrapper = (props) => (
   <PatientLastReviewedGenericAdapter key={props.patient?.id} {...props} />
 );
+
+PatientLastReviewedGenericAdapter.propTypes = propTypes;
+PatientLastReviewedGenericAdapterWrapper.propTypes = propTypes;
 
 export default PatientLastReviewedGenericAdapterWrapper;
