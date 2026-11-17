@@ -65,4 +65,8 @@ const PatientLastReviewedGenericAdapter = ({
   );
 };
 
-export default PatientLastReviewedGenericAdapter;
+const PatientLastReviewedGenericAdapterWrapper = (props) => (
+  <PatientLastReviewedGenericAdapter key={props.patient?.id} {...props} />
+);
+
+export default PatientLastReviewedGenericAdapterWrapper;
