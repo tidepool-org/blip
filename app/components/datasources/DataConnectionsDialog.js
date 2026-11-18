@@ -90,9 +90,8 @@ export const DataConnectionsDialog = (props) => {
 
   const handleEditPatientEmailComplete = useCallback(() => {
     fetchPatientDetails();
-    onPatientUpdated();
     setShowPatientEmailDialog(false);
-  }, [fetchPatientDetails, onPatientUpdated, setShowPatientEmailDialog]);
+  }, [fetchPatientDetails, setShowPatientEmailDialog]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = updatingClinicPatient;

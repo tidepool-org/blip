@@ -229,7 +229,7 @@ describe('DataConnectionsDialog', () => {
 
     // Patient update completes
     rerender(tree(storeWith({ inProgress: false, completed: true, notification: null })));
-    sinon.assert.calledTwice(onPatientUpdated);
+    sinon.assert.calledOnce(onPatientUpdated);
   });
 
   it('should call onBack when the dialog back button is clicked', () => {
