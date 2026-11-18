@@ -133,10 +133,6 @@ export const DataConnectionsDialog = (props) => {
     ? t('Invite patients to authorize syncing from these accounts. Only available in the US at this time.')
     : t('When you connect an account, data can flow into Tidepool without any extra effort. Only available in the US at this time.');
 
-  const learnMoreText = selectedClinicId
-    ? t('Learn more.')
-    : t('Learn more here.');
-
   if (!patient) return null;
 
   return (
