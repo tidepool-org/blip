@@ -205,7 +205,7 @@ export const MoreMenuCell = ({ patient }) => {
         text: t('Edit Patient Details'),
       }, {
         iconSrc: DataInIcon,
-        iconLabel: t('Bring Data into Tidepool'),
+        iconLabel: t('Manage Device Connections'),
         iconPosition: 'left',
         id: `edit-data-connections-${patient?.id}`,
         variant: 'actionListItem',
@@ -213,7 +213,7 @@ export const MoreMenuCell = ({ patient }) => {
           _popupState.close();
           handleOpenDataConnectionsModal();
         },
-        text: t('Bring Data into Tidepool'),
+        text: t('Manage Device Connections'),
       }]}
       sx={{ position: 'relative', left: '-2px' }}
     />

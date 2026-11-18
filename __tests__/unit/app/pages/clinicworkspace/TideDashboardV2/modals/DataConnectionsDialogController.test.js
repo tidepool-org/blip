@@ -79,15 +79,15 @@ describe('DataConnectionsDialogController', () => {
 
   afterAll(() => server.close());
 
-  it('keeps Bring Data into Tidepool open after the patient email is edited from it', async () => {
+  it('keeps Manage Device Connections open after the patient email is edited from it', async () => {
     renderComponent();
 
     expect(await screen.findByText('Shakur Stevenson')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Manage Device Connections', hidden: true })).not.toBeInTheDocument();
 
-    // Open Bring Data into Tidepool from the More menu
+    // Open Manage Device Connections from the More menu
     await userEvent.click(screen.getByTestId('action-menu-patient-1-icon'));
-    await userEvent.click(screen.getByRole('button', { name: /Bring Data into Tidepool/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Manage Device Connections/ }));
     expect(screen.getByRole('heading', { name: 'Manage Device Connections', hidden: true })).toBeInTheDocument();
 
     // Open the email editor from the patient's email address

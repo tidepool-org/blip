@@ -220,10 +220,10 @@ describe('Cells', () => {
     it('dispatches the actions to open the Data Connections modal for the patient', async () => {
       renderComponent(<MoreMenuCell patient={patient} />);
 
-      expect(screen.queryByRole('button', { name: /Bring Data into Tidepool/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Manage Device Connections/ })).not.toBeInTheDocument();
       await userEvent.click(screen.getByTestId('action-menu-patient-1-icon'));
 
-      await userEvent.click(screen.getByRole('button', { name: /Bring Data into Tidepool/ }));
+      await userEvent.click(screen.getByRole('button', { name: /Manage Device Connections/ }));
 
       expect(store.getActions()).toStrictEqual([
         { type: 'tideDashboard/setDataConnectionsModalIsOpen', payload: true },
