@@ -1,19 +1,14 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation, withTranslation } from 'react-i18next';
-import { Box, Flex, Text } from 'theme-ui';
-import { colors as vizColors  } from '@tidepool/viz';
+import { Box, Text } from 'theme-ui';
 import { MGDL_UNITS } from '../../../core/constants';
-import { colors } from '../../../themes/baseTheme';
 
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
-import { CATEGORY } from './tideDashboardSlice';
 import isUndefined from 'lodash/isUndefined';
 
-
-import { tideDashboardExclusionQuery } from './tideDashboardApi';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 export const COMPACT = '@container (max-width: 1200px)';
