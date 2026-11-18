@@ -83,12 +83,12 @@ describe('DataConnectionsDialogController', () => {
     renderComponent();
 
     expect(await screen.findByText('Shakur Stevenson')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Bring Data into Tidepool', hidden: true })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Manage Device Connections', hidden: true })).not.toBeInTheDocument();
 
     // Open Bring Data into Tidepool from the More menu
     await userEvent.click(screen.getByTestId('action-menu-patient-1-icon'));
     await userEvent.click(screen.getByRole('button', { name: /Bring Data into Tidepool/ }));
-    expect(screen.getByRole('heading', { name: 'Bring Data into Tidepool', hidden: true })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Manage Device Connections', hidden: true })).toBeInTheDocument();
 
     // Open the email editor from the patient's email address
     expect(screen.queryByRole('heading', { name: 'Edit Patient Email' })).not.toBeInTheDocument();
@@ -112,6 +112,6 @@ describe('DataConnectionsDialogController', () => {
     expect(await screen.findByText('You have successfully updated the patient email address.')).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByRole('heading', { name: 'Edit Patient Email' })).not.toBeInTheDocument());
 
-    expect(screen.getByRole('heading', { name: 'Bring Data into Tidepool', hidden: true })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Manage Device Connections', hidden: true })).toBeInTheDocument();
   }, TEST_TIMEOUT_MS);
 });
