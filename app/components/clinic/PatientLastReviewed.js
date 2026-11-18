@@ -79,7 +79,6 @@ export const PatientLastReviewed = ({ api, patientId }) => {
 PatientLastReviewed.propTypes = {
   api: PropTypes.object.isRequired,
   patientId: PropTypes.string.isRequired,
-  onReview: PropTypes.func,
 };
 
 export default PatientLastReviewed;
