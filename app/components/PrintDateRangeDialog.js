@@ -223,10 +223,17 @@ export const MainContent = (props) => {
     moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
   ] : []);
 
-  const formatSplitDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
-    moment.utc(startDate).tz(timezoneName).valueOf(),
-    moment.utc(endDate).tz(timezoneName).valueOf(),
-  ] : []);
+  const formatSplitDateEndpoints = ({ startDate, endDate }, opts = {}) => {
+    if (!startDate || !endDate) return [];
+
+    const end = moment.utc(endDate).tz(timezoneName);
+    const isEndOfDay = end.isSame(end.clone().endOf('day').subtract(1, 'ms'));
+
+    return [
+      moment.utc(startDate).tz(timezoneName).valueOf(),
+      opts.endOfDayToMidnight && isEndOfDay ? end.add(1, 'day').startOf('day').valueOf() : end.valueOf(),
+    ];
+  };
 
   // Handlers
   const handleClickPreset = (key, days, presetIndex) => {
@@ -280,8 +287,8 @@ export const MainContent = (props) => {
     if (!isEqual(validationErrors, defaults.errors)) return;
 
     const printOpts = {
-      agpBGM: { endpoints: formatSplitDateEndpoints(dates.agpBGM), disabled: !enabled.agpBGM },
-      agpCGM: { endpoints: formatSplitDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
+      agpBGM: { endpoints: formatSplitDateEndpoints(dates.agpBGM, { endOfDayToMidnight: true }), disabled: !enabled.agpBGM },
+      agpCGM: { endpoints: formatSplitDateEndpoints(dates.agpCGM, { endOfDayToMidnight: true }), disabled: !enabled.agpCGM },
       basics: { endpoints: formatSplitDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
       daily: {

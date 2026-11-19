@@ -15,6 +15,12 @@ import configureStore from 'redux-mock-store';
 jest.mock('../../../app/core/metricUtils');
 import { trackMetric as mockTrackMetric } from '../../../app/core/metricUtils';
 
+// jsdom can't scroll, so stub the scroll that runs when a date picker opens
+jest.mock('react-scroll', () => ({
+  ...jest.requireActual('react-scroll'),
+  scroller: { scrollTo: jest.fn() },
+}));
+
 import PrintDateRangeDialog from '../../../app/components/PrintDateRangeDialog';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
@@ -256,6 +262,36 @@ describe('PrintDateRangeDialog', function () {
         },
         settings: { disabled: false },
       });
+    });
+
+    it('should end a custom AGP range that excludes the most recent datum at the following midnight', () => {
+      // The most recent agpCGM datum is on Mar 10, so a Feb 10 - Feb 20 range does not contain it
+      fireEvent.focus(get('#agpCGM-start-date'));
+      fireEvent.click(get('td[aria-label*="February 10, 2020"]'));
+      fireEvent.click(get('td[aria-label*="February 20, 2020"]'));
+
+      fireEvent.click(get('button.print-submit'));
+
+      sinon.assert.calledOnce(props.onClickPrint);
+      expect(props.onClickPrint.getCall(0).args[0].agpCGM.endpoints).to.eql([
+        Date.parse('2020-02-10T00:00:00.000Z'),
+        Date.parse('2020-02-21T00:00:00.000Z'), // rather than Feb 20 23:59:59.998
+      ]);
+    });
+
+    it('should keep the end of a custom basics range that excludes the most recent datum at the end of the selected day', () => {
+      // The most recent basics datum is on Mar 10, so a Feb 10 - Feb 20 range does not contain it
+      fireEvent.focus(get('#basics-start-date'));
+      fireEvent.click(get('td[aria-label*="February 10, 2020"]'));
+      fireEvent.click(get('td[aria-label*="February 20, 2020"]'));
+
+      fireEvent.click(get('button.print-submit'));
+
+      sinon.assert.calledOnce(props.onClickPrint);
+      expect(props.onClickPrint.getCall(0).args[0].basics.endpoints).to.eql([
+        Date.parse('2020-02-10T00:00:00.000Z'),
+        Date.parse('2020-02-20T23:59:59.998Z'),
+      ]);
     });
 
     it('should show validation errors and block submit when invalid', () => {
