@@ -59,7 +59,7 @@ const getQueries = (
       bgSource: 'cbg',
       stats,
       types: { cbg: {}, smbg: {} },
-      fillData: { adjustForDSTChanges: true },
+      fillData: { adjustForDSTChanges: true, extendToEndOfDay: true },
       bgPrefs,
       metaData: 'latestPumpUpload, bgSources',
       timePrefs,
