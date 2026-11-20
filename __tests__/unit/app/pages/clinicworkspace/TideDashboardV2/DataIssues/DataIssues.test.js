@@ -51,6 +51,8 @@ const tideReportResponse = {
   },
 };
 
+const tideReportCategories = 'timeInVeryLowPercent,timeInAnyLowPercent,dropInTimeInTargetPercent,timeInAnyHighPercent,timeInVeryHighPercent,timeCGMUsePercent,meetingTargets';
+
 const server = setupServer(
   http.get('http://app.tidepool.test/v1/clinics/clinic123/tide_report', ({ request }) => {
     const searchParams = Object.fromEntries(new URL(request.url).searchParams);
@@ -60,7 +62,7 @@ const server = setupServer(
       lastData: '14',
       tags: 'tag8',
       lastDataCutoff: '2025-05-23T00:00:00.000Z',
-      categories: 'meetingTargets',
+      categories: tideReportCategories,
     };
 
     if (!isEqual(searchParams, anticipatedQuery)) throw new Error('Unexpected tide report query');
@@ -139,7 +141,7 @@ describe('DataIssues', () => {
           period: '30d',
           lastData: '14',
           lastDataCutoff: '2025-05-23T00:00:00.000Z',
-          categories: 'meetingTargets',
+          categories: tideReportCategories,
         };
 
         if (!isEqual(searchParams, anticipatedQuery)) throw new Error('Unexpected tide report query');
