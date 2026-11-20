@@ -405,6 +405,27 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.patients.patient123.name).to.eql('Patient 123');
     });
+
+    it('should add clinic patient when the patients map is not yet populated', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {
+            clinicianId123: {}
+          },
+          // patients field not populated
+        },
+      };
+      let patient = {
+        id: 'patient123',
+        name: 'Patient 123',
+      };
+      let action = actions.sync.updateClinicPatientSuccess('clinicId123', 'patient123', patient);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients).to.eql({
+        patient123: { id: 'patient123', name: 'Patient 123', sortIndex: -1 },
+      });
+    });
   });
 
   describe('createClinicCustodialAccountSuccess', () => {

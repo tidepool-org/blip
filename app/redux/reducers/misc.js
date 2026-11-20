@@ -771,14 +771,15 @@ export const clinics = (state = initialState.clinics, action) => {
       const existingSortIndex = state[clinicId]?.patients?.[patientId]?.sortIndex || -1;
 
       if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) {
-        fetchedPatientCount++;
+        fetchedPatientCount = (fetchedPatientCount || 0) + 1;
       }
 
       return update(state, {
         [clinicId]: {
-          patients: {
-            [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } }
-          },
+          patients: { $set: {
+            ...state[clinicId].patients,
+            [patientId]: { ...patient, sortIndex: existingSortIndex },
+          } },
           fetchedPatientCount: { $set: fetchedPatientCount },
         },
       });
