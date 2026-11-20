@@ -14,7 +14,17 @@ const useTideDashboardPatients = () => {
   const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
 
   return useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, summaryPeriod, lastDataTo, lastDataFrom, tags: patientTags, sites: clinicSites, limit: LIMIT },
+    {
+      clinicId: selectedClinicId,
+      offset,
+      category,
+      summaryPeriod,
+      lastDataTo,
+      lastDataFrom,
+      tags: patientTags,
+      sites: clinicSites,
+      limit: LIMIT,
+    },
     { skip: !selectedClinicId }
   );
 };
