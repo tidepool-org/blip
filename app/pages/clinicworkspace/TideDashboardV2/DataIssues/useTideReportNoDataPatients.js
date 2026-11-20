@@ -2,10 +2,15 @@ import { useSelector } from 'react-redux';
 import { useGetTideReportQuery } from './tideDashboardLegacyApi';
 import useDerivedDataRecencyEndpoints from '../useDerivedDataRecencyEndpoints';
 
-// The Data Issues table always requests the report; `categories` is a required
-// param on the endpoint, but the `noData` group is returned regardless of which
-// category is requested, so we send a single category to satisfy the contract.
-const CATEGORIES = ['meetingTargets'];
+const CATEGORIES = [
+  'timeInVeryLowPercent',
+  'timeInAnyLowPercent',
+  'dropInTimeInTargetPercent',
+  'timeInAnyHighPercent',
+  'timeInVeryHighPercent',
+  'timeCGMUsePercent',
+  'meetingTargets',
+];
 
 const useTideReportNoDataPatients = () => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
