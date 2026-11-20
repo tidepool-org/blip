@@ -16,7 +16,7 @@ import configureStore from 'redux-mock-store';
 import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 
-import useAgpCGM from '@app/pages/dashboard/PatientDrawer/useAgpCGM';
+import useAgpCGM from '@app/components/PatientDrawer/useAgpCGM';
 import * as actions from '@app/redux/actions';
 
 const mockStore = configureStore([thunk]);
@@ -74,7 +74,7 @@ const working = {
 describe('useAgpCGM', () => {
   const getWrapper = (store) => ({ children }) => <Provider store={store}>{children}</Provider>;
 
-  const patientId = 'patient-1';
+  const patient = { id: 'patient-1', fullName: 'Naoya Inoue' };
   const api = { foo: 'bar' };
 
   actions.worker.removeGeneratedPDFS.mockReturnValue({ type: 'MOCK_ACTION' });
@@ -99,7 +99,7 @@ describe('useAgpCGM', () => {
     const wrapper = getWrapper(store);
 
     it('returns correct status and begins state cleanup', () => {
-      const { result } = renderHook(() => useAgpCGM(api, patientId), { wrapper });
+      const { result } = renderHook(() => useAgpCGM(api, patient), { wrapper });
 
       expect(actions.worker.removeGeneratedPDFS).toHaveBeenCalledTimes(1);
       expect(actions.worker.dataWorkerRemoveDataRequest).toHaveBeenCalledTimes(1);
@@ -122,7 +122,7 @@ describe('useAgpCGM', () => {
     const wrapper = getWrapper(store);
 
     it('returns correct status and begins patient fetch', () => {
-      const { result } = renderHook(() => useAgpCGM(api, patientId), { wrapper });
+      const { result } = renderHook(() => useAgpCGM(api, patient), { wrapper });
 
       expect(actions.async.fetchPatientData).toHaveBeenCalledTimes(1);
       expect(result.current).toStrictEqual({ status: 'STATE_CLEARED', svgDataURLS: null, agpCGM: null, offsetAgpCGM: null });
@@ -144,7 +144,7 @@ describe('useAgpCGM', () => {
     const wrapper = getWrapper(store);
 
     it('returns correct status and begins PDF generation', () => {
-      const { result } = renderHook(() => useAgpCGM(api, patientId), { wrapper });
+      const { result } = renderHook(() => useAgpCGM(api, patient), { wrapper });
 
       expect(actions.worker.generatePDFRequest).toHaveBeenCalledTimes(1);
       expect(result.current).toStrictEqual({ status: 'PATIENT_LOADED', svgDataURLS: null, agpCGM: null, offsetAgpCGM: null });
@@ -172,7 +172,7 @@ describe('useAgpCGM', () => {
     const wrapper = getWrapper(store);
 
     it('returns correct status and begins AGP image generation', () => {
-      const { result } = renderHook(() => useAgpCGM(api, patientId), { wrapper });
+      const { result } = renderHook(() => useAgpCGM(api, patient), { wrapper });
 
       expect(vizUtils.agp.generateAGPFigureDefinitions).toHaveBeenCalledTimes(1);
       expect(result.current).toStrictEqual({
@@ -208,7 +208,7 @@ describe('useAgpCGM', () => {
     const wrapper = getWrapper(store);
 
     it('returns correct status and returns data', () => {
-      const { result } = renderHook(() => useAgpCGM(api, patientId), { wrapper });
+      const { result } = renderHook(() => useAgpCGM(api, patient), { wrapper });
 
       expect(result.current).toStrictEqual({
         status: 'SVGS_GENERATED',
