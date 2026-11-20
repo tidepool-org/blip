@@ -10,6 +10,7 @@ const reviewPatientApi = RTKQueryApi.injectEndpoints({
         url: `/clinics/${clinicId}/patients/${patientId}/reviews`,
         method: 'PUT',
       }),
+      extraOptions: { maxRetries: 0 },
       invalidatesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
     undoPatientReviewed: builder.mutation({
@@ -17,6 +18,7 @@ const reviewPatientApi = RTKQueryApi.injectEndpoints({
         url: `/clinics/${clinicId}/patients/${patientId}/reviews`,
         method: 'DELETE',
       }),
+      extraOptions: { maxRetries: 0 },
       invalidatesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
   }),
