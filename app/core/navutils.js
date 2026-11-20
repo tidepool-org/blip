@@ -44,11 +44,11 @@ export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, pa
   const drawerTab = query?.drawerTab;
 
   if (dashboard && drawerTab !== undefined && patientId) {
-    return `/dashboard/${dashboard}?drawerPatientId=${patientId}&drawerTab=${drawerTab}`;
+    return `/clinic-workspace/tide-dashboard?drawerPatientId=${patientId}&drawerTab=${drawerTab}`;
   }
 
   if (dashboard) {
-    return `/dashboard/${dashboard}`;
+    return '/clinic-workspace/tide-dashboard';
   }
 
   if (clinicFlowActive && selectedClinicId) {
