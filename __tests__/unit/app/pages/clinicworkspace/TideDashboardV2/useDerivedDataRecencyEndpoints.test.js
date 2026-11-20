@@ -9,12 +9,19 @@ import useDerivedDataRecencyEndpoints from '@app/pages/clinicworkspace/TideDashb
 const mockStore = configureStore([thunk]);
 
 describe('useDerivedDataRecencyEndpoints', () => {
-  let store;
+  const renderEndpointsHook = (tideDashboardFilters = {}) => {
+    const store = mockStore({
+      blip: {
+        timePrefs: { timezoneAware: false, timezoneName: null },
+        tideDashboardFilters: tideDashboardFilters,
+      },
+    });
 
-  const renderEndpointsHook = (filters) => renderHook(
-    () => useDerivedDataRecencyEndpoints(filters),
-    { wrapper: ({ children }) => <Provider store={store}>{children}</Provider> }
-  ).result.current;
+    return renderHook(
+      () => useDerivedDataRecencyEndpoints(),
+      { wrapper: ({ children }) => <Provider store={store}>{children}</Provider> }
+    ).result.current;
+  };
 
   beforeEach(() => {
     // Fake only Date so "now" is pinned; the localized ceiling of now is 2025-05-30T00:00:00.000Z
@@ -29,8 +36,6 @@ describe('useDerivedDataRecencyEndpoints', () => {
         'setTimeout', 'clearTimeout',
       ],
     });
-
-    store = mockStore({ blip: { timePrefs: { timezoneAware: false, timezoneName: null } } });
   });
 
   afterEach(() => {
@@ -68,13 +73,6 @@ describe('useDerivedDataRecencyEndpoints', () => {
   it('derives the window for the "Within 30 days" option', () => {
     expect(renderEndpointsHook({ lastData: 30 })).toStrictEqual([
       '2025-04-30T00:00:00.000Z', // lastDataFrom
-      '2025-05-30T00:00:00.000Z', // lastDataTo
-    ]);
-  });
-
-  it('defaults to the 7-day tide dashboard window when called without filters', () => {
-    expect(renderEndpointsHook()).toStrictEqual([
-      '2025-05-23T00:00:00.000Z', // lastDataFrom
       '2025-05-30T00:00:00.000Z', // lastDataTo
     ]);
   });

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
-import TimeInRangeFilterDropdown from '../components/TimeInRangeFilterDropdown';
+import TimeInRangeFilterDropdown from '../components/filters/TimeInRangeFilterDropdown';
 
 const FilterByTimeInRange = ({
   activeFilters = {},

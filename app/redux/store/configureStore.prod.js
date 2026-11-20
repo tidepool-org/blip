@@ -22,11 +22,10 @@ import { connectRouter, routerMiddleware } from 'connected-react-router';
 import qhistory from 'qhistory';
 import { stringify, parse } from 'qs';
 import assign from 'lodash/assign';
-import throttle from 'lodash/throttle';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
-import { loadLocalState, saveLocalState } from './localStorage';
+import { loadLocalState, persistWorkspaceStateToLocalStorage } from './localStorage';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
@@ -65,11 +64,7 @@ function _createStore(api) {
   const initialState = { blip: assign(blipState, loadLocalState()) };
   const store = createStoreWithMiddleware(reducer, initialState);
 
-  store.subscribe(throttle(() => {
-    saveLocalState({
-      selectedClinicId: store.getState().blip?.selectedClinicId,
-    });
-  }, 1000));
+  store.subscribe(() => persistWorkspaceStateToLocalStorage(store.getState()));
 
   return store;
 }

@@ -18,6 +18,7 @@ import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
+import { getTideDashboardFiltersKey, loadLocalState, persistWorkspaceStateToLocalStorage } from '../store/localStorage';
 
 // Upload record lookups in flight at once, a courtesy to the backend rather than a browser limit
 const UPLOAD_FETCH_CONCURRENCY = 5;
@@ -407,6 +408,7 @@ export function login(api, credentials, options, postLoginAction) {
 export function logout(api) {
   return (dispatch, getState) => {
     const { blip: { currentPatientInViewId, keycloakConfig } } = getState();
+    persistWorkspaceStateToLocalStorage.flush();
     dispatch(sync.logoutRequest());
     dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     api.user.logout(() => {
@@ -428,6 +430,7 @@ export function logout(api) {
 export function loggedOut(api) {
   return (dispatch, getState) => {
     const { blip: { currentPatientInViewId } } = getState();
+    persistWorkspaceStateToLocalStorage.flush();
     dispatch(sync.logoutRequest());
     dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     api.user.logout(() => {
@@ -3167,9 +3170,13 @@ export function fetchRpmReportPatients(api, clinicId, options) {
  */
 export function selectClinic(api, clinicId) {
   return (dispatch, getState) => {
-    dispatch(sync.selectClinicSuccess(clinicId));
+    const { blip: { clinics = {}, loggedInUserId } } = getState();
 
-    const { blip: { clinics = {} } } = getState();
+    persistWorkspaceStateToLocalStorage.flush();
+
+    const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, clinicId);
+    const tideDashboardFilters = loggedInUserId && clinicId ? loadLocalState(tideDashboardFiltersKey) : undefined;
+    dispatch(sync.selectClinicSuccess(clinicId, tideDashboardFilters));
 
     const clinic = clinics[clinicId];
 

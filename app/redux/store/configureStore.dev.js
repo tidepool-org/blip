@@ -26,12 +26,11 @@ import { connectRouter, routerMiddleware } from 'connected-react-router';
 import mutationTracker from 'redux-immutable-state-invariant';
 import qhistory from 'qhistory';
 import assign from 'lodash/assign';
-import throttle from 'lodash/throttle';
 import { stringify, parse } from 'qs';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
-import { loadLocalState, saveLocalState } from './localStorage';
+import { loadLocalState, persistWorkspaceStateToLocalStorage } from './localStorage';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
@@ -109,11 +108,7 @@ function _createStore(api) {
   const initialState = { blip: assign(blipState, loadLocalState()) };
   const store = createStore(reducer, initialState, enhancer(api));
 
-  store.subscribe(throttle(() => {
-    saveLocalState({
-      selectedClinicId: store.getState().blip?.selectedClinicId,
-    });
-  }, 1000));
+  store.subscribe(() => persistWorkspaceStateToLocalStorage(store.getState()));
 
   if (module.hot) {
     module.hot.accept('../reducers', () =>

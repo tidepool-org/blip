@@ -6,7 +6,7 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import SummaryPeriodFilterDropdown from '@app/pages/clinicworkspace/components/SummaryPeriodFilterDropdown';
+import SummaryPeriodFilterDropdown from '@app/pages/clinicworkspace/components/filters/SummaryPeriodFilterDropdown';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 
 const mockStore = configureStore([thunk]);

@@ -9,8 +9,8 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import { colors as vizColors } from '@tidepool/viz';
-import utils from '../../../core/utils';
-import { trackMetric } from '../../../core/metricUtils';
+import utils from '../../../../core/utils';
+import { trackMetric } from '../../../../core/metricUtils';
 
 import without from 'lodash/without';
 import map from 'lodash/map';
@@ -20,18 +20,18 @@ import isEmpty from 'lodash/isEmpty';
 
 import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state/hooks';
 
-import Button from '../../../components/elements/Button';
-import Icon from '../../../components/elements/Icon';
-import Pill from '../../../components/elements/Pill';
-import Popover from '../../../components/elements/Popover';
-import Checkbox from '../../../components/elements/Checkbox';
+import Button from '../../../../components/elements/Button';
+import Icon from '../../../../components/elements/Icon';
+import Pill from '../../../../components/elements/Pill';
+import Popover from '../../../../components/elements/Popover';
+import Checkbox from '../../../../components/elements/Checkbox';
 
-import { borders } from '../../../themes/baseTheme';
+import { borders } from '../../../../themes/baseTheme';
 
-import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
-import useIsClinicAdmin from '../useIsClinicAdmin';
-import useClinicMetricsPageName from '../useClinicMetricsPageName';
-import TextInput from '../../../components/elements/TextInput';
+import { SPECIAL_FILTER_STATES } from '../../useClinicPatientsFilters';
+import useIsClinicAdmin from '../../useIsClinicAdmin';
+import useClinicMetricsPageName from '../../useClinicMetricsPageName';
+import TextInput from '../../../../components/elements/TextInput';
 import styled from '@emotion/styled';
 
 const EditSitesAction = ({ onClick = noop }) => {
