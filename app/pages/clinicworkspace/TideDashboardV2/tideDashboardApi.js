@@ -28,6 +28,7 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, sum
     'cgm.lastDataFrom': lastDataFrom,
     tags: formattedTags,
     sites: formattedSites,
+    omitNonStandardRanges: true,
     ...cgmQueryParams,
   };
 };
@@ -57,6 +58,7 @@ const tideDashboardApi = RTKQueryApi.injectEndpoints({
         ...response,
         category: arg.category,
         offset: arg.offset,
+        summaryPeriod: arg.summaryPeriod,
       }),
       providesTags: [TIDE_DASHBOARD_PATIENTS],
     }),

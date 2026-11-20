@@ -42,6 +42,7 @@ const anticipatedQueries = {
     period: '14d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    omitNonStandardRanges: 'true',
   },
   [VERY_LOW]: {
     offset: '0',
@@ -49,6 +50,7 @@ const anticipatedQueries = {
     period: '14d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '>0.005',
   },
   [ANY_LOW]: {
@@ -57,6 +59,7 @@ const anticipatedQueries = {
     period: '14d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '>=0.035',
   },
@@ -66,6 +69,7 @@ const anticipatedQueries = {
     period: '14d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '<0.035',
     'cgm.timeInTargetPercentDelta': '<-0.145',
@@ -76,6 +80,7 @@ const anticipatedQueries = {
     period: '14d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '<0.035',
     'cgm.timeInTargetPercentDelta': '>=-0.145',
@@ -88,6 +93,7 @@ const anticipatedQueries = {
     period: '14d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '<0.035',
     'cgm.timeInTargetPercentDelta': '>=-0.145',
@@ -101,6 +107,7 @@ const anticipatedQueries = {
     period: '14d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '<0.035',
     'cgm.timeInTargetPercentDelta': '>=-0.145',
@@ -115,6 +122,7 @@ const anticipatedQueries = {
     period: '14d',
     'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    omitNonStandardRanges: 'true',
     'cgm.timeInVeryLowPercent': '<=0.005',
     'cgm.timeInAnyLowPercent': '<0.035',
     'cgm.timeInTargetPercentDelta': '>=-0.145',
@@ -131,6 +139,7 @@ const anticipatedQueries = {
     'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
     tags: 'tag8',
     sites: 'site9',
+    omitNonStandardRanges: 'true',
   },
 };
 
@@ -226,9 +235,21 @@ describe('TideDashboardV2', () => {
 
     // All Patients is the pre-selected category
     expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
+
     expect(screen.getByRole('radio', { name: /All Patients/ })).toBeChecked();
     expect(screen.getByText('Default Patient 2')).toBeInTheDocument();
     expect(screen.getByText('DOB: 2001-01-01')).toBeInTheDocument();
+
+    expect(screen.getAllByRole('columnheader')).toHaveLength(9);
+    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
 
     // Selecting Very Low fetches and shows the Very Low cohort
     await userEvent.click(screen.getByRole('radio', { name: /Very Low/ }));
@@ -237,12 +258,36 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Very Low Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Default Patient 1')).not.toBeInTheDocument();
 
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
+    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Time < 54/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Time < 70/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
+
     // Selecting Low fetches and shows the Low cohort
     await userEvent.click(screen.getByRole('radio', { name: /^Low$/ }));
     expect(await screen.findByText('Low Patient 1')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /^Low$/ })).toBeChecked();
     expect(screen.getByText('Low Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Very Low Patient 1')).not.toBeInTheDocument();
+
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
+    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Time < 54/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Time < 70/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
 
     // Selecting Drop in TIR fetches and shows the Drop in TIR cohort
     await userEvent.click(screen.getByRole('radio', { name: /Drop in TIR/ }));
@@ -251,12 +296,36 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Drop In TIR Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low Patient 1')).not.toBeInTheDocument();
 
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
+    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
+
     // Selecting High fetches and shows the High cohort
     await userEvent.click(screen.getByRole('radio', { name: /^High$/ }));
     expect(await screen.findByText('High Patient 1')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /^High$/ })).toBeChecked();
     expect(screen.getByText('High Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Drop In TIR Patient 1')).not.toBeInTheDocument();
+
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
+    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Time > 180/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
 
     // Selecting Very High fetches and shows the Very High cohort
     await userEvent.click(screen.getByRole('radio', { name: /Very High/ }));
@@ -265,6 +334,18 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Very High Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('High Patient 1')).not.toBeInTheDocument();
 
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
+    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Time > 180/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
+
     // Selecting Low CGM Wear fetches and shows the Low CGM Wear cohort
     await userEvent.click(screen.getByRole('radio', { name: /Low CGM Wear/ }));
     expect(await screen.findByText('Low CGM Wear Patient 1')).toBeInTheDocument();
@@ -272,12 +353,35 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Low CGM Wear Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Very High Patient 1')).not.toBeInTheDocument();
 
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
+    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
+
     // Selecting Meeting Targets fetches and shows the Meeting Targets cohort
     await userEvent.click(screen.getByRole('radio', { name: /Meeting Targets/ }));
     expect(await screen.findByText('Meeting Targets Patient 1')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /Meeting Targets/ })).toBeChecked();
     expect(screen.getByText('Meeting Targets Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low CGM Wear Patient 1')).not.toBeInTheDocument();
+
+    expect(screen.getAllByRole('columnheader')).toHaveLength(9);
+    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
   }, TEST_TIMEOUT_MS);
 
   it('fetches with filters', async () => {

@@ -95,6 +95,7 @@ describe ('tideDashboardApi', () => {
         'cgm.lastDataTo': '2025-05-29T00:00:00Z',
         tags: 'tagId1,tagId2',
         sites: 'siteId1,siteId2',
+        omitNonStandardRanges: true,
         'cgm.timeInAnyLowPercent': '>=0.035',
         'cgm.timeInVeryLowPercent': '<=0.005',
       });
@@ -118,6 +119,7 @@ describe ('tideDashboardApi', () => {
         'cgm.lastDataTo': '2025-05-29T00:00:00Z',
         tags: undefined,
         sites: undefined,
+        omitNonStandardRanges: true,
         'cgm.timeInAnyLowPercent': '>=0.035',
         'cgm.timeInVeryLowPercent': '<=0.005',
       });
