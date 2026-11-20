@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { TagList } from '../../../components/elements/Tag';
 
-const MAX_TAGS = 3;
+const MAX_TAGS = 2;
 const MAX_CHARS = 12;
 
 const TagListCell = ({ patient }) => {
