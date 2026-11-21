@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { useLocation } from 'react-router-dom';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
-import get from 'lodash/get'
+import get from 'lodash/get';
 import has from 'lodash/has';
 import indexOf from 'lodash/indexOf';
+import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 import map from 'lodash/map';
+import omitBy from 'lodash/omitBy';
 import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'theme-ui';
@@ -42,6 +45,11 @@ import { useToasts } from '../../providers/ToastProvider';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
+import utils from '../../core/utils';
+import MergeWorkspacesDialog from '../../components/clinic/MergeWorkspacesDialog';
+import { useGenerateMergeReportMutation, useMergeClinicMutation } from '../../redux/features/workspaceMerge/workspaceMergeApi';
+
+const headerLinkStyles = { fontSize: 1, fontWeight: 'medium', py: 3, px: 3 };
 
 export const Workspaces = (props) => {
   const { t, api, trackMetric } = props;
@@ -49,11 +57,17 @@ export const Workspaces = (props) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const location = useLocation();
+  const { showWorkspaceMerge } = useFlags();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState(null);
   const [workspaces, setWorkspaces] = useState([]);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [popupState, setPopupState] = useState(null);
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const adminWorkspaces = useMemo(() => filter(workspaces, w => w.type === 'clinic' && w.isAdmin), [workspaces]);
+  const [generateMergeReport, { isLoading: generatingReport }] = useGenerateMergeReportMutation();
+  const [mergeClinic, { isLoading: merging }] = useMergeClinicMutation();
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinics = useSelector((state) => state.blip.clinics);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
@@ -206,6 +220,39 @@ export const Workspaces = (props) => {
 
     setWorkspaces(userWorkspaces);
   }, [clinics, loggedInUserId, pendingReceivedClinicianInvites]);
+
+  async function runMergeReport({ sourceId, targetId }) {
+    trackMetric('Clinic - Workspaces - Merge report', omitBy({ sourceId, targetId }, isNil));
+
+    try {
+      const { blob, filename } = await generateMergeReport({ targetId, sourceId }).unwrap();
+      utils.downloadBlob(blob, filename);
+      setToast({ message: t('Your merge report will download shortly.'), variant: 'success' });
+    } catch {
+      setToast({ message: t('Contact Clinic Success to review your merge report'), variant: 'danger' });
+    }
+  }
+
+  async function handleMerge(payload) {
+    const { sourceId, targetId } = payload;
+    trackMetric('Clinic - Workspaces - Merge confirmed', { sourceId, targetId });
+
+    try {
+      await mergeClinic(payload).unwrap();
+    } catch {
+      setToast({ message: t('Contact Clinic Success to review your merge report'), variant: 'danger' });
+      return;
+    }
+
+    setShowMergeDialog(false);
+    setToast({ message: t('Merge successful'), variant: 'success' });
+
+    // The refetch merges into the store, so the deleted source is removed from it here.
+    dispatch(actions.sync.mergeClinicSuccess(sourceId));
+    if (selectedClinicId === sourceId) dispatch(actions.async.selectClinic(api, null));
+    dispatch(actions.async.getClinicsForClinician(api, loggedInUserId, { limit: 1000, offset: 0 }));
+    dispatch(actions.async.fetchClinicPatientCounts(api, targetId));
+  }
 
   useEffect(() => {
     if (selectedWorkspace) {
@@ -438,22 +485,32 @@ export const Workspaces = (props) => {
                 <Body1>{t('View, share and manage patient data')}</Body1>
               </Box>
 
-              <Button
-                id="workspace-create-clinic"
-                variant="textPrimary"
-                sx={{
-                  fontSize: 1,
-                  fontWeight: 'medium',
-                  py: 3,
-                  pr: 0,
-                  pl: [0, 0, 3],
-                }}
-                icon={AddIcon}
-                iconPosition="left"
-                onClick={handleCreateNewClinic.bind(null, 'header cta')}
-              >
-                {t('Create a New Clinic')}
-              </Button>
+              <Flex mx={-3} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+                {showWorkspaceMerge && adminWorkspaces.length > 0 && (
+                  <Button
+                    id="workspace-merge-workspaces"
+                    variant="textPrimary"
+                    sx={headerLinkStyles}
+                    onClick={() => {
+                      trackMetric('Clinic - Workspaces - Merge workspaces opened');
+                      setShowMergeDialog(true);
+                    }}
+                  >
+                    {t('Merge Workspaces')}
+                  </Button>
+                )}
+
+                <Button
+                  id="workspace-create-clinic"
+                  variant="textPrimary"
+                  sx={headerLinkStyles}
+                  icon={AddIcon}
+                  iconPosition="left"
+                  onClick={handleCreateNewClinic.bind(null, 'header cta')}
+                >
+                  {t('Create a New Clinic')}
+                </Button>
+              </Flex>
             </Flex>
 
             <Box pl={[0, 0, 5, 6]} id="workspaces-clinics-list">
@@ -516,6 +573,17 @@ export const Workspaces = (props) => {
           )}
         </DialogActions>
       </Dialog>
+      {showWorkspaceMerge && (
+        <MergeWorkspacesDialog
+          open={showMergeDialog}
+          onClose={() => setShowMergeDialog(false)}
+          workspaces={adminWorkspaces}
+          onGenerateReport={runMergeReport}
+          generatingReport={generatingReport}
+          onMerge={handleMerge}
+          merging={merging}
+        />
+      )}
     </>
   );
 };

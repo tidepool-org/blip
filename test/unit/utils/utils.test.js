@@ -5,6 +5,7 @@
 /* global sinon */
 /* global after */
 /* global afterEach */
+/* global beforeEach */
 /* global assert */
 
 
@@ -17,6 +18,57 @@ const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 const expect = chai.expect;
 
 describe('utils', () => {
+  describe('blob downloads', () => {
+    let clock;
+    let click;
+    let createObjectURL;
+    let revokeObjectURL;
+    let originalRevokeObjectURL;
+
+    beforeEach(() => {
+      clock = sinon.useFakeTimers();
+      click = sinon.stub(HTMLAnchorElement.prototype, 'click');
+      createObjectURL = sinon.stub(URL, 'createObjectURL').returns('blob:download');
+      originalRevokeObjectURL = URL.revokeObjectURL;
+      revokeObjectURL = sinon.stub();
+      URL.revokeObjectURL = revokeObjectURL;
+    });
+
+    afterEach(() => {
+      clock.restore();
+      click.restore();
+      createObjectURL.restore();
+      URL.revokeObjectURL = originalRevokeObjectURL;
+    });
+
+    it('should download the supplied blob and defer revoking its URL', () => {
+      const blob = new Blob(['report'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+      utils.downloadBlob(blob, 'Merge Report.xlsx');
+
+      expect(createObjectURL.calledOnceWithExactly(blob)).to.be.true;
+      expect(click.calledOnce).to.be.true;
+      expect(click.firstCall.thisValue.href).to.equal('blob:download');
+      expect(click.firstCall.thisValue.download).to.equal('Merge Report.xlsx');
+      expect(revokeObjectURL.called).to.be.false;
+
+      clock.tick(0);
+      expect(revokeObjectURL.calledOnceWithExactly('blob:download')).to.be.true;
+    });
+
+    it('should preserve the CSV content type and filename', () => {
+      utils.downloadCsv('name,mrn\nAlice,123\n', 'Patient List.csv');
+
+      const blob = createObjectURL.firstCall.args[0];
+      expect(blob).to.be.instanceOf(Blob);
+      expect(blob.type).to.equal('text/csv;charset=utf-8;');
+      expect(blob.size).to.equal(19);
+      expect(click.firstCall.thisValue.download).to.equal('Patient List.csv');
+      clock.tick(0);
+      expect(revokeObjectURL.calledOnceWithExactly('blob:download')).to.be.true;
+    });
+  });
+
   after(() => {
     const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36';
     Object.defineProperty(window.navigator, 'userAgent', { value: userAgent, configurable: true });

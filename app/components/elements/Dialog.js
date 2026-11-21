@@ -21,6 +21,9 @@ import {
 
 const MOBILE_BREAKPOINT = breakpoints[1];
 
+// Dialogs fill the screen at and below this width.
+export const DIALOG_FULL_SCREEN_QUERY = `@media screen and (max-width: ${MOBILE_BREAKPOINT})`;
+
 /* Dialog Title Start */
 export function DialogTitle(props) {
   const {
@@ -117,7 +120,7 @@ export function DialogContent({ sx = {}, divider, dividers, minWidth, ...props }
     sx={{
       borderBottom: divider ? borders.dividerDarkThin : 'unset',
       ...(minWidth != null && { minWidth: typeof minWidth === 'number' ? `${minWidth}px` : minWidth }),
-      [`@media screen and (max-width: ${breakpoints[1]})`]: { minWidth: '100vw' },
+      [DIALOG_FULL_SCREEN_QUERY]: { minWidth: '100%' },
       ...sx,
     }}
     {...props}
@@ -184,15 +187,6 @@ const StyledDialog = styled(MuiDialog)`
     border: ${borders.modal};
     box-shadow: ${shadows.large};
     border-radius: ${radii.default}px;
-
-    @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
-      border: none;
-      margin: 0;
-      height: 100%;
-      max-height: 100%;
-      width: 100%;
-      max-width: 100%;
-    }
   }
 
   .MuiDialog-paperWidthSm {
@@ -209,6 +203,18 @@ const StyledDialog = styled(MuiDialog)`
 
   .MuiDialog-paperWidthXl {
     max-width: ${breakpoints[3]};
+  }
+
+  // Follows the width caps so a full-screen dialog is never held to its desktop max-width.
+  @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+    .MuiDialog-paper {
+      border: none;
+      margin: 0;
+      height: 100%;
+      max-height: 100%;
+      width: 100%;
+      max-width: 100%;
+    }
   }
 `;
 
