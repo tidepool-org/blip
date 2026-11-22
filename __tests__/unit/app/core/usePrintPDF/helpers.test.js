@@ -127,7 +127,7 @@ describe('getQueries', () => {
 
     it('should query the required `aggregationsByDate`', () => {
       const queries = getQueries(data, patient, clinicPatient, clinic, timePrefs, opts);
-      expect(queries.agpCGM.aggregationsByDate).toEqual('dataByDate, statsByDate');
+      expect(queries.agpCGM.aggregationsByDate).toEqual('dataByDate, statsBy24hPeriod');
     });
 
     it('should query the required `types`', () => {

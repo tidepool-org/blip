@@ -173,7 +173,7 @@ export const getQueries = (
   if (!opts.agpCGM?.disabled) {
     queries.agpCGM = {
       endpoints: opts.agpCGM?.endpoints,
-      aggregationsByDate: 'dataByDate, statsByDate',
+      aggregationsByDate: 'dataByDate, statsBy24hPeriod',
       bgSource: 'cbg',
       stats: getStatsByChartType('agpCGM', 'cbg', deviceOpts),
       types: { cbg: {} },

@@ -55,7 +55,7 @@ const getQueries = (
   const queries = {
     agpCGM: {
       endpoints: opts.agpCGM?.endpoints,
-      aggregationsByDate: 'dataByDate, statsByDate',
+      aggregationsByDate: 'dataByDate, statsBy24hPeriod',
       bgSource: 'cbg',
       stats,
       types: { cbg: {}, smbg: {} },
