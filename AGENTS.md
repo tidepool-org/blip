@@ -25,7 +25,7 @@
 **Notes:**
 - Tests require `TZ=UTC` environment variable (automatically set in test scripts)
 - Build commands require `NODE_OPTIONS='--max-old-space-size=4096'` (automatically set in scripts)
-- Node version: 20.8.0, Yarn version: 3.6.4
+- Node version: 24.22.3, Yarn version: 3.6.4
 
 **IMPORTANT: When running tests, always target only the specific tests you've modified or added.** Running the full test suite is slow and wastes time/tokens. Use `--testPathPattern` for Jest or `.only` for Karma to run targeted tests.
 
