@@ -7,7 +7,6 @@ import CreatableSelect from 'react-select/creatable';
 import { colors as vizColors } from '@tidepool/viz';
 import ArrowForwardRoundedIcon from '@material-ui/icons/ArrowForwardRounded';
 import GetAppRoundedIcon from '@material-ui/icons/GetAppRounded';
-import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import { Box, Flex, Label, Link, Text } from 'theme-ui';
 
 import Button from '../elements/Button';
@@ -62,6 +61,7 @@ const SectionHeading = ({ number, optional = false, disabled = false, children }
           justifyContent: 'center',
           fontSize: 0,
           fontWeight: 'bold',
+          pt: '2px',
           bg: disabled ? 'lightestGrey' : 'indigo00',
           color: disabled ? 'gray50' : 'indigo50',
         }}
@@ -165,7 +165,7 @@ const MergeWorkspacesDialog = ({
           </Body1>
 
           <Flex sx={{ flexDirection: 'column', gap: 3 }}>
-            <SectionHeading number={1}>{t('Choose the workspaces')}</SectionHeading>
+            <SectionHeading number={1}>{t('Select the workspaces to merge')}</SectionHeading>
             <Flex sx={{ gap: 2, [mobile]: { flexDirection: 'column' } }}>
               <Flex sx={panelStyles}>
                 <Flex sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
@@ -182,7 +182,7 @@ const MergeWorkspacesDialog = ({
                   options={options.filter(option => option.value !== targetId)}
                 />
                 <Caption>
-                  {t('Its patients move to the workspace you merge into. If an MRN or a site name clashes, the copy from this workspace is the one that gets renamed.')}
+                  {t('Patients from this list will merge into the new workspace. If there are duplicate MRN or site names, the copy from this workspace will be renamed before the merge.')}
                 </Caption>
               </Flex>
               <Icon
@@ -210,7 +210,7 @@ const MergeWorkspacesDialog = ({
               <Flex sx={panelStyles}>
                 <Flex sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
                   <Label htmlFor="merge-workspaces-into" sx={{ ...labelStyles, width: 'auto' }}>{t('Merge into')}</Label>
-                  <Pill text={t('Stays')} label={t('Stays')} colorPalette={colors.status.pending} />
+                  <Pill text={t('Your New Workspace')} label={t('Your New Workspace')} colorPalette={colors.status.pending} />
                 </Flex>
                 <Select
                   {...workspaceSelectProps}
@@ -222,22 +222,18 @@ const MergeWorkspacesDialog = ({
                   options={options.filter(option => option.value !== sourceId)}
                 />
                 <Caption>
-                  {t('This workspace stays and receives all patients. Its own patients, tags and sites are not changed.')}
+                  {t('This will be the new merged workspace. The patients, tags and sites will not be changed from the original workspace.')}
                 </Caption>
               </Flex>
             </Flex>
           </Flex>
 
           <Flex sx={{ flexDirection: 'column', gap: 3 }}>
-            <SectionHeading number={2} optional>{t('Check what will change')}</SectionHeading>
-            <Flex
-              variant="containers.infoWell"
-              sx={{ py: 3, [mobile]: { flexDirection: 'column', alignItems: 'stretch', '& > .icon': { display: 'none' } } }}
-            >
-              <Icon className="icon" aria-hidden="true" tabIndex={-1} variant="static" icon={InfoRoundedIcon} label={t('Info')} />
+            <SectionHeading number={2} optional>{t('Review what will change')}</SectionHeading>
+            <Flex sx={{ ...panelStyles, flexDirection: 'row', alignItems: 'center', gap: 3, [mobile]: { flexDirection: 'column', alignItems: 'stretch' } }}>
               <Body1 sx={{ flex: 1 }}>
-                {t('The Merge Report lists the patients in both workspaces and any duplicates the merge would create. Downloading it does not merge anything.')}
-                {!targetId && <>&nbsp;{t('Choose a workspace to merge into to download one.')}</>}
+                {t('The Merge Report lists the patients in both workspaces and any duplicates the merge would create. Selecting only a workspace to merge into, with the "Merge from" field left blank, will provide a list of the duplicate patients within that workspace. Downloading it does not merge anything.')}
+                {!targetId && <>&nbsp;{t('Select a workspace to merge into to download one.')}</>}
               </Body1>
               <Button
                 id="merge-workspaces-report"
@@ -259,7 +255,7 @@ const MergeWorkspacesDialog = ({
             {sourceId && targetId ? (
               <>
                 <Body1>
-                  {t('Give every patient from {{source}} one tag and one site so they are easy to find after the merge. A new tag or site is created in {{target}} if it doesn\'t already exist there.', { source: sourceName, target: targetName })}
+                  {t('Optionally assign a tag, a site, or both to every patient from {{source}}, so they are easy to find after the merge. A new tag or site will be created in {{target}} if it doesn\'t already exist.', { source: sourceName, target: targetName })}
                 </Body1>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 3, [mobile]: { gridTemplateColumns: '1fr' } }}>
                   <Box>
@@ -294,7 +290,7 @@ const MergeWorkspacesDialog = ({
               </>
             ) : (
               <Body1 sx={{ color: 'gray50' }}>
-                {t('Once both workspaces are chosen, you can give every moved patient one tag and one site.')}
+                {t('Once both workspaces are selected, you can assign a tag, a site, or both to every moved patient.')}
               </Body1>
             )}
           </Flex>

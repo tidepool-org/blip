@@ -49,7 +49,7 @@ describe('MergeWorkspacesDialog', () => {
   const siteInput = () => screen.getByLabelText('Site');
   // Without a portal, the modal marks the test container aria-hidden, so role queries opt in to hidden nodes.
   const reportButton = () => screen.getByRole('button', { name: 'Download Merge Report', hidden: true });
-  const reportHint = 'Choose a workspace to merge into to download one.';
+  const reportHint = 'Select a workspace to merge into to download one.';
   const mergeDialog = () => within(screen.getByRole('dialog', { name: 'Merge Workspaces', hidden: true }));
   const confirmDialog = () => within(screen.getByRole('dialog', { name: 'Confirm Merge', hidden: true }));
   const mergeButton = () => mergeDialog().getByRole('button', { name: 'Merge', hidden: true });
@@ -162,7 +162,7 @@ describe('MergeWorkspacesDialog', () => {
 
   describe('tag and site for source patients', () => {
     it('should show a placeholder sentence until both workspaces are chosen, then the fields', async () => {
-      const placeholder = 'Once both workspaces are chosen, you can give every moved patient one tag and one site.';
+      const placeholder = 'Once both workspaces are selected, you can assign a tag, a site, or both to every moved patient.';
       render(dialog());
       await choose(intoInput(), 'South Clinic');
       expect(screen.getByText(placeholder)).toBeInTheDocument();
@@ -174,7 +174,7 @@ describe('MergeWorkspacesDialog', () => {
       expect(tagInput()).toBeInTheDocument();
       expect(siteInput()).toBeInTheDocument();
       expect(screen.getByText(
-        'Give every patient from North Clinic one tag and one site so they are easy to find after the merge. A new tag or site is created in South Clinic if it doesn\'t already exist there.'
+        'Optionally assign a tag, a site, or both to every patient from North Clinic, so they are easy to find after the merge. A new tag or site will be created in South Clinic if it doesn\'t already exist.'
       )).toBeInTheDocument();
     });
 
