@@ -1177,7 +1177,7 @@ describe('ClinicPatients', () => {
             },
             { type: 'FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST' },
           ]);
-        });
+        }, { timeout: 2000 }); // MRN fetch fires after the dialog's 1000ms search debounce
       });
 
       it('should disable email editing for non-custodial patients', async () => {
@@ -1253,7 +1253,7 @@ describe('ClinicPatients', () => {
             },
             { type: 'FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST' },
           ]);
-        });
+        }, { timeout: 2000 }); // MRN fetch fires after the dialog's 1000ms search debounce
       });
 
       it('should open a modal for managing data connections when data connection menu option is clicked', async () => {
