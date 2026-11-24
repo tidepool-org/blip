@@ -1,7 +1,7 @@
 /* global jest */
 
 // Add any global setup for Jest tests here
-import 'core-js/stable';
+// No core-js: Node has these features natively.
 
 // Setup Intl polyfill
 global.IntlPolyfill = require('intl');
