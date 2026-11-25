@@ -142,7 +142,7 @@ const MergeWorkspacesConfirmDialog = ({
         <Button
           id="merge-workspaces-confirm"
           variant="danger"
-          disabled={!confirmed}
+          disabled={!confirmed || !open}
           processing={processing}
           onClick={onConfirm}
         >

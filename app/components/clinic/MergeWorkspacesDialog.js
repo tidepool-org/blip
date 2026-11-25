@@ -17,7 +17,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, DIALOG_FULL_SCREEN_Q
 import MergeWorkspacesConfirmDialog from './MergeWorkspacesConfirmDialog';
 import { selectElementStyleOverrides } from './PatientForm/styles';
 import { colors } from '../../themes/baseTheme';
-import { clinicPatientTagSchema, clinicSiteSchema } from '../../core/clinicUtils';
+import { clinicPatientTagSchema, clinicSiteSchema, maxClinicPatientTags } from '../../core/clinicUtils';
 import { URL_MERGE_WORKSPACES_INFO } from '../../core/constants';
 import utils from '../../core/utils';
 
@@ -99,6 +99,7 @@ const MergeWorkspacesDialog = ({
   const [sourcePatientSite, setSourcePatientSite] = useState(null);
   const [confirming, setConfirming] = useState(false);
   const targetClinic = useSelector(state => state.blip.clinics?.[targetId]);
+  const sourceTags = useSelector(state => state.blip.clinics?.[sourceId]?.patientTags);
 
   const handleSourceChange = option => setSourceId(option?.value || null);
 
@@ -124,13 +125,23 @@ const MergeWorkspacesDialog = ({
   const sourceName = options.find(option => option.value === sourceId)?.label;
   const targetName = options.find(option => option.value === targetId)?.label;
 
+  // The merge adds the source workspace's tags to the target's, and a workspace holds a limited number of tags.
+  const mergedTagCount = useMemo(
+    () => new Set([...(targetClinic?.patientTags || []), ...(sourceTags || [])].map(({ name }) => name)).size,
+    [targetClinic?.patientTags, sourceTags]
+  );
+
+  const tagLimitMessage = mergedTagCount >= maxClinicPatientTags
+    ? t('The merged workspace will already be at the limit of {{max}} tags. Select an existing tag instead.', { max: maxClinicPatientTags })
+    : null;
+
   // New names follow the same rules as the workspace's own tag and site forms.
-  const creatableSelectProps = schema => ({
+  const creatableSelectProps = (schema, createBlockedMessage) => ({
     ...selectProps,
     formatCreateLabel: name => t('Create "{{name}}"', { name: name.trim() }),
-    isValidNewOption: (name, _value, existing) => !nameError(schema, name)
+    isValidNewOption: (name, _value, existing) => !createBlockedMessage && !nameError(schema, name)
       && !existing.some(({ label }) => label.toLowerCase() === name.trim().toLowerCase()),
-    noOptionsMessage: ({ inputValue }) => (inputValue && nameError(schema, inputValue)) || t('No options'),
+    noOptionsMessage: ({ inputValue }) => (inputValue && (nameError(schema, inputValue) || createBlockedMessage)) || t('No options'),
   });
 
   const workspaceSelectProps = { ...selectProps, placeholder: t('Select a workspace') };
@@ -261,7 +272,7 @@ const MergeWorkspacesDialog = ({
                   <Box>
                     <Label htmlFor="merge-workspaces-tag" sx={labelStyles}>{t('Tag')}</Label>
                     <CreatableSelect
-                      {...creatableSelectProps(clinicPatientTagSchema)}
+                      {...creatableSelectProps(clinicPatientTagSchema, tagLimitMessage)}
                       name="merge-workspaces-tag"
                       inputId="merge-workspaces-tag"
                       classNamePrefix="MergeWorkspacesTag"

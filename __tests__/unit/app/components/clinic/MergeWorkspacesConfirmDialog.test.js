@@ -61,6 +61,16 @@ describe('MergeWorkspacesConfirmDialog', () => {
     expect(props.onConfirm).toHaveBeenCalledTimes(1);
   });
 
+  it('should disable Merge as soon as it starts closing', async () => {
+    const { rerender } = render(<MergeWorkspacesConfirmDialog {...props} />);
+    await userEvent.click(checkbox());
+    expect(mergeButton()).toBeEnabled();
+
+    rerender(<MergeWorkspacesConfirmDialog {...props} open={false} />);
+
+    expect(screen.getByRole('button', { name: 'Merge', hidden: true })).toBeDisabled();
+  });
+
   it('should uncheck the checkbox once it has closed', async () => {
     const { rerender } = render(<MergeWorkspacesConfirmDialog {...props} />);
     await userEvent.click(checkbox());

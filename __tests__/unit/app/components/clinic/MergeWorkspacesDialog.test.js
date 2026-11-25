@@ -33,6 +33,7 @@ describe('MergeWorkspacesDialog', () => {
           sites: [{ id: 's2', name: 'Main Campus' }],
         },
         east: { id: 'east' },
+        west: { id: 'west', patientTags: Array.from({ length: 49 }, (_, i) => ({ id: `w${i}`, name: `West ${i}` })) },
       },
     },
   });
@@ -231,6 +232,22 @@ describe('MergeWorkspacesDialog', () => {
       await userEvent.type(tagInput(), 'imported');
 
       expect(optionNames()).toEqual(['Imported']);
+    });
+
+    it.each([
+      ['offer to create a tag while the two workspaces have fewer tags than the limit', 'East Hospital', ['Create "Imported"'], 0],
+      ['explain instead of offering to create a tag once the two workspaces\' tags reach the limit', 'North Clinic', [], 1],
+    ])('should %s', async (_, sourceName, expectedOptions, messageCount) => {
+      render(dialog({ workspaces: [...workspaces, { id: 'west', name: 'West Clinic' }] }));
+      await choose(fromInput(), sourceName);
+      await choose(intoInput(), 'West Clinic');
+
+      await userEvent.type(tagInput(), 'Imported');
+
+      expect(optionNames()).toEqual(expectedOptions);
+      expect(screen.queryAllByText(
+        'The merged workspace will already be at the limit of 50 tags. Select an existing tag instead.'
+      )).toHaveLength(messageCount);
     });
 
     it('should clear the tag and site when the workspace to merge into changes', async () => {
