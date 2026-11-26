@@ -790,6 +790,8 @@ export const clinics = (state = initialState.clinics, action) => {
       delete newState[clinicId]?.clinicians?.[clinicianId];
       return newState;
     }
+    case types.MERGE_CLINIC_SUCCESS:
+      return _.omit(state, _.get(action.payload, 'sourceId'));
     case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS: {
       let clinicId = _.get(action.payload, 'clinicId');
       let patientId = _.get(action.payload, 'patientId');
