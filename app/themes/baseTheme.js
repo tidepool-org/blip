@@ -106,7 +106,7 @@ export const colors = {
   },
   status: {
     pending: ['#E2FFEE', '#006644'],
-    declined: ['#FFECEE', '#DD2C00'],
+    declined: ['#FFECEE', vizColors.red50],
   },
   tab: {
     primary: vizColors.blueGray30,

@@ -1,4 +1,4 @@
-import { RTKQueryApi } from '../../api/baseApi';
+import { RTKQueryApi, filenameFromMeta } from '../../api/baseApi';
 
 const patientListExportApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,7 +12,7 @@ const patientListExportApi = RTKQueryApi.injectEndpoints({
       }),
       transformResponse: (csv, meta) => ({
         csv,
-        filename: meta?.response?.headers?.get('content-disposition')?.match(/filename="?([^";]+)"?/)?.[1] ?? 'Patient List.csv',
+        filename: filenameFromMeta(meta, 'Patient List.csv'),
       }),
     }),
   }),
